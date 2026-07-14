@@ -67,11 +67,22 @@ export interface MatchesRepository {
   listByGroup(groupId: string, opts: { includeFinished: boolean }): Promise<Match[]>;
   update(id: string, patch: UpdateMatchPatch): Promise<Match>;
   setStatus(id: string, status: MatchStatus, tx?: PrismaLike): Promise<Match>;
+  /**
+   * Candidates for Task 11's recurrence cron: `finished` matches carrying a
+   * (non-null) `recurrenceRule` whose group has no future (`datetime > now`)
+   * `open`/`full` sibling yet — i.e. the next occurrence hasn't been created
+   * already. Group-scoped, not series-scoped (a group with two independent
+   * weekly series would have one block the other's regeneration) — accepted
+   * per the brief, most groups run a single recurring match.
+   */
+  findFinishedRecurringWithoutFutureSibling(now: Date): Promise<Match[]>;
+  /** Inserts the next `open` occurrence, cloning `from`'s shape at `datetime`. */
+  createNextOccurrence(from: Match, datetime: Date): Promise<Match>;
 }
 
 /** Factory `createMatchesRepository(db: PrismaLike)` — composes inside a tx or standalone. */
 export function createMatchesRepository(db: PrismaLike): MatchesRepository {
-  return {
+  const repo: MatchesRepository = {
     async insert(input) {
       const row = await db.match.create({
         data: {
@@ -125,5 +136,41 @@ export function createMatchesRepository(db: PrismaLike): MatchesRepository {
       const row = await exec.match.update({ where: { id }, data: { status } });
       return toDomainMatch(row);
     },
+
+    async findFinishedRecurringWithoutFutureSibling(now) {
+      const candidates = await db.match.findMany({
+        where: {
+          status: "finished",
+          recurrenceRule: { not: Prisma.JsonNull },
+        },
+      });
+      if (candidates.length === 0) return [];
+
+      const groupIds = [...new Set(candidates.map((c) => c.groupId))];
+      const futureSiblings = await db.match.findMany({
+        where: {
+          groupId: { in: groupIds },
+          datetime: { gt: now },
+          status: { in: ["open", "full"] },
+        },
+        select: { groupId: true },
+      });
+      const groupsWithFutureSibling = new Set(futureSiblings.map((s) => s.groupId));
+
+      return candidates.filter((c) => !groupsWithFutureSibling.has(c.groupId)).map(toDomainMatch);
+    },
+
+    async createNextOccurrence(from, datetime) {
+      return repo.insert({
+        groupId: from.groupId,
+        datetime: datetime.toISOString(),
+        location: from.location,
+        priceCents: from.priceCents,
+        slots: from.slots,
+        pixKey: from.pixKey,
+        recurrenceRule: from.recurrenceRule,
+      });
+    },
   };
+  return repo;
 }

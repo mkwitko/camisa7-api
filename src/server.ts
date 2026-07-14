@@ -1,9 +1,34 @@
+import cron from "node-cron";
 import { buildApp } from "@/app";
 import { env } from "@/config/env";
+import { createMatchesRepository } from "@/http/api/matches/matches.repository";
+import { prisma } from "@/infra/db/client";
 import { logger } from "@/infra/observability/logger";
+import { generateNextOccurrences } from "@/jobs/recurrence.job";
+
+/**
+ * Recurrence cron (Task 11) — every 15 minutes, scans `finished` recurring
+ * matches with no future sibling yet and spawns their next occurrence. Not
+ * started under `NODE_ENV === "test"`: e2e/integration suites build their
+ * own app instances against throwaway Testcontainers DBs (see
+ * `test/e2e/helpers/app.ts`) and don't want a background timer touching
+ * `prisma`/reaching across test runs.
+ */
+function startRecurrenceCron(): void {
+  const matchesRepo = createMatchesRepository(prisma);
+  cron.schedule("*/15 * * * *", () => {
+    generateNextOccurrences(matchesRepo, new Date()).catch((err: unknown) => {
+      logger.error({ err }, "recurrence.job.failed");
+    });
+  });
+}
 
 async function start(): Promise<void> {
   const app = await buildApp();
+
+  if (env.NODE_ENV !== "test") {
+    startRecurrenceCron();
+  }
 
   const shutdown = async (signal: NodeJS.Signals): Promise<void> => {
     logger.info({ signal }, "server.shutting_down");
