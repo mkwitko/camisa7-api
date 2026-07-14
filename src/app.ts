@@ -34,7 +34,7 @@ export async function buildApp(opts: BuildAppOptions = {}): Promise<FastifyInsta
   await app.register(helmet); // 2. segurança
   await app.register(cors, {
     origin: env.NODE_ENV === "development",
-    methods: ["GET", "HEAD", "POST", "PATCH", "DELETE"],
+    methods: ["GET", "HEAD", "POST", "PATCH", "PUT", "DELETE"],
   });
   await app.register(errorHandlerPlugin); // 3. error handler global
   // exactOptionalPropertyTypes: só inclui a chave quando há override (evita

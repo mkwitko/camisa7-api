@@ -13,6 +13,8 @@
   "ATT-T0002": "Asistencia no encontrada.",
   "ATT-T0003": "No tienes permiso sobre esta asistencia.",
   "INV-T0001": "Invitación inválida o expirada.",
+  "TEAM-T0001": "No hay suficientes jugadores confirmados para armar los equipos.",
+  "TEAM-T0002": "Alineación inválida — cada jugador confirmado debe aparecer exactamente una vez.",
   "SYS-T0001": "Error de validación.",
   "SYS-T0002": "Error interno del servidor."
 }

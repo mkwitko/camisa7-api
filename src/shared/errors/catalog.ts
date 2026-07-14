@@ -120,6 +120,23 @@ export const ERRORS = {
       internalMessage: "invite_token_invalid",
     }),
   },
+  // Task 10: the team balancer (`children/teams`). NOT_ENOUGH_PLAYERS is the
+  // one the brief names explicitly (generate-teams needs >=2 confirmed
+  // attendees); INVALID_ROSTER covers update-teams' manual-override guard
+  // (every confirmed player must appear exactly once — no missing, no dupes,
+  // no unknown playerId).
+  TEAM: {
+    NOT_ENOUGH_PLAYERS: defineError({
+      code: "TEAM-T0001",
+      status: 409,
+      internalMessage: "team_not_enough_players",
+    }),
+    INVALID_ROSTER: defineError({
+      code: "TEAM-T0002",
+      status: 400,
+      internalMessage: "team_invalid_roster",
+    }),
+  },
   SYS: {
     VALIDATION: defineError({
       code: "SYS-T0001",

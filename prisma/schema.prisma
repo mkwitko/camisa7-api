@@ -172,8 +172,9 @@ model Match {
   createdAt DateTime @default(now()) @db.Timestamptz(3)
   updatedAt DateTime @updatedAt @db.Timestamptz(3)
 
-  attendances  Attendance[]
-  inviteTokens InviteToken[]
+  attendances    Attendance[]
+  inviteTokens   InviteToken[]
+  teamAssignment TeamAssignment?
 
   @@index([groupId, datetime])
 }
@@ -253,4 +254,26 @@ model InviteToken {
   updatedAt DateTime @updatedAt @db.Timestamptz(3)
 
   @@index([matchId])
+}
+
+/// Task 10: the last-generated (or owner-overridden) team split for a
+/// `Match` — one row per match (`matchId` unique; `TeamsRepository.save` is
+/// an upsert keyed by `matchId`, so `generate-teams`/`update-teams` always
+/// replace the same row rather than accumulate history). `teams` is a `Json`
+/// array shaped `{ team: number; players: { playerId: string; name: string
+/// }[] }[]` — produced by the pure `balanceTeams` (`children/teams/
+/// balancer.ts`) or by `update-teams`'s own "every confirmed player exactly
+/// once" check, not a DB constraint. `updatedAt` doubles as the domain
+/// `TeamAssignment.generatedAt` (every `save` bumps it, whether from a fresh
+/// generation or a manual override).
+model TeamAssignment {
+  id String @id @default(uuid()) @db.Uuid
+
+  matchId String @unique @db.Uuid
+  match   Match  @relation(fields: [matchId], references: [id])
+
+  teams Json
+
+  createdAt DateTime @default(now()) @db.Timestamptz(3)
+  updatedAt DateTime @updatedAt @db.Timestamptz(3)
 }
