@@ -6,6 +6,7 @@
   "AUTH-T0005": "Token do Google inválido.",
   "GRP-T0001": "Grupo não encontrado.",
   "GRP-T0002": "Você não é o dono deste grupo.",
+  "PLR-T0001": "Membro não encontrado.",
   "SYS-T0001": "Erro de validação.",
   "SYS-T0002": "Erro interno do servidor."
 }

@@ -60,6 +60,13 @@ export const ERRORS = {
       internalMessage: "group_not_owner",
     }),
   },
+  PLR: {
+    MEMBER_NOT_FOUND: defineError({
+      code: "PLR-T0001",
+      status: 404,
+      internalMessage: "member_not_found",
+    }),
+  },
   SYS: {
     VALIDATION: defineError({
       code: "SYS-T0001",

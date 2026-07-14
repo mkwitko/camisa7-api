@@ -35,6 +35,7 @@ model User {
   updatedAt DateTime @updatedAt @db.Timestamptz(3)
 
   ownedGroups Group[]
+  players     Player[]
 }
 
 /// Fase 0 only issues `organizador` (single-owner stats). `colaborativo`
@@ -62,5 +63,73 @@ model Group {
   createdAt DateTime @default(now()) @db.Timestamptz(3)
   updatedAt DateTime @updatedAt @db.Timestamptz(3)
 
+  members GroupMember[]
+
   @@index([ownerId])
+}
+
+/// Task 5: on-field position (goalkeeper..striker). `secondaryPos` on
+/// `GroupMember` and the `affinity`/`seedOverall` JSON key sets are both
+/// constrained to this same set — the balancer (Task 10) consumes it.
+enum Position {
+  goleiro
+  zagueiro
+  lateral
+  volante
+  meia
+  atacante
+}
+
+/// Task 5: a member's role inside one specific group (not a global role).
+enum MemberRole {
+  organizador
+  jogador
+}
+
+/// Task 5: a person known to the app — either a registered `User` (`userId`
+/// set) or a guest added directly by a group organizer (`userId` null, no
+/// login). One `Player` can be linked to at most one `User` (via
+/// `findOrCreateForUser` in `players.repository.ts`, reused across the same
+/// user's groups) but is NOT unique-constrained on `userId` at the DB level —
+/// guests keep `userId` null and there's no uniqueness among nulls to enforce
+/// anyway.
+model Player {
+  id     String  @id @default(uuid()) @db.Uuid
+  userId String? @db.Uuid
+  user   User?   @relation(fields: [userId], references: [id])
+
+  name  String
+  phone String?
+
+  createdAt DateTime @default(now()) @db.Timestamptz(3)
+  updatedAt DateTime @updatedAt @db.Timestamptz(3)
+
+  memberships GroupMember[]
+
+  @@index([userId])
+}
+
+/// Task 5: a `Player`'s membership in one `Group`, carrying the carreira-ready
+/// rating data (positions + affinity + seed overall) the balancer (Task 10)
+/// consumes. `affinity`/`seedOverall` are `Json` maps keyed by `Position`
+/// values (validated at the HTTP boundary via Zod, not a DB constraint).
+model GroupMember {
+  id String @id @default(uuid()) @db.Uuid
+
+  groupId String @db.Uuid
+  group   Group  @relation(fields: [groupId], references: [id])
+
+  playerId String @db.Uuid
+  player   Player @relation(fields: [playerId], references: [id])
+
+  role         MemberRole
+  primaryPos   Position
+  secondaryPos Position[]
+  affinity     Json       @default("{}")
+  seedOverall  Json       @default("{}")
+
+  createdAt DateTime @default(now()) @db.Timestamptz(3)
+  updatedAt DateTime @updatedAt @db.Timestamptz(3)
+
+  @@unique([groupId, playerId])
 }
