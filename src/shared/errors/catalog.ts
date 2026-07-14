@@ -80,6 +80,23 @@ export const ERRORS = {
       internalMessage: "match_not_editable",
     }),
   },
+  ATT: {
+    // T0001 first (not T0002) because it's the one the brief names explicitly
+    // (the race-safety invariant this task exists for: at most one active
+    // row per match+player). NOT_FOUND follows at T0002, same numbering
+    // pattern as GRP/MTC (existence check gets the lower-priority slot once
+    // there's a second code).
+    ALREADY_IN: defineError({
+      code: "ATT-T0001",
+      status: 409,
+      internalMessage: "attendance_already_in",
+    }),
+    NOT_FOUND: defineError({
+      code: "ATT-T0002",
+      status: 404,
+      internalMessage: "attendance_not_found",
+    }),
+  },
   SYS: {
     VALIDATION: defineError({
       code: "SYS-T0001",

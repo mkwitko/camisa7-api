@@ -106,6 +106,7 @@ model Player {
   updatedAt DateTime @updatedAt @db.Timestamptz(3)
 
   memberships GroupMember[]
+  attendances Attendance[]
 
   @@index([userId])
 }
@@ -171,5 +172,60 @@ model Match {
   createdAt DateTime @default(now()) @db.Timestamptz(3)
   updatedAt DateTime @updatedAt @db.Timestamptz(3)
 
+  attendances Attendance[]
+
   @@index([groupId, datetime])
+}
+
+/// Task 7: an attendee's state for one `Match`. `confirmed` counts against
+/// `Match.slots`; `waitlisted` carries a 1-based `waitlistPos` (lowest = next
+/// to promote); `cancelled` is terminal (a cancelled row never comes back —
+/// re-confirming inserts fresh, gated by the partial unique index below so a
+/// player can only have one *active* — confirmed/waitlisted — row per match
+/// at a time).
+enum AttendanceStatus {
+  confirmed
+  waitlisted
+  cancelled
+}
+
+/// Task 8: PIX payment confirmation state for a `confirmed` attendee. `paid`
+/// is set by `setPayment` once the group owner (or an organizer) marks the
+/// attendee's payment as received; `paidConfirmedById` (on `Attendance`)
+/// records who did it.
+enum PaymentStatus {
+  pending
+  paid
+}
+
+/// Task 7: an attendee's slot/waitlist state for a `Match` — the
+/// concurrency-critical aggregate. Every state transition (`confirm`,
+/// `cancelAndPromote`) runs inside one interactive `prisma.$transaction`
+/// that locks the parent `Match` row first (`SELECT ... FOR UPDATE` — see
+/// `attendance.repository.ts`), so two concurrent confirms can never both
+/// take the last slot. Prisma's schema DSL can't express a *partial* unique
+/// index, so the real constraint enforcing "at most one active (non
+/// cancelled) row per (matchId, playerId)" is hand-added as raw SQL in this
+/// model's migration (`attendance_active_unique`) — see the migration file's
+/// header comment for why it can't live here.
+model Attendance {
+  id String @id @default(uuid()) @db.Uuid
+
+  matchId String @db.Uuid
+  match   Match  @relation(fields: [matchId], references: [id])
+
+  playerId String @db.Uuid
+  player   Player @relation(fields: [playerId], references: [id])
+
+  status      AttendanceStatus
+  waitlistPos Int?
+
+  paymentStatus     PaymentStatus @default(pending)
+  paidConfirmedById String?       @db.Uuid
+
+  createdAt DateTime @default(now()) @db.Timestamptz(3)
+  updatedAt DateTime @updatedAt @db.Timestamptz(3)
+
+  @@index([matchId])
+  @@index([playerId])
 }
