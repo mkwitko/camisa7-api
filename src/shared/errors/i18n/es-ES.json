@@ -12,6 +12,7 @@
   "ATT-T0001": "Ya estás confirmado o en la lista de espera de este partido.",
   "ATT-T0002": "Asistencia no encontrada.",
   "ATT-T0003": "No tienes permiso sobre esta asistencia.",
+  "INV-T0001": "Invitación inválida o expirada.",
   "SYS-T0001": "Error de validación.",
   "SYS-T0002": "Error interno del servidor."
 }

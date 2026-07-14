@@ -172,7 +172,8 @@ model Match {
   createdAt DateTime @default(now()) @db.Timestamptz(3)
   updatedAt DateTime @updatedAt @db.Timestamptz(3)
 
-  attendances Attendance[]
+  attendances  Attendance[]
+  inviteTokens InviteToken[]
 
   @@index([groupId, datetime])
 }
@@ -228,4 +229,28 @@ model Attendance {
 
   @@index([matchId])
   @@index([playerId])
+}
+
+/// Task 9: a shareable link an owner mints for one `Match` — the viral-loop
+/// surface. A guest (no account) resolves it via the public `GET
+/// /invite/:token` and confirms presence via the public `POST
+/// /invite/confirm`, which creates a guest `Player` (`userId` null) and runs
+/// the same race-safe `AttendanceRepository.confirm` flow Task 7 uses for
+/// authenticated confirms. `token` is a `nanoid(16)` string minted by
+/// `invites.repository.ts`'s `create` — that same method reuses the existing
+/// row for a match instead of minting a new one on every call, so there's no
+/// uniqueness constraint on `matchId` (one row is the steady state, but
+/// nothing in the schema itself forbids more).
+model InviteToken {
+  id String @id @default(uuid()) @db.Uuid
+
+  matchId String @db.Uuid
+  match   Match  @relation(fields: [matchId], references: [id])
+
+  token String @unique
+
+  createdAt DateTime @default(now()) @db.Timestamptz(3)
+  updatedAt DateTime @updatedAt @db.Timestamptz(3)
+
+  @@index([matchId])
 }

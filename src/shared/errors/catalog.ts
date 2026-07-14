@@ -109,6 +109,17 @@ export const ERRORS = {
       internalMessage: "attendance_forbidden",
     }),
   },
+  // Task 9: invite tokens (`InviteToken`). One code so far — both public
+  // routes (`GET /invite/:token`, `POST /invite/confirm`) throw the same
+  // 404 for an unknown/invalid token, no existence-enumeration concern here
+  // since a guest never "owns" a token to compare against.
+  INV: {
+    INVALID_TOKEN: defineError({
+      code: "INV-T0001",
+      status: 404,
+      internalMessage: "invite_token_invalid",
+    }),
+  },
   SYS: {
     VALIDATION: defineError({
       code: "SYS-T0001",

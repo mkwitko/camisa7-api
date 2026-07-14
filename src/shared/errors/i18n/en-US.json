@@ -12,6 +12,7 @@
   "ATT-T0001": "You are already confirmed or waitlisted for this match.",
   "ATT-T0002": "Attendance not found.",
   "ATT-T0003": "You do not have permission over this attendance.",
+  "INV-T0001": "Invalid or expired invite.",
   "SYS-T0001": "Validation error.",
   "SYS-T0002": "Internal server error."
 }
