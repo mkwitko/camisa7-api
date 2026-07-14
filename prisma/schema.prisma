@@ -64,6 +64,7 @@ model Group {
   updatedAt DateTime @updatedAt @db.Timestamptz(3)
 
   members GroupMember[]
+  matches Match[]
 
   @@index([ownerId])
 }
@@ -132,4 +133,43 @@ model GroupMember {
   updatedAt DateTime @updatedAt @db.Timestamptz(3)
 
   @@unique([groupId, playerId])
+}
+
+/// Task 6: a scheduled pelada. `full` (slots reached) / `closed` (organizer
+/// locked it manually) are set by Task 7's attendance flow, not here; `open`
+/// is the only status this task's create-match ever sets. `finished` is set
+/// by a later task once the match's `datetime` has passed (Task 11's
+/// recurrence job also reads `finished` to spawn the next occurrence).
+enum MatchStatus {
+  open
+  full
+  closed
+  finished
+  cancelled
+}
+
+/// Task 6: a match (pelada) scheduled inside a `Group` — the aggregate that
+/// attendance (Task 7), PIX charges, invites, teams and recurrence (Tasks
+/// 8-11) hang off. Only the group's owner manages it (`assertMatchOwner` in
+/// `src/http/api/matches/matches.authz.ts`, reusing `assertGroupOwner` on the
+/// match's parent group). `recurrenceRule` is a `Json` column — shape
+/// `{ weekly: true; weekday: 0-6; time: "HH:mm" } | null` — validated at the
+/// HTTP boundary (Zod), not a DB constraint; `null` means a one-off match.
+model Match {
+  id      String @id @default(uuid()) @db.Uuid
+  groupId String @db.Uuid
+  group   Group  @relation(fields: [groupId], references: [id])
+
+  datetime       DateTime    @db.Timestamptz(3)
+  location       String
+  priceCents     Int         @default(0)
+  slots          Int
+  pixKey         String?
+  status         MatchStatus @default(open)
+  recurrenceRule Json?
+
+  createdAt DateTime @default(now()) @db.Timestamptz(3)
+  updatedAt DateTime @updatedAt @db.Timestamptz(3)
+
+  @@index([groupId, datetime])
 }
