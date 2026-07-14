@@ -65,6 +65,13 @@ export interface MembersRepository {
   listByGroup(groupId: string): Promise<GroupMember[]>;
   findInGroup(groupId: string, memberId: string): Promise<GroupMember | null>;
   updateRating(memberId: string, patch: UpdateRatingPatch): Promise<GroupMember>;
+  /**
+   * True iff `userId` has a `GroupMember` row in `groupId` (their `Player`'s
+   * `userId` matches — same join `findInGroup` does via `player: true`, just
+   * a boolean existence check). Used by `list-attendance`'s authz: any
+   * member of the match's group (not just the owner) may view the roster.
+   */
+  isUserInGroup(groupId: string, userId: string): Promise<boolean>;
 }
 
 /**
@@ -153,6 +160,14 @@ export function createMembersRepository(db: PrismaLike): MembersRepository {
         include: MEMBER_INCLUDE,
       });
       return row ? toDomainMember(row) : null;
+    },
+
+    async isUserInGroup(groupId, userId) {
+      const row = await db.groupMember.findFirst({
+        where: { groupId, player: { userId } },
+        select: { id: true },
+      });
+      return row !== null;
     },
 
     async updateRating(memberId, patch) {

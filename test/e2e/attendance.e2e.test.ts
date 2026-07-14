@@ -1,4 +1,5 @@
 import { afterAll, beforeAll, beforeEach, describe, expect, it } from "vitest";
+import { createMembersRepository } from "../../src/http/api/groups/children/members/members.repository";
 import { buildTestApp, type TestApp } from "./helpers/app";
 
 const register = (h: TestApp, email: string, name = "Player") =>
@@ -182,9 +183,89 @@ describe("attendance e2e", () => {
       expect(res.json()).toHaveLength(1);
       expect(res.json()[0]).toMatchObject({ matchId, status: "confirmed" });
     });
+
+    it("allows a member of the group (not the owner) to view the roster", async () => {
+      const ownerToken = await registerAndGetToken(h, "owner-list-member@x.com");
+      const group = await createGroup(h, ownerToken, { name: "Team A" });
+      const { id: groupId } = group.json();
+      const match = await createMatch(h, ownerToken, groupId, { slots: 10 });
+      const { id: matchId } = match.json();
+
+      const memberRegister = await register(h, "member-list@x.com", "Member");
+      const memberToken = memberRegister.json().accessToken as string;
+      const memberUserId = memberRegister.json().user.id as string;
+      await createMembersRepository(h.prisma).addForUser(groupId, memberUserId, "jogador");
+
+      const res = await listAttendance(h, memberToken, matchId);
+
+      expect(res.statusCode).toBe(200);
+    });
+
+    it("rejects an unrelated authenticated user (not owner, not a member) with 403 ATT-T0003", async () => {
+      const ownerToken = await registerAndGetToken(h, "owner-list-unrelated@x.com");
+      const group = await createGroup(h, ownerToken, { name: "Team A" });
+      const { id: groupId } = group.json();
+      const match = await createMatch(h, ownerToken, groupId, { slots: 10 });
+      const { id: matchId } = match.json();
+      const playerToken = await registerAndGetToken(h, "player-list-unrelated@x.com");
+      await confirmPresence(h, playerToken, matchId);
+
+      const outsiderToken = await registerAndGetToken(h, "outsider-list@x.com");
+
+      const res = await listAttendance(h, outsiderToken, matchId);
+
+      expect(res.statusCode).toBe(403);
+      expect(res.json().code).toBe("ATT-T0003");
+    });
   });
 
   describe("POST /matches/:id/attendance/:attId/cancel", () => {
+    it("allows a player to cancel their own attendance", async () => {
+      const ownerToken = await registerAndGetToken(h, "owner-self-cancel@x.com");
+      const group = await createGroup(h, ownerToken, { name: "Team A" });
+      const { id: groupId } = group.json();
+      const match = await createMatch(h, ownerToken, groupId, { slots: 10 });
+      const { id: matchId } = match.json();
+      const playerToken = await registerAndGetToken(h, "player-self-cancel@x.com");
+      const a1 = await confirmPresence(h, playerToken, matchId);
+
+      const res = await cancelPresence(h, playerToken, matchId, a1.json().id);
+
+      expect(res.statusCode).toBe(200);
+      expect(res.json().cancelled).toMatchObject({ id: a1.json().id, status: "cancelled" });
+    });
+
+    it("allows the group owner to cancel another player's attendance", async () => {
+      const ownerToken = await registerAndGetToken(h, "owner-cancel-other@x.com");
+      const group = await createGroup(h, ownerToken, { name: "Team A" });
+      const { id: groupId } = group.json();
+      const match = await createMatch(h, ownerToken, groupId, { slots: 10 });
+      const { id: matchId } = match.json();
+      const playerToken = await registerAndGetToken(h, "player-cancel-other@x.com");
+      const a1 = await confirmPresence(h, playerToken, matchId);
+
+      const res = await cancelPresence(h, ownerToken, matchId, a1.json().id);
+
+      expect(res.statusCode).toBe(200);
+      expect(res.json().cancelled).toMatchObject({ id: a1.json().id, status: "cancelled" });
+    });
+
+    it("rejects an unrelated authenticated user cancelling someone else's attendance with 403 ATT-T0003", async () => {
+      const ownerToken = await registerAndGetToken(h, "owner-cancel-unrelated@x.com");
+      const group = await createGroup(h, ownerToken, { name: "Team A" });
+      const { id: groupId } = group.json();
+      const match = await createMatch(h, ownerToken, groupId, { slots: 10 });
+      const { id: matchId } = match.json();
+      const playerToken = await registerAndGetToken(h, "player-cancel-unrelated@x.com");
+      const a1 = await confirmPresence(h, playerToken, matchId);
+
+      const outsiderToken = await registerAndGetToken(h, "outsider-cancel@x.com");
+
+      const res = await cancelPresence(h, outsiderToken, matchId, a1.json().id);
+
+      expect(res.statusCode).toBe(403);
+      expect(res.json().code).toBe("ATT-T0003");
+    });
     it("cancels a confirmed attendee and auto-promotes the lowest waitlisted attendee", async () => {
       const ownerToken = await registerAndGetToken(h, "owner-promote@x.com");
       const group = await createGroup(h, ownerToken, { name: "Team A" });

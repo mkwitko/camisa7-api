@@ -11,6 +11,7 @@
   "MTC-T0002": "Este partido ya no se puede editar.",
   "ATT-T0001": "Ya estás confirmado o en la lista de espera de este partido.",
   "ATT-T0002": "Asistencia no encontrada.",
+  "ATT-T0003": "No tienes permiso sobre esta asistencia.",
   "SYS-T0001": "Error de validación.",
   "SYS-T0002": "Error interno del servidor."
 }

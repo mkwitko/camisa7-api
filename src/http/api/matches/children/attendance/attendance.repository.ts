@@ -60,6 +60,13 @@ export interface AttendanceRepository {
   ): Promise<{ cancelled: Attendance; promoted: Attendance | null }>;
   /** All attendances (any status) for a match, oldest first. */
   listByMatch(matchId: string): Promise<Attendance[]>;
+  /**
+   * Looks up one attendance, scoped to `matchId` (mirrors `MembersRepository
+   * .findInGroup`'s "scoped lookup" shape). Used by `cancel-presence` to load
+   * the target row *before* cancelling it, so the service can authorize
+   * (self or group-owner) ahead of the actual state transition.
+   */
+  findById(matchId: string, attendanceId: string): Promise<Attendance | null>;
   /** Task 8: records the attendee's PIX payment state (`setPayment` itself does no authz — the caller decides who may call it). */
   setPayment(
     attendanceId: string,
@@ -219,6 +226,14 @@ export function createAttendanceRepository(db: PrismaLike): AttendanceRepository
         orderBy: [{ createdAt: "asc" }, { id: "asc" }],
       });
       return rows.map(toDomainAttendance);
+    },
+
+    async findById(matchId, attendanceId) {
+      const row = await db.attendance.findFirst({
+        where: { id: attendanceId, matchId },
+        include: ATTENDANCE_INCLUDE,
+      });
+      return row ? toDomainAttendance(row) : null;
     },
 
     async setPayment(attendanceId, status, confirmedById) {

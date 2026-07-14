@@ -96,6 +96,18 @@ export const ERRORS = {
       status: 404,
       internalMessage: "attendance_not_found",
     }),
+    // Single 403 for the attendance module, covering both authz gaps closed
+    // after code review: `cancel-presence` (caller is neither the target
+    // attendance's own player nor the group owner) and `list-attendance`
+    // (caller is neither the group owner nor a member of the match's group).
+    // One consistent code rather than a pair, since both are "you have no
+    // standing over this match's attendance" — the internal/log message and
+    // localized copy are phrased generically enough to cover both.
+    CANNOT_MANAGE: defineError({
+      code: "ATT-T0003",
+      status: 403,
+      internalMessage: "attendance_forbidden",
+    }),
   },
   SYS: {
     VALIDATION: defineError({

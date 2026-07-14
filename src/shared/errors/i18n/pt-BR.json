@@ -11,6 +11,7 @@
   "MTC-T0002": "Esta partida não pode mais ser editada.",
   "ATT-T0001": "Você já está confirmado ou na fila de espera desta partida.",
   "ATT-T0002": "Presença não encontrada.",
+  "ATT-T0003": "Você não tem permissão sobre esta presença.",
   "SYS-T0001": "Erro de validação.",
   "SYS-T0002": "Erro interno do servidor."
 }

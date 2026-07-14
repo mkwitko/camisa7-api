@@ -187,4 +187,21 @@ describe("membersRepository (integration)", () => {
       expect(memberA.player.id).toBe(memberB.player.id);
     });
   });
+
+  describe("isUserInGroup", () => {
+    it("returns true when the user has a GroupMember row in the group", async () => {
+      const groupId = await createGroup();
+      const userId = await createOwner(testDb.prisma);
+      await repo.addForUser(groupId, userId, "jogador");
+
+      await expect(repo.isUserInGroup(groupId, userId)).resolves.toBe(true);
+    });
+
+    it("returns false for a user with no membership in the group", async () => {
+      const groupId = await createGroup();
+      const userId = await createOwner(testDb.prisma);
+
+      await expect(repo.isUserInGroup(groupId, userId)).resolves.toBe(false);
+    });
+  });
 });

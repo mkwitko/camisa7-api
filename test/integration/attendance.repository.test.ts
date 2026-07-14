@@ -224,6 +224,37 @@ describe("attendanceRepository (integration)", () => {
     });
   });
 
+  describe("findById", () => {
+    it("returns the attendance scoped to its match", async () => {
+      const m = await seedMatch({ slots: 2 });
+      const [p1] = await seedPlayers(["P1"]);
+      if (!p1) throw new Error("expected player");
+
+      const a1 = await repo.confirm(m.id, p1);
+
+      const found = await repo.findById(m.id, a1.attendance.id);
+      expect(found?.id).toBe(a1.attendance.id);
+      expect(found?.player.name).toBe("P1");
+    });
+
+    it("returns null when the attendance does not belong to the match", async () => {
+      const m1 = await seedMatch({ slots: 2 });
+      const m2 = await seedMatch({ slots: 2 });
+      const [p1] = await seedPlayers(["P1"]);
+      if (!p1) throw new Error("expected player");
+
+      const a1 = await repo.confirm(m1.id, p1);
+
+      await expect(repo.findById(m2.id, a1.attendance.id)).resolves.toBeNull();
+    });
+
+    it("returns null for an unknown attendance id", async () => {
+      const m = await seedMatch({ slots: 2 });
+
+      await expect(repo.findById(m.id, "00000000-0000-0000-0000-000000000000")).resolves.toBeNull();
+    });
+  });
+
   describe("setPayment", () => {
     it("updates paymentStatus and paidConfirmedById", async () => {
       const m = await seedMatch({ slots: 2 });
