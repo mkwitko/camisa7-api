@@ -120,4 +120,33 @@ describe("auth e2e", () => {
       expect(res.json()).toMatchObject({ email: "me@x.com", name: "Me", hasPassword: true });
     });
   });
+
+  describe("POST /auth/refresh", () => {
+    it("issues a new access + refresh token pair for a valid refresh token", async () => {
+      const registerRes = await register(h, "refresh@x.com");
+      const { refreshToken } = registerRes.json();
+
+      const res = await h.app.inject({
+        method: "POST",
+        url: "/auth/refresh",
+        payload: { refreshToken },
+      });
+
+      expect(res.statusCode).toBe(200);
+      expect(typeof res.json().accessToken).toBe("string");
+      expect(typeof res.json().refreshToken).toBe("string");
+      expect(res.json().user).toMatchObject({ email: "refresh@x.com" });
+    });
+
+    it("rejects a garbage refresh token with 401 AUTH-T0001", async () => {
+      const res = await h.app.inject({
+        method: "POST",
+        url: "/auth/refresh",
+        payload: { refreshToken: "not-a-real-token" },
+      });
+
+      expect(res.statusCode).toBe(401);
+      expect(res.json().code).toBe("AUTH-T0001");
+    });
+  });
 });

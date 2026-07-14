@@ -58,12 +58,15 @@ function isEmailConflict(
 export interface AuthRepository {
   findByEmail(email: string): Promise<(User & { passwordHash: string | null }) | null>;
   findById(id: string): Promise<User | null>;
+  findByGoogleSub(googleSub: string): Promise<User | null>;
   insert(input: {
     email: string;
     name: string;
     passwordHash?: string;
     googleSub?: string;
   }): Promise<User>;
+  /** Links a Google account to an existing (password) user — Google login on a known email. */
+  linkGoogle(id: string, googleSub: string): Promise<void>;
 }
 
 /** Factory `createAuthRepository(db: PrismaLike)` — composes inside a tx or standalone. */
@@ -78,6 +81,15 @@ export function createAuthRepository(db: PrismaLike): AuthRepository {
     async findById(id) {
       const row = await db.user.findUnique({ where: { id } });
       return row ? toDomainUser(row) : null;
+    },
+
+    async findByGoogleSub(googleSub) {
+      const row = await db.user.findUnique({ where: { googleSub } });
+      return row ? toDomainUser(row) : null;
+    },
+
+    async linkGoogle(id, googleSub) {
+      await db.user.update({ where: { id }, data: { googleSub } });
     },
 
     async insert(input) {

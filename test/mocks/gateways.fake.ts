@@ -1,6 +1,28 @@
 import { env } from "@/config/env";
+import type { GoogleGateway } from "@/gateways/google/google.gateway";
 import { createJwtGateway } from "@/gateways/jwt/jwt.gateway";
+import { ERRORS } from "@/shared/errors/catalog";
 import type { Gateways } from "@/types/fastify";
+
+/**
+ * Fake `GoogleGateway` — no real Google network call. Decodes the test-only
+ * convention `"g:<sub>:<email>:<name>"` instead of verifying a real ID token
+ * signature; anything else (garbage, empty, wrong prefix) is rejected exactly
+ * like a real invalid token would be, via `AUTH-T0005`.
+ */
+function createFakeGoogleGateway(): GoogleGateway {
+  return {
+    async verifyIdToken(idToken) {
+      const parts = idToken.split(":");
+      const [prefix, googleSub, email, ...rest] = parts;
+      const name = rest.join(":");
+      if (prefix !== "g" || !googleSub || !email || !name) {
+        throw ERRORS.AUTH.INVALID_GOOGLE_TOKEN();
+      }
+      return { googleSub, email, name };
+    },
+  };
+}
 
 /**
  * Fake `Gateways` set for tests, substituted via `buildApp({ gateways:
@@ -17,6 +39,7 @@ export function buildFakeGateways(overrides: Partial<Gateways> = {}): Gateways {
       accessTtl: env.JWT_ACCESS_TTL,
       refreshTtl: env.JWT_REFRESH_TTL,
     }),
+    google: createFakeGoogleGateway(),
     ...overrides,
   };
 }

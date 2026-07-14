@@ -3,6 +3,7 @@
   "AUTH-T0002": "El correo ya está registrado.",
   "AUTH-T0003": "Correo o contraseña inválidos.",
   "AUTH-T0004": "No autorizado.",
+  "AUTH-T0005": "Token de Google inválido.",
   "SYS-T0001": "Error de validación.",
   "SYS-T0002": "Error interno del servidor."
 }

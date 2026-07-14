@@ -42,6 +42,11 @@ export const ERRORS = {
     // code, per Task 2's brief (exact e2e assertion on the duplicate-email
     // 409). Nothing depended on the old number — reused the same error type.
     UNAUTHORIZED: defineError({ code: "AUTH-T0004", status: 401, internalMessage: "unauthorized" }),
+    INVALID_GOOGLE_TOKEN: defineError({
+      code: "AUTH-T0005",
+      status: 401,
+      internalMessage: "invalid_google_token",
+    }),
   },
   SYS: {
     VALIDATION: defineError({

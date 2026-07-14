@@ -77,4 +77,34 @@ describe("authRepository (integration)", () => {
       code: "AUTH-T0002",
     });
   });
+
+  it("findByGoogleSub returns the domain user for a linked googleSub", async () => {
+    const inserted = await repo.insert({
+      email: "gsub@b.com",
+      name: "G Sub",
+      googleSub: "g-sub-find",
+    });
+
+    const found = await repo.findByGoogleSub("g-sub-find");
+
+    expect(found).toEqual(inserted);
+  });
+
+  it("findByGoogleSub returns null for an unknown googleSub", async () => {
+    expect(await repo.findByGoogleSub("missing-sub")).toBeNull();
+  });
+
+  it("linkGoogle sets googleSub on an existing user without touching the password", async () => {
+    const inserted = await repo.insert({
+      email: "link@b.com",
+      name: "Link Me",
+      passwordHash: "hashed",
+    });
+    expect(inserted.googleSub).toBeNull();
+
+    await repo.linkGoogle(inserted.id, "g-sub-linked");
+
+    const found = await repo.findById(inserted.id);
+    expect(found).toMatchObject({ googleSub: "g-sub-linked", hasPassword: true });
+  });
 });
