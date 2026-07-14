@@ -68,6 +68,27 @@ const getMatch = (h: TestApp, token: string, matchId: string) =>
     headers: { authorization: `Bearer ${token}` },
   });
 
+const markPaid = (h: TestApp, token: string, matchId: string, attendanceId: string) =>
+  h.app.inject({
+    method: "POST",
+    url: `/matches/${matchId}/attendance/${attendanceId}/mark-paid`,
+    headers: { authorization: `Bearer ${token}` },
+  });
+
+const confirmPayment = (
+  h: TestApp,
+  token: string,
+  matchId: string,
+  attendanceId: string,
+  body?: { paid: boolean },
+) =>
+  h.app.inject({
+    method: "POST",
+    url: `/matches/${matchId}/attendance/${attendanceId}/confirm-payment`,
+    headers: { authorization: `Bearer ${token}` },
+    ...(body ? { payload: body } : {}),
+  });
+
 describe("attendance e2e", () => {
   let h: TestApp;
 
@@ -330,6 +351,110 @@ describe("attendance e2e", () => {
 
       expect(res.statusCode).toBe(404);
       expect(res.json().code).toBe("ATT-T0002");
+    });
+  });
+
+  describe("POST /matches/:id/attendance/:attId/mark-paid", () => {
+    it("allows the attendee to self-declare their own attendance as paid", async () => {
+      const ownerToken = await registerAndGetToken(h, "owner-mark-self@x.com");
+      const group = await createGroup(h, ownerToken, { name: "Team A" });
+      const { id: groupId } = group.json();
+      const match = await createMatch(h, ownerToken, groupId, { slots: 10 });
+      const { id: matchId } = match.json();
+      const playerToken = await registerAndGetToken(h, "player-mark-self@x.com");
+      const a1 = await confirmPresence(h, playerToken, matchId);
+
+      const res = await markPaid(h, playerToken, matchId, a1.json().id);
+
+      expect(res.statusCode).toBe(200);
+      expect(res.json()).toMatchObject({ paymentStatus: "paid", paidConfirmedById: null });
+    });
+
+    it("allows the group owner to mark another player's attendance as paid", async () => {
+      const ownerRegister = await register(h, "owner-mark-other@x.com", "Owner");
+      const ownerToken = ownerRegister.json().accessToken as string;
+      const group = await createGroup(h, ownerToken, { name: "Team A" });
+      const { id: groupId } = group.json();
+      const match = await createMatch(h, ownerToken, groupId, { slots: 10 });
+      const { id: matchId } = match.json();
+      const playerToken = await registerAndGetToken(h, "player-mark-other@x.com");
+      const a1 = await confirmPresence(h, playerToken, matchId);
+
+      const res = await markPaid(h, ownerToken, matchId, a1.json().id);
+
+      expect(res.statusCode).toBe(200);
+      expect(res.json()).toMatchObject({ paymentStatus: "paid", paidConfirmedById: null });
+    });
+
+    it("rejects an unrelated authenticated user (not owner, not self) with 403 ATT-T0003", async () => {
+      const ownerToken = await registerAndGetToken(h, "owner-mark-unrelated@x.com");
+      const group = await createGroup(h, ownerToken, { name: "Team A" });
+      const { id: groupId } = group.json();
+      const match = await createMatch(h, ownerToken, groupId, { slots: 10 });
+      const { id: matchId } = match.json();
+      const playerToken = await registerAndGetToken(h, "player-mark-unrelated@x.com");
+      const a1 = await confirmPresence(h, playerToken, matchId);
+
+      const outsiderToken = await registerAndGetToken(h, "outsider-mark@x.com");
+
+      const res = await markPaid(h, outsiderToken, matchId, a1.json().id);
+
+      expect(res.statusCode).toBe(403);
+      expect(res.json().code).toBe("ATT-T0003");
+    });
+  });
+
+  describe("POST /matches/:id/attendance/:attId/confirm-payment", () => {
+    it("lets the group owner confirm payment, setting paidConfirmedById to the owner's userId", async () => {
+      const ownerRegister = await register(h, "owner-confirm-pay@x.com", "Owner");
+      const ownerToken = ownerRegister.json().accessToken as string;
+      const ownerUserId = ownerRegister.json().user.id as string;
+      const group = await createGroup(h, ownerToken, { name: "Team A" });
+      const { id: groupId } = group.json();
+      const match = await createMatch(h, ownerToken, groupId, { slots: 10 });
+      const { id: matchId } = match.json();
+      const playerToken = await registerAndGetToken(h, "player-confirm-pay@x.com");
+      const a1 = await confirmPresence(h, playerToken, matchId);
+
+      const res = await confirmPayment(h, ownerToken, matchId, a1.json().id);
+
+      expect(res.statusCode).toBe(200);
+      expect(res.json()).toMatchObject({ paymentStatus: "paid", paidConfirmedById: ownerUserId });
+    });
+
+    it("rejects a non-owner (including the attendee themself) with 403 — group-owner-only, same GRP-T0002 the matches CRUD uses", async () => {
+      const ownerToken = await registerAndGetToken(h, "owner-confirm-unrelated@x.com");
+      const group = await createGroup(h, ownerToken, { name: "Team A" });
+      const { id: groupId } = group.json();
+      const match = await createMatch(h, ownerToken, groupId, { slots: 10 });
+      const { id: matchId } = match.json();
+      const playerToken = await registerAndGetToken(h, "player-confirm-unrelated@x.com");
+      const a1 = await confirmPresence(h, playerToken, matchId);
+
+      const selfRes = await confirmPayment(h, playerToken, matchId, a1.json().id);
+      expect(selfRes.statusCode).toBe(403);
+      expect(selfRes.json().code).toBe("GRP-T0002");
+
+      const outsiderToken = await registerAndGetToken(h, "outsider-confirm@x.com");
+      const outsiderRes = await confirmPayment(h, outsiderToken, matchId, a1.json().id);
+      expect(outsiderRes.statusCode).toBe(403);
+      expect(outsiderRes.json().code).toBe("GRP-T0002");
+    });
+
+    it("lets the owner toggle payment back to pending via { paid: false }", async () => {
+      const ownerToken = await registerAndGetToken(h, "owner-unconfirm-pay@x.com");
+      const group = await createGroup(h, ownerToken, { name: "Team A" });
+      const { id: groupId } = group.json();
+      const match = await createMatch(h, ownerToken, groupId, { slots: 10 });
+      const { id: matchId } = match.json();
+      const playerToken = await registerAndGetToken(h, "player-unconfirm-pay@x.com");
+      const a1 = await confirmPresence(h, playerToken, matchId);
+      await confirmPayment(h, ownerToken, matchId, a1.json().id);
+
+      const res = await confirmPayment(h, ownerToken, matchId, a1.json().id, { paid: false });
+
+      expect(res.statusCode).toBe(200);
+      expect(res.json()).toMatchObject({ paymentStatus: "pending", paidConfirmedById: null });
     });
   });
 });
