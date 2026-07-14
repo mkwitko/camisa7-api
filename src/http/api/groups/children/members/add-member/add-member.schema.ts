@@ -1,5 +1,5 @@
 import { z } from "zod/v4";
-import { PositionSchema } from "../members.schema";
+import { AffinityValueSchema, PositionSchema, SeedOverallValueSchema } from "../members.schema";
 
 export const AddMemberParams = z.object({
   id: z.uuid(),
@@ -11,7 +11,7 @@ export const AddMemberBody = z.object({
   phone: z.string().min(1).optional(),
   primaryPos: PositionSchema,
   secondaryPos: z.array(PositionSchema).optional(),
-  affinity: z.partialRecord(PositionSchema, z.number()).optional(),
-  seedOverall: z.partialRecord(PositionSchema, z.number()).optional(),
+  affinity: z.partialRecord(PositionSchema, AffinityValueSchema).optional(),
+  seedOverall: z.partialRecord(PositionSchema, SeedOverallValueSchema).optional(),
 });
 export type AddMemberBody = z.infer<typeof AddMemberBody>;

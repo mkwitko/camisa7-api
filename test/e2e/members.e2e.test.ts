@@ -106,6 +106,76 @@ describe("members e2e", () => {
 
       expect(res.statusCode).toBe(400);
     });
+
+    it("rejects seedOverall with value > 99 with 400", async () => {
+      const token = await registerAndGetToken(h, "owner9@x.com");
+      const created = await createGroup(h, token, { name: "Team I" });
+      const { id: groupId } = created.json();
+
+      const res = await addMember(h, token, groupId, {
+        name: "Guest Player",
+        primaryPos: "atacante",
+        seedOverall: { atacante: 150 },
+      });
+
+      expect(res.statusCode).toBe(400);
+    });
+
+    it("rejects affinity with value > 100 with 400", async () => {
+      const token = await registerAndGetToken(h, "owner10@x.com");
+      const created = await createGroup(h, token, { name: "Team J" });
+      const { id: groupId } = created.json();
+
+      const res = await addMember(h, token, groupId, {
+        name: "Guest Player",
+        primaryPos: "meia",
+        affinity: { meia: 101 },
+      });
+
+      expect(res.statusCode).toBe(400);
+    });
+
+    it("rejects affinity with negative value with 400", async () => {
+      const token = await registerAndGetToken(h, "owner11@x.com");
+      const created = await createGroup(h, token, { name: "Team K" });
+      const { id: groupId } = created.json();
+
+      const res = await addMember(h, token, groupId, {
+        name: "Guest Player",
+        primaryPos: "volante",
+        affinity: { volante: -5 },
+      });
+
+      expect(res.statusCode).toBe(400);
+    });
+
+    it("rejects seedOverall with negative value with 400", async () => {
+      const token = await registerAndGetToken(h, "owner12@x.com");
+      const created = await createGroup(h, token, { name: "Team L" });
+      const { id: groupId } = created.json();
+
+      const res = await addMember(h, token, groupId, {
+        name: "Guest Player",
+        primaryPos: "zagueiro",
+        seedOverall: { zagueiro: -10 },
+      });
+
+      expect(res.statusCode).toBe(400);
+    });
+
+    it("rejects affinity with fractional value with 400", async () => {
+      const token = await registerAndGetToken(h, "owner13@x.com");
+      const created = await createGroup(h, token, { name: "Team M" });
+      const { id: groupId } = created.json();
+
+      const res = await addMember(h, token, groupId, {
+        name: "Guest Player",
+        primaryPos: "lateral",
+        affinity: { lateral: 50.5 },
+      });
+
+      expect(res.statusCode).toBe(400);
+    });
   });
 
   describe("GET /groups/:id/members", () => {

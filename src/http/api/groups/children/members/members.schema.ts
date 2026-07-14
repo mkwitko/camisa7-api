@@ -11,6 +11,10 @@ export const PositionSchema = z.enum([
   "atacante",
 ]);
 
+// Bounded numeric schemas for member ratings
+export const AffinityValueSchema = z.number().int().min(0).max(100);
+export const SeedOverallValueSchema = z.number().int().min(0).max(99);
+
 export const MemberRoleSchema = z.enum(["organizador", "jogador"]);
 
 export const PlayerResponse = z.object({
@@ -27,8 +31,8 @@ export const GroupMemberResponse = z.object({
   role: MemberRoleSchema,
   primaryPos: PositionSchema,
   secondaryPos: z.array(PositionSchema),
-  affinity: z.partialRecord(PositionSchema, z.number()),
-  seedOverall: z.partialRecord(PositionSchema, z.number()),
+  affinity: z.partialRecord(PositionSchema, AffinityValueSchema),
+  seedOverall: z.partialRecord(PositionSchema, SeedOverallValueSchema),
   player: PlayerResponse,
 });
 export type GroupMemberResponse = z.infer<typeof GroupMemberResponse>;
