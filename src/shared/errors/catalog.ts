@@ -19,8 +19,8 @@ function defineError({ code, status, internalMessage }: ErrorDefinition) {
 // SIGLAs reservadas para este projeto (módulos ainda por vir nas próximas tasks):
 // AUTH (autenticação/autorização), GRP (group), PLR (player), MTC (match),
 // ATT (attendance), INV (invite), TEAM (team), SYS (cross-cutting). Uma sigla só
-// ganha entradas quando o módulo correspondente nasce — hoje só AUTH e SYS têm
-// código ativo; as demais aparecerão aqui conforme as tasks 1+ as introduzem.
+// ganha entradas quando o módulo correspondente nasce — hoje AUTH, GRP e SYS têm
+// código ativo; as demais aparecerão aqui conforme as tasks 5+ as introduzem.
 export const ERRORS = {
   AUTH: {
     INVALID_TOKEN: defineError({
@@ -46,6 +46,18 @@ export const ERRORS = {
       code: "AUTH-T0005",
       status: 401,
       internalMessage: "invalid_google_token",
+    }),
+  },
+  GRP: {
+    NOT_FOUND: defineError({
+      code: "GRP-T0001",
+      status: 404,
+      internalMessage: "group_not_found",
+    }),
+    NOT_OWNER: defineError({
+      code: "GRP-T0002",
+      status: 403,
+      internalMessage: "group_not_owner",
     }),
   },
   SYS: {

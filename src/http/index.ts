@@ -2,6 +2,7 @@ import type { FastifyPluginAsync } from "fastify";
 import type { ZodTypeProvider } from "fastify-type-provider-zod";
 import { z } from "zod/v4";
 import { authRoutes } from "@/http/api/auth/index";
+import { groupsRoutes } from "@/http/api/groups/index";
 import { authHook } from "@/http/hooks/auth";
 
 const HealthResponse = z.object({ status: z.literal("ok") });
@@ -30,4 +31,5 @@ export const httpRoutes: FastifyPluginAsync = async (app) => {
   );
 
   await app.register(authRoutes);
+  await app.register(groupsRoutes);
 };

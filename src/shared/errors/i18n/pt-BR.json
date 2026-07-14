@@ -4,6 +4,8 @@
   "AUTH-T0003": "E-mail ou senha inválidos.",
   "AUTH-T0004": "Não autorizado.",
   "AUTH-T0005": "Token do Google inválido.",
+  "GRP-T0001": "Grupo não encontrado.",
+  "GRP-T0002": "Você não é o dono deste grupo.",
   "SYS-T0001": "Erro de validação.",
   "SYS-T0002": "Erro interno do servidor."
 }

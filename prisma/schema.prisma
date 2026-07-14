@@ -21,7 +21,7 @@ datasource db {
 
 /// Extended in Task 2 (auth): `passwordHash` (own email/password auth, null for
 /// Google-only accounts), `googleSub` (Google Sign-In, Task 3+), `expoPushToken`
-/// (Task 12).
+/// (Task 12). Extended in Task 4: `ownedGroups` (reverse of `Group.ownerId`).
 model User {
   id    String @id @default(uuid()) @db.Uuid
   email String @unique
@@ -33,4 +33,34 @@ model User {
 
   createdAt DateTime @default(now()) @db.Timestamptz(3)
   updatedAt DateTime @updatedAt @db.Timestamptz(3)
+
+  ownedGroups Group[]
+}
+
+/// Fase 0 only issues `organizador` (single-owner stats). `colaborativo`
+/// (shared editing) is a later fase — the enum value exists now so the
+/// column never needs a widening migration.
+enum GroupStatsMode {
+  organizador
+  colaborativo
+}
+
+/// Task 4: Arena — an owner-scoped group of players. `id` is the public API
+/// identifier (uuid-only PK convention, see header). Ownership authorization
+/// (`assertGroupOwner` in `src/http/api/groups/groups.authz.ts`) is the
+/// primitive reused by Tasks 5,6,8,9,10,11 — every child resource under a
+/// group re-checks `group.ownerId === userId` the same way.
+model Group {
+  id   String @id @default(uuid()) @db.Uuid
+  name String
+
+  ownerId String @db.Uuid
+  owner   User   @relation(fields: [ownerId], references: [id])
+
+  statsMode GroupStatsMode @default(organizador)
+
+  createdAt DateTime @default(now()) @db.Timestamptz(3)
+  updatedAt DateTime @updatedAt @db.Timestamptz(3)
+
+  @@index([ownerId])
 }
