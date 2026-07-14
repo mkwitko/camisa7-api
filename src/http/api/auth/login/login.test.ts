@@ -22,6 +22,8 @@ function makeFakeRepo(overrides: Partial<AuthRepository> = {}): AuthRepository {
     findByGoogleSub: vi.fn().mockResolvedValue(null),
     insert: vi.fn(),
     linkGoogle: vi.fn(),
+    setPushToken: vi.fn(),
+    getPushToken: vi.fn(),
     ...overrides,
   };
 }

@@ -1,11 +1,14 @@
 import type { FastifyInstance } from "fastify";
 import type { PrismaClient } from "@/generated/prisma/client";
+import type { Gateways } from "@/types/fastify";
 import { startTestDb } from "../../integration/helpers/db";
 import { buildFakeGateways } from "../../mocks/gateways.fake";
 
 export type TestApp = {
   app: FastifyInstance;
   prisma: PrismaClient;
+  /** The exact fake gateway set the app was built with — e.g. `(gateways.push as FakePushGateway).calls`. */
+  gateways: Gateways;
   close: () => Promise<void>;
 };
 
@@ -33,11 +36,13 @@ export async function buildTestApp(): Promise<TestApp> {
   const { buildApp } = await import("@/app");
   const { prisma: appPrisma } = await import("@/infra/db/client");
 
-  const app = await buildApp({ gateways: buildFakeGateways() });
+  const gateways = buildFakeGateways();
+  const app = await buildApp({ gateways });
 
   return {
     app,
     prisma: testDb.prisma,
+    gateways,
     close: async () => {
       await app.close();
       await appPrisma.$disconnect();

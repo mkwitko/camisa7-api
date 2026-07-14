@@ -1,16 +1,19 @@
 import type { GoogleGateway } from "@/gateways/google/google.gateway";
 import type { JwtGateway } from "@/gateways/jwt/jwt.gateway";
+import type { PushGateway } from "@/gateways/push/push.gateway";
 
 /**
  * External gateways exposed via `app.gateways` (Fastify decorator) — see the
  * b2b-reservas-backend skill's ARCHITECTURE.md §4. This project has no AWS
  * gateways (no Cognito/S3/SQS/SNS) — auth is own JWT (email/password) + Google,
  * never Cognito. `jwt` signs/verifies access + refresh tokens (Task 2); `google`
- * verifies Google Sign-In ID tokens (Task 3). A later task adds `push`.
+ * verifies Google Sign-In ID tokens (Task 3); `push` sends Expo push
+ * notifications (Task 12, waitlist promotion).
  */
 export type Gateways = {
   jwt: JwtGateway;
   google: GoogleGateway;
+  push: PushGateway;
 };
 
 declare module "fastify" {

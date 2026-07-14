@@ -1,5 +1,6 @@
 import { afterAll, beforeAll, beforeEach, describe, expect, it } from "vitest";
 import { createMembersRepository } from "../../src/http/api/groups/children/members/members.repository";
+import type { FakePushGateway } from "../mocks/gateways.fake";
 import { buildTestApp, type TestApp } from "./helpers/app";
 
 const register = (h: TestApp, email: string, name = "Player") =>
@@ -75,6 +76,26 @@ const markPaid = (h: TestApp, token: string, matchId: string, attendanceId: stri
     headers: { authorization: `Bearer ${token}` },
   });
 
+const setPushToken = (h: TestApp, token: string, expoPushToken: string | null) =>
+  h.app.inject({
+    method: "PATCH",
+    url: "/auth/me/push-token",
+    headers: { authorization: `Bearer ${token}` },
+    payload: { expoPushToken },
+  });
+
+const createInvite = (h: TestApp, token: string, matchId: string) =>
+  h.app.inject({
+    method: "POST",
+    url: `/matches/${matchId}/invite`,
+    headers: { authorization: `Bearer ${token}` },
+  });
+
+// No `authorization` header on purpose — the guest confirm route works for
+// an anonymous guest (NO app, NO account), per Task 9's brief.
+const publicConfirm = (h: TestApp, body: { token: string; name: string; phone?: string }) =>
+  h.app.inject({ method: "POST", url: "/invite/confirm", payload: body });
+
 const confirmPayment = (
   h: TestApp,
   token: string,
@@ -104,6 +125,7 @@ describe("attendance e2e", () => {
     await h.prisma.$executeRawUnsafe(
       'TRUNCATE TABLE "Attendance", "Match", "Player", "Group", "User" CASCADE',
     );
+    (h.gateways.push as FakePushGateway).calls.length = 0;
   });
 
   describe("POST /matches/:id/attendance", () => {
@@ -314,6 +336,65 @@ describe("attendance e2e", () => {
         waitlistPos: null,
       });
       expect(body.promoted.player.name).toBe("P3");
+    });
+
+    it("sends exactly one push notification when the promoted player has a registered push token", async () => {
+      const ownerToken = await registerAndGetToken(h, "owner-push@x.com");
+      const group = await createGroup(h, ownerToken, { name: "Team A" });
+      const { id: groupId } = group.json();
+      const match = await createMatch(h, ownerToken, groupId, { slots: 2 });
+      const { id: matchId } = match.json();
+
+      const p1Token = await registerAndGetToken(h, "p1-push@x.com", "P1");
+      const p2Token = await registerAndGetToken(h, "p2-push@x.com", "P2");
+      const p3Token = await registerAndGetToken(h, "p3-push@x.com", "P3");
+      const pushTokenRes = await setPushToken(h, p3Token, "ExponentPushToken[p3-token]");
+      expect(pushTokenRes.statusCode).toBe(200);
+
+      const a1 = await confirmPresence(h, p1Token, matchId);
+      await confirmPresence(h, p2Token, matchId); // fills → full
+      const a3 = await confirmPresence(h, p3Token, matchId); // waitlisted pos 1
+      expect(a3.json().status).toBe("waitlisted");
+
+      const res = await cancelPresence(h, p1Token, matchId, a1.json().id);
+
+      expect(res.statusCode).toBe(200);
+      expect(res.json().promoted).toMatchObject({ id: a3.json().id, status: "confirmed" });
+
+      const pushCalls = (h.gateways.push as FakePushGateway).calls;
+      expect(pushCalls).toHaveLength(1);
+      expect(pushCalls[0]).toMatchObject({
+        to: "ExponentPushToken[p3-token]",
+        title: "Pelada",
+        body: "Você subiu da fila!",
+      });
+    });
+
+    it("sends no push notification when the promoted attendee is a guest (no linked user)", async () => {
+      const ownerToken = await registerAndGetToken(h, "owner-push-guest@x.com");
+      const group = await createGroup(h, ownerToken, { name: "Team A" });
+      const { id: groupId } = group.json();
+      const match = await createMatch(h, ownerToken, groupId, { slots: 2 });
+      const { id: matchId } = match.json();
+
+      const p1Token = await registerAndGetToken(h, "p1-push-guest@x.com", "P1");
+      const p2Token = await registerAndGetToken(h, "p2-push-guest@x.com", "P2");
+
+      const a1 = await confirmPresence(h, p1Token, matchId);
+      await confirmPresence(h, p2Token, matchId); // fills → full
+
+      const invite = await createInvite(h, ownerToken, matchId);
+      const { token } = invite.json();
+      const guest = await publicConfirm(h, { token, name: "Guest Waitlisted" });
+      expect(guest.json().status).toBe("waitlisted");
+
+      const res = await cancelPresence(h, p1Token, matchId, a1.json().id);
+
+      expect(res.statusCode).toBe(200);
+      expect(res.json().promoted).toMatchObject({ status: "confirmed" });
+      expect(res.json().promoted.player.userId).toBeNull();
+
+      expect((h.gateways.push as FakePushGateway).calls).toHaveLength(0);
     });
 
     it("returns promoted:null and reopens the match when no one is waitlisted", async () => {

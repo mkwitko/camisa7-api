@@ -67,6 +67,16 @@ export interface AuthRepository {
   }): Promise<User>;
   /** Links a Google account to an existing (password) user — Google login on a known email. */
   linkGoogle(id: string, googleSub: string): Promise<void>;
+  /** Task 12: sets (or clears, via `null`) the caller's Expo push token, from `PATCH /auth/me/push-token`. */
+  setPushToken(id: string, token: string | null): Promise<void>;
+  /**
+   * Task 12: reads a user's Expo push token — a narrow lookup separate from
+   * `findById`/`User` on purpose, so the token (an external-service secret,
+   * not user-facing data) never leaks into `UserResponse`. Used by
+   * `cancel-presence.service` to decide whether a promoted player's linked
+   * user has push enabled.
+   */
+  getPushToken(id: string): Promise<string | null>;
 }
 
 /** Factory `createAuthRepository(db: PrismaLike)` — composes inside a tx or standalone. */
@@ -90,6 +100,18 @@ export function createAuthRepository(db: PrismaLike): AuthRepository {
 
     async linkGoogle(id, googleSub) {
       await db.user.update({ where: { id }, data: { googleSub } });
+    },
+
+    async setPushToken(id, token) {
+      await db.user.update({ where: { id }, data: { expoPushToken: token } });
+    },
+
+    async getPushToken(id) {
+      const row = await db.user.findUnique({
+        where: { id },
+        select: { expoPushToken: true },
+      });
+      return row?.expoPushToken ?? null;
     },
 
     async insert(input) {

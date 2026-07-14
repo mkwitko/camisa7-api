@@ -1,6 +1,7 @@
 import { env } from "@/config/env";
 import type { GoogleGateway } from "@/gateways/google/google.gateway";
 import { createJwtGateway } from "@/gateways/jwt/jwt.gateway";
+import type { PushGateway } from "@/gateways/push/push.gateway";
 import { ERRORS } from "@/shared/errors/catalog";
 import type { Gateways } from "@/types/fastify";
 
@@ -24,6 +25,22 @@ function createFakeGoogleGateway(): GoogleGateway {
   };
 }
 
+export type FakePushGateway = PushGateway & {
+  /** Every `send` call recorded, in order — asserted on directly in e2e tests (Task 12). */
+  calls: Array<{ to: string; title: string; body: string }>;
+};
+
+/** Fake `PushGateway` — no real Expo HTTP call, just records every `send` for assertions. */
+function createFakePushGateway(): FakePushGateway {
+  const calls: FakePushGateway["calls"] = [];
+  return {
+    calls,
+    async send(input) {
+      calls.push(input);
+    },
+  };
+}
+
 /**
  * Fake `Gateways` set for tests, substituted via `buildApp({ gateways:
  * buildFakeGateways(overrides) })` — replaces the whole set, no partial merge
@@ -40,6 +57,7 @@ export function buildFakeGateways(overrides: Partial<Gateways> = {}): Gateways {
       refreshTtl: env.JWT_REFRESH_TTL,
     }),
     google: createFakeGoogleGateway(),
+    push: createFakePushGateway(),
     ...overrides,
   };
 }
