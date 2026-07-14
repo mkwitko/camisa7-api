@@ -10,12 +10,24 @@ export type LoginDeps = {
   jwt: JwtGateway;
 };
 
+// Precomputed argon2 hash of a throwaway password, used only to pay the same
+// argon2 cost on the "user not found" / "google-only account" paths as on a
+// real password check. Without this, those paths return after a DB lookup
+// with no argon2 call, and the latency gap lets a prober distinguish
+// "email exists with password" from "doesn't exist / google-only" even
+// though all three cases throw the same AUTH-T0003 error.
+const DUMMY_PASSWORD_HASH =
+  "$argon2id$v=19$m=65536,t=3,p=4$X3M0M08rGkY9WMoIzMlLtQ$Rf0GS+MTIQhLM+r6EAtV3xIqXGnW3D0uWrxa+O6oOAI";
+
 export function createLoginService(deps: LoginDeps) {
   return async (input: LoginBody): Promise<AuthResponse> => {
     const found = await deps.repo.findByEmail(input.email);
     // Null `passwordHash` = Google-only account (no local password set yet) —
     // same 401 as a wrong password, so a probe can't distinguish the two.
-    if (!found?.passwordHash) throw ERRORS.AUTH.INVALID_CREDENTIALS();
+    if (!found?.passwordHash) {
+      await argon2.verify(DUMMY_PASSWORD_HASH, input.password);
+      throw ERRORS.AUTH.INVALID_CREDENTIALS();
+    }
 
     const valid = await argon2.verify(found.passwordHash, input.password);
     if (!valid) throw ERRORS.AUTH.INVALID_CREDENTIALS();
