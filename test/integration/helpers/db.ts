@@ -26,23 +26,28 @@ export async function startTestDb(): Promise<TestDb> {
   const container = await new PostgreSqlContainer("postgres:16-alpine").start();
   const connectionString = container.getConnectionUri();
 
-  execFileSync(prismaBin, ["migrate", "deploy"], {
-    cwd: projectRoot,
-    env: { ...process.env, DATABASE_URL: connectionString },
-    stdio: "inherit",
-  });
+  try {
+    execFileSync(prismaBin, ["migrate", "deploy"], {
+      cwd: projectRoot,
+      env: { ...process.env, DATABASE_URL: connectionString },
+      stdio: "inherit",
+    });
 
-  const prisma = new PrismaClient({
-    adapter: new PrismaPg({ connectionString }),
-  });
+    const prisma = new PrismaClient({
+      adapter: new PrismaPg({ connectionString }),
+    });
 
-  return {
-    prisma,
-    container,
-    connectionString,
-    stop: async () => {
-      await prisma.$disconnect();
-      await container.stop();
-    },
-  };
+    return {
+      prisma,
+      container,
+      connectionString,
+      stop: async () => {
+        await prisma.$disconnect();
+        await container.stop();
+      },
+    };
+  } catch (error) {
+    await container.stop();
+    throw error;
+  }
 }
