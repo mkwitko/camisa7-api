@@ -1,0 +1,6 @@
+{
+  "AUTH-T0001": "Invalid token.",
+  "AUTH-T0002": "Unauthorized.",
+  "SYS-T0001": "Validation error.",
+  "SYS-T0002": "Internal server error."
+}
