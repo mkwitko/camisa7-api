@@ -2,6 +2,7 @@ import type { GoogleGateway } from "@/gateways/google/google.gateway";
 import type { JwtGateway } from "@/gateways/jwt/jwt.gateway";
 import type { AuthRepository } from "../auth.repository";
 import type { AuthResponse } from "../auth.schema";
+import { signTokenPair } from "../auth.tokens";
 import type { User } from "../auth.types";
 import type { LoginGoogleBody } from "./login-google.schema";
 
@@ -28,10 +29,7 @@ export function createLoginGoogleService(deps: LoginGoogleDeps) {
 
     const user = await resolveUser(deps, { googleSub, email, name });
 
-    const [accessToken, refreshToken] = await Promise.all([
-      deps.jwt.signAccess({ sub: user.id }),
-      deps.jwt.signRefresh({ sub: user.id }),
-    ]);
+    const { accessToken, refreshToken } = await signTokenPair(deps.jwt, user.id);
 
     return { accessToken, refreshToken, user };
   };

@@ -2,6 +2,7 @@ import type { JwtGateway } from "@/gateways/jwt/jwt.gateway";
 import { ERRORS } from "@/shared/errors/catalog";
 import type { AuthRepository } from "../auth.repository";
 import type { AuthResponse } from "../auth.schema";
+import { signTokenPair } from "../auth.tokens";
 import type { RefreshBody } from "./refresh.schema";
 
 export type RefreshDeps = {
@@ -23,10 +24,7 @@ export function createRefreshService(deps: RefreshDeps) {
     const user = await deps.repo.findById(sub);
     if (!user) throw ERRORS.AUTH.UNAUTHORIZED();
 
-    const [accessToken, refreshToken] = await Promise.all([
-      deps.jwt.signAccess({ sub: user.id }),
-      deps.jwt.signRefresh({ sub: user.id }),
-    ]);
+    const { accessToken, refreshToken } = await signTokenPair(deps.jwt, user.id);
 
     return { accessToken, refreshToken, user };
   };
