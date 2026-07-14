@@ -6,7 +6,7 @@ describe("health e2e", () => {
 
   beforeAll(async () => {
     h = await buildTestApp();
-  });
+  }, 60_000);
 
   afterAll(async () => {
     await h.close();

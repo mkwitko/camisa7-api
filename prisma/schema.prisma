@@ -19,12 +19,17 @@ datasource db {
   provider = "postgresql"
 }
 
-/// Minimal baseline — Task 2 (auth) extends this with password hash, refresh
-/// tokens, Google sub, etc.
+/// Extended in Task 2 (auth): `passwordHash` (own email/password auth, null for
+/// Google-only accounts), `googleSub` (Google Sign-In, Task 3+), `expoPushToken`
+/// (Task 12).
 model User {
   id    String @id @default(uuid()) @db.Uuid
   email String @unique
   name  String
+
+  passwordHash   String?
+  googleSub      String? @unique
+  expoPushToken  String?
 
   createdAt DateTime @default(now()) @db.Timestamptz(3)
   updatedAt DateTime @updatedAt @db.Timestamptz(3)

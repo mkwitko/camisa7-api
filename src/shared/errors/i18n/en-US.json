@@ -1,6 +1,8 @@
 {
   "AUTH-T0001": "Invalid token.",
-  "AUTH-T0002": "Unauthorized.",
+  "AUTH-T0002": "Email already registered.",
+  "AUTH-T0003": "Invalid email or password.",
+  "AUTH-T0004": "Unauthorized.",
   "SYS-T0001": "Validation error.",
   "SYS-T0002": "Internal server error."
 }

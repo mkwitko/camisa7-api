@@ -28,7 +28,20 @@ export const ERRORS = {
       status: 401,
       internalMessage: "invalid_token",
     }),
-    UNAUTHORIZED: defineError({ code: "AUTH-T0002", status: 401, internalMessage: "unauthorized" }),
+    EMAIL_TAKEN: defineError({
+      code: "AUTH-T0002",
+      status: 409,
+      internalMessage: "email_taken",
+    }),
+    INVALID_CREDENTIALS: defineError({
+      code: "AUTH-T0003",
+      status: 401,
+      internalMessage: "invalid_credentials",
+    }),
+    // Renumbered from AUTH-T0002 (Task 0) to make room for EMAIL_TAKEN at that
+    // code, per Task 2's brief (exact e2e assertion on the duplicate-email
+    // 409). Nothing depended on the old number — reused the same error type.
+    UNAUTHORIZED: defineError({ code: "AUTH-T0004", status: 401, internalMessage: "unauthorized" }),
   },
   SYS: {
     VALIDATION: defineError({

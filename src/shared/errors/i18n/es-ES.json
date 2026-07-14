@@ -1,6 +1,8 @@
 {
   "AUTH-T0001": "Token inválido.",
-  "AUTH-T0002": "No autorizado.",
+  "AUTH-T0002": "El correo ya está registrado.",
+  "AUTH-T0003": "Correo o contraseña inválidos.",
+  "AUTH-T0004": "No autorizado.",
   "SYS-T0001": "Error de validación.",
   "SYS-T0002": "Error interno del servidor."
 }
