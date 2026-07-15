@@ -9,6 +9,8 @@
   "PLR-T0001": "Miembro no encontrado.",
   "PLR-T0002": "Jugador no encontrado.",
   "PLR-T0003": "El perfil no es público.",
+  "PLR-T0004": "No se encontró ningún usuario registrado con este correo.",
+  "PLR-T0005": "Este miembro ya está vinculado a una cuenta.",
   "MTC-T0001": "Partido no encontrado.",
   "MTC-T0002": "Este partido ya no se puede editar.",
   "MTC-T0003": "Finaliza el partido antes de registrar el resultado.",

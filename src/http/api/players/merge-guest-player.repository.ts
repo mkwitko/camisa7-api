@@ -1,7 +1,7 @@
 import { Prisma } from "@/generated/prisma/client";
 import type { PrismaLike } from "@/infra/db/client";
 
-export type ClaimMergeSummary = {
+export type MergeSummary = {
   guestsMerged: number;
   membershipsMerged: number;
   attendancesMerged: number;
@@ -9,7 +9,7 @@ export type ClaimMergeSummary = {
   votesMerged: number;
 };
 
-const EMPTY_SUMMARY: ClaimMergeSummary = {
+const EMPTY_SUMMARY: MergeSummary = {
   guestsMerged: 0,
   membershipsMerged: 0,
   attendancesMerged: 0,
@@ -196,7 +196,7 @@ async function mergeOneGuest(
   tx: PrismaLike,
   guestId: string,
   canonicalId: string,
-): Promise<Omit<ClaimMergeSummary, "guestsMerged">> {
+): Promise<Omit<MergeSummary, "guestsMerged">> {
   const membershipsMerged = await mergeMemberships(tx, guestId, canonicalId);
   const attendancesMerged = await mergeAttendances(tx, guestId, canonicalId);
   const statsMerged = await mergeMatchStats(tx, guestId, canonicalId);
@@ -208,49 +208,33 @@ async function mergeOneGuest(
   return { membershipsMerged, attendancesMerged, statsMerged, votesMerged };
 }
 
-export interface ClaimPlayerRepository {
+export interface MergeGuestPlayerRepository {
   /**
-   * Finds every GUEST `Player` (`userId IS NULL`) whose `phone` matches,
-   * then merges each one's history into `canonicalPlayerId` — all inside
-   * ONE transaction (see `runInTransaction` above), so either every matched
-   * guest's history lands atomically or none of it does. Returns a zeroed
-   * summary (not an error) when no guest matches `phone` — see
-   * `claim-player.service.ts`'s doc comment for why that's a valid no-op
-   * response, not a 404.
+   * Merges `guestPlayerId`'s ENTIRE history (memberships, attendances,
+   * stats, votes cast/received — see the helpers above for the
+   * conflict-resolution rules per table) into `targetPlayerId`, atomically
+   * (one transaction — see `runInTransaction`), then deletes the guest
+   * `Player` row. Originally the machinery behind the removed phone-only
+   * `POST /players/claim` (see git history); now shared by
+   * `link-member-user.service.ts`'s organizer-vouched flow, which is the
+   * only caller that decides WHO may trigger a merge and WHICH guest/target
+   * pair is valid — this repository trusts its caller on both counts.
    *
-   * SECURITY: `phone` is the ENTIRE claim signal — no OTP/SMS verification,
-   * no organizer vouching (see `claim-player.service.ts`'s doc comment for
-   * the full disclosure). Anyone who knows a guest's phone number can claim
-   * that guest's history as their own by calling this with it.
+   * Defensive no-op (zeroed summary) if `guestPlayerId === targetPlayerId`
+   * — callers should never construct that pair, but it's cheap to guard.
    */
-  claimByPhone(phone: string, canonicalPlayerId: string): Promise<ClaimMergeSummary>;
+  mergeGuestIntoPlayer(guestPlayerId: string, targetPlayerId: string): Promise<MergeSummary>;
 }
 
-/** Factory `createClaimPlayerRepository(db: PrismaLike)` — composes inside a tx or standalone. */
-export function createClaimPlayerRepository(db: PrismaLike): ClaimPlayerRepository {
+/** Factory `createMergeGuestPlayerRepository(db: PrismaLike)` — composes inside a tx or standalone. */
+export function createMergeGuestPlayerRepository(db: PrismaLike): MergeGuestPlayerRepository {
   return {
-    async claimByPhone(phone, canonicalPlayerId) {
+    async mergeGuestIntoPlayer(guestPlayerId, targetPlayerId) {
+      if (guestPlayerId === targetPlayerId) return { ...EMPTY_SUMMARY };
+
       return runInTransaction(db, async (tx) => {
-        const guests = await tx.player.findMany({
-          where: { userId: null, phone },
-          select: { id: true },
-        });
-
-        const summary = { ...EMPTY_SUMMARY };
-        for (const guest of guests) {
-          // Defensive only — a guest (`userId: null`) and the canonical
-          // player (always `userId` set) can never share an id.
-          if (guest.id === canonicalPlayerId) continue;
-
-          const merged = await mergeOneGuest(tx, guest.id, canonicalPlayerId);
-          summary.guestsMerged += 1;
-          summary.membershipsMerged += merged.membershipsMerged;
-          summary.attendancesMerged += merged.attendancesMerged;
-          summary.statsMerged += merged.statsMerged;
-          summary.votesMerged += merged.votesMerged;
-        }
-
-        return summary;
+        const merged = await mergeOneGuest(tx, guestPlayerId, targetPlayerId);
+        return { guestsMerged: 1, ...merged };
       });
     },
   };

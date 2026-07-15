@@ -88,6 +88,25 @@ export const ERRORS = {
       status: 404,
       internalMessage: "player_profile_not_public",
     }),
+    // `POST /groups/:id/members/:memberId/link-user` (organizer-vouched
+    // linking, replacing the removed phone-only `POST /players/claim` —
+    // see `link-member-user.service.ts`'s doc comment): 404 when `email`
+    // doesn't resolve to any registered `User`. Its own code (not reused
+    // from AUTH) since the localized copy needs to talk about "no such
+    // registered user to link", not login/auth failure.
+    USER_NOT_FOUND: defineError({
+      code: "PLR-T0004",
+      status: 404,
+      internalMessage: "user_not_found_by_email",
+    }),
+    // Same endpoint: 400 when the target `GroupMember` isn't a GUEST
+    // (`player.userId` already set) — either it's already a registered
+    // member, or it was already linked to a user previously.
+    MEMBER_NOT_GUEST: defineError({
+      code: "PLR-T0005",
+      status: 400,
+      internalMessage: "member_not_guest",
+    }),
   },
   MTC: {
     NOT_FOUND: defineError({

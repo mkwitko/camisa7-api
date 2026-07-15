@@ -26,6 +26,14 @@ const createGroup = (h: TestApp, token: string, body: { name: string } = { name:
     payload: body,
   });
 
+const addMember = (h: TestApp, token: string, groupId: string, body: Record<string, unknown>) =>
+  h.app.inject({
+    method: "POST",
+    url: `/groups/${groupId}/members`,
+    headers: { authorization: `Bearer ${token}` },
+    payload: body,
+  });
+
 const createMatch = (h: TestApp, token: string, groupId: string) =>
   h.app.inject({
     method: "POST",
@@ -107,15 +115,21 @@ const getCareer = (h: TestApp, token: string, playerId: string) =>
     headers: { authorization: `Bearer ${token}` },
   });
 
-const claimPlayer = (h: TestApp, token: string, phone: string) =>
+const linkMemberUser = (
+  h: TestApp,
+  token: string,
+  groupId: string,
+  memberId: string,
+  email: string,
+) =>
   h.app.inject({
     method: "POST",
-    url: "/players/claim",
+    url: `/groups/${groupId}/members/${memberId}/link-user`,
     headers: { authorization: `Bearer ${token}` },
-    payload: { phone },
+    payload: { email },
   });
 
-describe("claim-player e2e", () => {
+describe("link-member-user e2e", () => {
   let h: TestApp;
 
   beforeAll(async () => {
@@ -132,39 +146,29 @@ describe("claim-player e2e", () => {
     );
   });
 
-  describe("POST /players/claim", () => {
-    it("merges a guest's attendance, stats, votes (both sides) and membership into the caller's canonical player, then deletes the guest", async () => {
-      const owner = await registerAndGetToken(h, "owner-claim@x.com");
+  describe("POST /groups/:id/members/:memberId/link-user", () => {
+    it("owner links a guest member to a registered user by email, merging the guest's full history into that user's player", async () => {
+      const owner = await registerAndGetToken(h, "owner-link@x.com");
       const group = await createGroup(h, owner.token, { name: "Team A" });
       const { id: groupId } = group.json();
       const created = await createMatch(h, owner.token, groupId);
       const { id: matchId } = created.json();
 
-      // Seeds the guest directly (mirrors how `add-member`/`public-confirm`
-      // would produce one, without needing the full invite-link HTTP
-      // round-trip just to attach a *specific* pre-known player id to every
-      // table this test needs to exercise).
-      const guest = await h.prisma.player.create({
-        data: { userId: null, name: "Guest Rafa", phone: "+5511999990000" },
+      const added = await addMember(h, owner.token, groupId, {
+        name: "Guest Rafa",
+        phone: "+5511999990000",
+        primaryPos: "atacante",
+        seedOverall: { atacante: 70 },
       });
-
-      await h.prisma.groupMember.create({
-        data: {
-          groupId,
-          playerId: guest.id,
-          role: "jogador",
-          primaryPos: "atacante",
-          secondaryPos: [],
-          affinity: {},
-          seedOverall: { atacante: 70 },
-        },
-      });
+      const memberBody = added.json();
+      const memberId = memberBody.id as string;
+      const guestPlayerId = memberBody.player.id as string;
 
       await h.prisma.attendance.create({
-        data: { matchId, playerId: guest.id, status: "confirmed" },
+        data: { matchId, playerId: guestPlayerId, status: "confirmed" },
       });
 
-      const p1 = await registerAndGetToken(h, "p1-claim@x.com", "Player One");
+      const p1 = await registerAndGetToken(h, "p1-link@x.com", "Player One");
       const confirmedP1 = await confirmPresence(h, p1.token, matchId);
 
       await finishMatch(h, owner.token, matchId);
@@ -175,16 +179,16 @@ describe("claim-player e2e", () => {
         ],
       });
       await logStats(h, owner.token, matchId, [
-        { playerId: guest.id, team: 0, goals: 1, assists: 0, ownGoals: 0, cleanSheet: false },
+        { playerId: guestPlayerId, team: 0, goals: 1, assists: 0, ownGoals: 0, cleanSheet: false },
       ]);
       // guest as VOTED (cast by a real, authenticated attendee)
-      await castVote(h, p1.token, matchId, { category: "mvp", votedPlayerId: guest.id });
+      await castVote(h, p1.token, matchId, { category: "mvp", votedPlayerId: guestPlayerId });
       // guest as VOTER — seeded directly since a guest has no account/token
       // to call `POST /matches/:id/votes` with.
       await h.prisma.vote.create({
         data: {
           matchId,
-          voterPlayerId: guest.id,
+          voterPlayerId: guestPlayerId,
           category: "craque",
           votedPlayerId: confirmedP1.playerId,
         },
@@ -198,13 +202,13 @@ describe("claim-player e2e", () => {
       // not — so the merge below must actually delete it, not just leave a
       // no-op behind.
       const guestCareerBefore = await h.prisma.playerCareer.findUnique({
-        where: { playerId: guest.id },
+        where: { playerId: guestPlayerId },
       });
       expect(guestCareerBefore).not.toBeNull();
 
-      const claimer = await registerAndGetToken(h, "claimer-claim@x.com", "Real Rafa");
+      const target = await registerAndGetToken(h, "real-rafa@x.com", "Real Rafa");
 
-      const res = await claimPlayer(h, claimer.token, "+5511999990000");
+      const res = await linkMemberUser(h, owner.token, groupId, memberId, "real-rafa@x.com");
 
       expect(res.statusCode).toBe(200);
       const body = res.json();
@@ -215,12 +219,14 @@ describe("claim-player e2e", () => {
         statsMerged: 1,
         votesMerged: 2,
       });
-      expect(body.player.userId).toBe(claimer.userId);
-      const canonicalId = body.player.id as string;
+      expect(body.member.player.userId).toBe(target.userId);
+      const canonicalId = body.member.player.id as string;
 
       // Guest player + its career are gone.
-      expect(await h.prisma.player.findUnique({ where: { id: guest.id } })).toBeNull();
-      expect(await h.prisma.playerCareer.findUnique({ where: { playerId: guest.id } })).toBeNull();
+      expect(await h.prisma.player.findUnique({ where: { id: guestPlayerId } })).toBeNull();
+      expect(
+        await h.prisma.playerCareer.findUnique({ where: { playerId: guestPlayerId } }),
+      ).toBeNull();
 
       // Attendance reassigned.
       const attendance = await h.prisma.attendance.findFirst({
@@ -244,52 +250,51 @@ describe("claim-player e2e", () => {
       });
       expect(voterRow).not.toBeNull();
 
-      // GroupMember reassigned, rating preserved.
+      // GroupMember reassigned, rating preserved, now linked to the target.
       const member = await h.prisma.groupMember.findUnique({
         where: { groupId_playerId: { groupId, playerId: canonicalId } },
       });
       expect(member?.seedOverall).toEqual({ atacante: 70 });
 
-      // Career recomputed for the canonical player off the merged history.
-      const careerRes = await getCareer(h, claimer.token, canonicalId);
+      // Career recomputed for the target's canonical player off the merged history.
+      const careerRes = await getCareer(h, target.token, canonicalId);
       expect(careerRes.statusCode).toBe(200);
       expect(careerRes.json().matchesPlayed).toBe(1);
       expect(careerRes.json().goals).toBe(1);
     });
 
-    it("resolves a GroupMember unique conflict (caller already in that group) by keeping one row and preferring the rated side, without crashing", async () => {
-      const owner = await registerAndGetToken(h, "owner-conflict@x.com");
+    it("resolves a GroupMember unique conflict (target already in that group) by keeping one row and preferring the rated side, without crashing", async () => {
+      const owner = await registerAndGetToken(h, "owner-conflict-link@x.com");
       const group = await createGroup(h, owner.token, { name: "Team A" });
       const { id: groupId } = group.json();
 
-      const claimer = await registerAndGetToken(h, "claimer-conflict@x.com", "Real Rafa");
+      const target = await registerAndGetToken(h, "target-conflict-link@x.com", "Real Rafa");
       const membersRepo = createMembersRepository(h.prisma);
-      // Claimer's canonical player is already a member of this SAME group,
+      // Target's canonical player is already a member of this SAME group,
       // via the default no-rating row `addForUser` creates.
-      await membersRepo.addForUser(groupId, claimer.userId, "jogador");
+      await membersRepo.addForUser(groupId, target.userId, "jogador");
 
-      const guest = await h.prisma.player.create({
-        data: { userId: null, name: "Guest Rafa", phone: "+5511988880000" },
+      const added = await addMember(h, owner.token, groupId, {
+        name: "Guest Rafa",
+        phone: "+5511988880000",
+        primaryPos: "goleiro",
+        seedOverall: { goleiro: 80 },
       });
-      await h.prisma.groupMember.create({
-        data: {
-          groupId,
-          playerId: guest.id,
-          role: "jogador",
-          primaryPos: "goleiro",
-          secondaryPos: [],
-          affinity: {},
-          seedOverall: { goleiro: 80 },
-        },
-      });
+      const memberId = added.json().id as string;
 
-      const res = await claimPlayer(h, claimer.token, "+5511988880000");
+      const res = await linkMemberUser(
+        h,
+        owner.token,
+        groupId,
+        memberId,
+        "target-conflict-link@x.com",
+      );
 
       expect(res.statusCode).toBe(200);
       expect(res.json().summary.membershipsMerged).toBe(1);
-      const canonicalId = res.json().player.id as string;
+      const canonicalId = res.json().member.player.id as string;
 
-      // Exactly one surviving row for the claimer's canonical player in this
+      // Exactly one surviving row for the target's canonical player in this
       // group — `groupId`'s total also includes the group owner's own
       // (unrelated) `organizador` membership, so scope the "no duplicate"
       // check to the canonical player specifically.
@@ -299,32 +304,90 @@ describe("claim-player e2e", () => {
       expect(memberships).toHaveLength(1); // no crash, no duplicate — one surviving row
       expect(memberships[0]?.seedOverall).toEqual({ goleiro: 80 }); // rated side won
       expect(memberships[0]?.primaryPos).toBe("goleiro");
-
-      expect(await h.prisma.player.findUnique({ where: { id: guest.id } })).toBeNull();
     });
 
-    it("is a no-op (zeroed summary, still 200) when no guest matches the phone", async () => {
-      const claimer = await registerAndGetToken(h, "claimer-noop@x.com");
-
-      const res = await claimPlayer(h, claimer.token, "+5511900000000");
-
-      expect(res.statusCode).toBe(200);
-      const body = res.json();
-      expect(body.summary).toEqual({
-        guestsMerged: 0,
-        membershipsMerged: 0,
-        attendancesMerged: 0,
-        statsMerged: 0,
-        votesMerged: 0,
+    it("rejects a non-owner with 403", async () => {
+      const owner = await registerAndGetToken(h, "owner-403-link@x.com");
+      const other = await registerAndGetToken(h, "other-403-link@x.com");
+      const group = await createGroup(h, owner.token, { name: "Team B" });
+      const { id: groupId } = group.json();
+      const added = await addMember(h, owner.token, groupId, {
+        name: "Guest Player",
+        primaryPos: "meia",
       });
-      expect(body.player.userId).toBe(claimer.userId);
+      const memberId = added.json().id as string;
+
+      await register(h, "target-403-link@x.com");
+
+      const res = await linkMemberUser(h, other.token, groupId, memberId, "target-403-link@x.com");
+
+      expect(res.statusCode).toBe(403);
+    });
+
+    it("returns 404 for an email with no registered user", async () => {
+      const owner = await registerAndGetToken(h, "owner-404-link@x.com");
+      const group = await createGroup(h, owner.token, { name: "Team C" });
+      const { id: groupId } = group.json();
+      const added = await addMember(h, owner.token, groupId, {
+        name: "Guest Player",
+        primaryPos: "meia",
+      });
+      const memberId = added.json().id as string;
+
+      const res = await linkMemberUser(h, owner.token, groupId, memberId, "no-such-user@x.com");
+
+      expect(res.statusCode).toBe(404);
+    });
+
+    it("returns 400 when the target member is already registered (not a guest)", async () => {
+      const owner = await registerAndGetToken(h, "owner-400-link@x.com");
+      const group = await createGroup(h, owner.token, { name: "Team D" });
+      const { id: groupId } = group.json();
+
+      // The owner's own auto-added `organizador` membership is a REGISTERED
+      // member (`player.userId` set), not a guest.
+      const members = await h.app.inject({
+        method: "GET",
+        url: `/groups/${groupId}/members`,
+        headers: { authorization: `Bearer ${owner.token}` },
+      });
+      const ownerMemberId = members.json()[0].id as string;
+
+      await register(h, "target-400-link@x.com");
+
+      const res = await linkMemberUser(
+        h,
+        owner.token,
+        groupId,
+        ownerMemberId,
+        "target-400-link@x.com",
+      );
+
+      expect(res.statusCode).toBe(400);
+    });
+
+    it("returns 404 for a memberId that doesn't belong to the group", async () => {
+      const owner = await registerAndGetToken(h, "owner-nomember-link@x.com");
+      const group = await createGroup(h, owner.token, { name: "Team E" });
+      const { id: groupId } = group.json();
+      await register(h, "target-nomember-link@x.com");
+
+      const res = await linkMemberUser(
+        h,
+        owner.token,
+        groupId,
+        "00000000-0000-0000-0000-000000000000",
+        "target-nomember-link@x.com",
+      );
+
+      expect(res.statusCode).toBe(404);
     });
 
     it("requires authentication", async () => {
       const res = await h.app.inject({
         method: "POST",
-        url: "/players/claim",
-        payload: { phone: "+5511900000000" },
+        url: "/groups/00000000-0000-0000-0000-000000000000/members/00000000-0000-0000-0000-000000000000/link-user",
+        payload: { email: "someone@x.com" },
       });
 
       expect(res.statusCode).toBe(401);

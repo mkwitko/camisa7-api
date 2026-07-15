@@ -1,5 +1,6 @@
 import type { FastifyPluginAsync } from "fastify";
 import { addMemberRoute } from "./add-member/add-member.controller";
+import { linkMemberUserRoute } from "./link-member-user/link-member-user.controller";
 import { listMembersRoute } from "./list-members/list-members.controller";
 import { updateMemberRoute } from "./update-member/update-member.controller";
 
@@ -8,4 +9,5 @@ export const membersRoutes: FastifyPluginAsync = async (app) => {
   await app.register(addMemberRoute);
   await app.register(listMembersRoute);
   await app.register(updateMemberRoute);
+  await app.register(linkMemberUserRoute);
 };

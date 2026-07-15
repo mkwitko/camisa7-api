@@ -1,26 +1,27 @@
 import type { FastifyPluginAsync } from "fastify";
 import { careerRoutes } from "./children/career/index";
-import { claimPlayerRoute } from "./claim-player/claim-player.controller";
 import { myPlayerRoute } from "./me/me.controller";
 import { publicProfileRoute } from "./public-profile/public-profile.controller";
 
 /**
  * Registers all `players` resource routes. Fase 1 (F1-4) added the `career`
- * child resource (`GET /players/:playerId/career`); F1-5 added the
- * top-level `POST /players/claim` (guest→account merge, sibling of
- * `children/`, not `:playerId`-scoped — same "top-level action" placement
- * `finalize-match` uses under `matches/`); F1-6 adds the PUBLIC (no auth)
- * `GET /players/:playerId/public-profile` shareable card; F1-7 adds
- * `GET /players/me`, letting the app resolve its own canonical player
- * without an already-known `playerId` (same top-level-static-route
- * placement as `/players/claim`, disambiguated from `:playerId`-scoped
- * routes by Fastify's radix tree). `Player` still has no top-level CRUD
- * routes of its own (created only as a side effect of other flows, see
- * `players.repository.ts`).
+ * child resource (`GET /players/:playerId/career`); F1-5 originally added a
+ * top-level `POST /players/claim` (guest→account merge, authorized by PHONE
+ * MATCH ALONE) — a security review flagged that as a takeover vector (any
+ * caller who knew a guest's phone number could claim their history) and it
+ * was REMOVED before any frontend ever wired it up, replaced by the
+ * organizer-vouched `POST /groups/:id/members/:memberId/link-user` (see
+ * `groups/children/members/link-member-user/`), which reuses the same merge
+ * machinery (`merge-guest-player.repository.ts`) but gates it on the GROUP
+ * OWNER vouching for the guest's identity instead of a guessable phone
+ * number; F1-6 adds the PUBLIC (no auth) `GET /players/:playerId/public-profile`
+ * shareable card; F1-7 adds `GET /players/me`, letting the app resolve its
+ * own canonical player without an already-known `playerId`. `Player` still
+ * has no top-level CRUD routes of its own (created only as a side effect of
+ * other flows, see `players.repository.ts`).
  */
 export const playersRoutes: FastifyPluginAsync = async (app) => {
   await app.register(careerRoutes);
-  await app.register(claimPlayerRoute);
   await app.register(myPlayerRoute);
   await app.register(publicProfileRoute);
 };
