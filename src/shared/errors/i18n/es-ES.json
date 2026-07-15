@@ -9,6 +9,7 @@
   "PLR-T0001": "Miembro no encontrado.",
   "MTC-T0001": "Partido no encontrado.",
   "MTC-T0002": "Este partido ya no se puede editar.",
+  "MTC-T0003": "Finaliza el partido antes de registrar el resultado.",
   "ATT-T0001": "Ya estás confirmado o en la lista de espera de este partido.",
   "ATT-T0002": "Asistencia no encontrada.",
   "ATT-T0003": "No tienes permiso sobre esta asistencia.",
@@ -17,6 +18,9 @@
   "TEAM-T0002": "Alineación inválida — cada jugador confirmado debe aparecer exactamente una vez.",
   "TEAM-T0003": "Los equipos aún no han sido generados para este partido.",
   "TEAM-T0004": "No tienes permiso sobre los equipos de este partido.",
+  "RES-T0001": "Marcador inválido para los equipos de este partido.",
+  "RES-T0002": "Aún no se ha registrado un resultado para este partido.",
+  "RES-T0003": "No tienes permiso sobre el resultado de este partido.",
   "SYS-T0001": "Error de validación.",
   "SYS-T0002": "Error interno del servidor."
 }

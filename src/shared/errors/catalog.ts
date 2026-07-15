@@ -18,10 +18,9 @@ function defineError({ code, status, internalMessage }: ErrorDefinition) {
 //
 // SIGLAs reservadas para este projeto (módulos ainda por vir nas próximas tasks):
 // AUTH (autenticação/autorização), GRP (group), PLR (player), MTC (match),
-// ATT (attendance), INV (invite), TEAM (team), SYS (cross-cutting). Uma sigla só
-// ganha entradas quando o módulo correspondente nasce — hoje AUTH, GRP, PLR, MTC
-// e SYS têm código ativo; as demais aparecerão aqui conforme as tasks 7+ as
-// introduzem.
+// ATT (attendance), INV (invite), TEAM (team), RES (match result, Fase 1),
+// SYS (cross-cutting). Uma sigla só ganha entradas quando o módulo
+// correspondente nasce.
 export const ERRORS = {
   AUTH: {
     INVALID_TOKEN: defineError({
@@ -78,6 +77,16 @@ export const ERRORS = {
       code: "MTC-T0002",
       status: 409,
       internalMessage: "match_not_editable",
+    }),
+    // Task 14 (Fase 1): `record-result` requires the match to already be
+    // `finished` (via `finish-match`) — recording a score doesn't itself
+    // transition match status. Same 409 "stale state transition" family as
+    // `NOT_EDITABLE`, kept as its own code since the message is specific
+    // ("finish the match first").
+    NOT_FINISHED: defineError({
+      code: "MTC-T0003",
+      status: 409,
+      internalMessage: "match_not_finished",
     }),
   },
   ATT: {
@@ -151,6 +160,32 @@ export const ERRORS = {
       code: "TEAM-T0004",
       status: 403,
       internalMessage: "team_forbidden",
+    }),
+  },
+  // Task 14 (Fase 1): `MatchResult` (`children/result`) — closes out a
+  // finished match with a score. INVALID_SCORES is the one the brief names
+  // explicitly (team indices in `scores` must match the match's persisted
+  // `TeamAssignment`, or the simple `{0,1}` pair if none was generated, and
+  // `winnerTeam` — when given explicitly — must be one of those indices or
+  // `null`). NOT_FOUND (404) backs `get-result` when no result has been
+  // recorded yet; CANNOT_VIEW (403) is the same "owner-or-member" authz gap
+  // `TEAM.CANNOT_VIEW`/`ATT.CANNOT_MANAGE` already close, kept as its own
+  // code so the localized copy talks about results specifically.
+  RES: {
+    INVALID_SCORES: defineError({
+      code: "RES-T0001",
+      status: 400,
+      internalMessage: "result_invalid_scores",
+    }),
+    NOT_FOUND: defineError({
+      code: "RES-T0002",
+      status: 404,
+      internalMessage: "result_not_found",
+    }),
+    CANNOT_VIEW: defineError({
+      code: "RES-T0003",
+      status: 403,
+      internalMessage: "result_forbidden",
     }),
   },
   SYS: {

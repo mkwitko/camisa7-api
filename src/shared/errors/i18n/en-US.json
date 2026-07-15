@@ -9,6 +9,7 @@
   "PLR-T0001": "Member not found.",
   "MTC-T0001": "Match not found.",
   "MTC-T0002": "This match can no longer be edited.",
+  "MTC-T0003": "Finish the match before recording its result.",
   "ATT-T0001": "You are already confirmed or waitlisted for this match.",
   "ATT-T0002": "Attendance not found.",
   "ATT-T0003": "You do not have permission over this attendance.",
@@ -17,6 +18,9 @@
   "TEAM-T0002": "Invalid team roster — every confirmed player must appear exactly once.",
   "TEAM-T0003": "Teams have not been generated for this match yet.",
   "TEAM-T0004": "You do not have permission over this match's teams.",
+  "RES-T0001": "Invalid score for this match's teams.",
+  "RES-T0002": "No result has been recorded for this match yet.",
+  "RES-T0003": "You do not have permission over this match's result.",
   "SYS-T0001": "Validation error.",
   "SYS-T0002": "Internal server error."
 }

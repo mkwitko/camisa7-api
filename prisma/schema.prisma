@@ -175,6 +175,7 @@ model Match {
   attendances    Attendance[]
   inviteTokens   InviteToken[]
   teamAssignment TeamAssignment?
+  result         MatchResult?
 
   @@index([groupId, datetime])
 }
@@ -273,6 +274,35 @@ model TeamAssignment {
   match   Match  @relation(fields: [matchId], references: [id])
 
   teams Json
+
+  createdAt DateTime @default(now()) @db.Timestamptz(3)
+  updatedAt DateTime @updatedAt @db.Timestamptz(3)
+}
+
+/// Task 14 (Fase 1): closes out a `Match` — the owner-recorded final score.
+/// One row per match (`matchId` unique; `MatchResultRepository.upsert` is an
+/// upsert keyed by `matchId`, so `record-result` can correct a mistaken entry
+/// by resubmitting rather than accumulating history). `scores` is a `Json`
+/// array shaped `{ team: number; goals: number }[]` — same `{ team, ... }[]`
+/// convention `TeamAssignment.teams` uses, validated at the HTTP boundary
+/// (Zod) plus cross-checked in the service against the match's persisted
+/// `TeamAssignment` (if one exists) so a score can't reference a team that
+/// was never on the pitch. `winnerTeam` is the winning team's index;
+/// `null` means a draw. `recordedById` is the acting `User.id` — plain uuid
+/// column, no FK relation, same convention as `Attendance.paidConfirmedById`.
+/// Recording a result requires the match to already be `status: "finished"`
+/// (via `finish-match`, Fase 0) — `record-result` doesn't itself transition
+/// match status, it only closes out the score for an already-finished match.
+model MatchResult {
+  id String @id @default(uuid()) @db.Uuid
+
+  matchId String @unique @db.Uuid
+  match   Match  @relation(fields: [matchId], references: [id])
+
+  scores     Json
+  winnerTeam Int?
+
+  recordedById String @db.Uuid
 
   createdAt DateTime @default(now()) @db.Timestamptz(3)
   updatedAt DateTime @updatedAt @db.Timestamptz(3)

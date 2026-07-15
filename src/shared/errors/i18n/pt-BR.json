@@ -9,6 +9,7 @@
   "PLR-T0001": "Membro não encontrado.",
   "MTC-T0001": "Partida não encontrada.",
   "MTC-T0002": "Esta partida não pode mais ser editada.",
+  "MTC-T0003": "Encerre a partida antes de registrar o resultado.",
   "ATT-T0001": "Você já está confirmado ou na fila de espera desta partida.",
   "ATT-T0002": "Presença não encontrada.",
   "ATT-T0003": "Você não tem permissão sobre esta presença.",
@@ -17,6 +18,9 @@
   "TEAM-T0002": "Escalação inválida — cada jogador confirmado deve aparecer exatamente uma vez.",
   "TEAM-T0003": "Os times ainda não foram gerados para esta partida.",
   "TEAM-T0004": "Você não tem permissão sobre os times desta partida.",
+  "RES-T0001": "Placar inválido para os times desta partida.",
+  "RES-T0002": "Resultado ainda não registrado para esta partida.",
+  "RES-T0003": "Você não tem permissão sobre o resultado desta partida.",
   "SYS-T0001": "Erro de validação.",
   "SYS-T0002": "Erro interno do servidor."
 }
