@@ -18,9 +18,7 @@
     "/health": {
       "get": {
         "operationId": "getHealth",
-        "tags": [
-          "health"
-        ],
+        "tags": ["health"],
         "responses": {
           "200": {
             "description": "Default Response",
@@ -31,14 +29,10 @@
                   "properties": {
                     "status": {
                       "type": "string",
-                      "enum": [
-                        "ok"
-                      ]
+                      "enum": ["ok"]
                     }
                   },
-                  "required": [
-                    "status"
-                  ],
+                  "required": ["status"],
                   "additionalProperties": false
                 }
               }
@@ -50,9 +44,7 @@
     "/auth/register": {
       "post": {
         "operationId": "registerUser",
-        "tags": [
-          "auth"
-        ],
+        "tags": ["auth"],
         "requestBody": {
           "required": true,
           "content": {
@@ -75,11 +67,7 @@
                     "maxLength": 120
                   }
                 },
-                "required": [
-                  "email",
-                  "password",
-                  "name"
-                ]
+                "required": ["email", "password", "name"]
               }
             }
           }
@@ -121,22 +109,11 @@
                           "type": "string"
                         }
                       },
-                      "required": [
-                        "id",
-                        "email",
-                        "name",
-                        "hasPassword",
-                        "googleSub",
-                        "createdAt"
-                      ],
+                      "required": ["id", "email", "name", "hasPassword", "googleSub", "createdAt"],
                       "additionalProperties": false
                     }
                   },
-                  "required": [
-                    "accessToken",
-                    "refreshToken",
-                    "user"
-                  ],
+                  "required": ["accessToken", "refreshToken", "user"],
                   "additionalProperties": false
                 }
               }
@@ -148,9 +125,7 @@
     "/auth/login": {
       "post": {
         "operationId": "loginUser",
-        "tags": [
-          "auth"
-        ],
+        "tags": ["auth"],
         "requestBody": {
           "required": true,
           "content": {
@@ -168,10 +143,7 @@
                     "minLength": 1
                   }
                 },
-                "required": [
-                  "email",
-                  "password"
-                ]
+                "required": ["email", "password"]
               }
             }
           }
@@ -213,22 +185,11 @@
                           "type": "string"
                         }
                       },
-                      "required": [
-                        "id",
-                        "email",
-                        "name",
-                        "hasPassword",
-                        "googleSub",
-                        "createdAt"
-                      ],
+                      "required": ["id", "email", "name", "hasPassword", "googleSub", "createdAt"],
                       "additionalProperties": false
                     }
                   },
-                  "required": [
-                    "accessToken",
-                    "refreshToken",
-                    "user"
-                  ],
+                  "required": ["accessToken", "refreshToken", "user"],
                   "additionalProperties": false
                 }
               }
@@ -240,9 +201,7 @@
     "/auth/login-google": {
       "post": {
         "operationId": "loginGoogleUser",
-        "tags": [
-          "auth"
-        ],
+        "tags": ["auth"],
         "requestBody": {
           "required": true,
           "content": {
@@ -255,9 +214,7 @@
                     "minLength": 1
                   }
                 },
-                "required": [
-                  "idToken"
-                ]
+                "required": ["idToken"]
               }
             }
           }
@@ -299,22 +256,11 @@
                           "type": "string"
                         }
                       },
-                      "required": [
-                        "id",
-                        "email",
-                        "name",
-                        "hasPassword",
-                        "googleSub",
-                        "createdAt"
-                      ],
+                      "required": ["id", "email", "name", "hasPassword", "googleSub", "createdAt"],
                       "additionalProperties": false
                     }
                   },
-                  "required": [
-                    "accessToken",
-                    "refreshToken",
-                    "user"
-                  ],
+                  "required": ["accessToken", "refreshToken", "user"],
                   "additionalProperties": false
                 }
               }
@@ -326,9 +272,7 @@
     "/auth/refresh": {
       "post": {
         "operationId": "refreshToken",
-        "tags": [
-          "auth"
-        ],
+        "tags": ["auth"],
         "requestBody": {
           "required": true,
           "content": {
@@ -341,9 +285,7 @@
                     "minLength": 1
                   }
                 },
-                "required": [
-                  "refreshToken"
-                ]
+                "required": ["refreshToken"]
               }
             }
           }
@@ -385,22 +327,11 @@
                           "type": "string"
                         }
                       },
-                      "required": [
-                        "id",
-                        "email",
-                        "name",
-                        "hasPassword",
-                        "googleSub",
-                        "createdAt"
-                      ],
+                      "required": ["id", "email", "name", "hasPassword", "googleSub", "createdAt"],
                       "additionalProperties": false
                     }
                   },
-                  "required": [
-                    "accessToken",
-                    "refreshToken",
-                    "user"
-                  ],
+                  "required": ["accessToken", "refreshToken", "user"],
                   "additionalProperties": false
                 }
               }
@@ -412,9 +343,7 @@
     "/auth/me": {
       "get": {
         "operationId": "getMe",
-        "tags": [
-          "auth"
-        ],
+        "tags": ["auth"],
         "responses": {
           "200": {
             "description": "Default Response",
@@ -443,14 +372,7 @@
                       "type": "string"
                     }
                   },
-                  "required": [
-                    "id",
-                    "email",
-                    "name",
-                    "hasPassword",
-                    "googleSub",
-                    "createdAt"
-                  ],
+                  "required": ["id", "email", "name", "hasPassword", "googleSub", "createdAt"],
                   "additionalProperties": false
                 }
               }
@@ -462,9 +384,7 @@
     "/auth/me/push-token": {
       "patch": {
         "operationId": "updateMyPushToken",
-        "tags": [
-          "auth"
-        ],
+        "tags": ["auth"],
         "requestBody": {
           "required": true,
           "content": {
@@ -477,9 +397,7 @@
                     "type": "string"
                   }
                 },
-                "required": [
-                  "expoPushToken"
-                ]
+                "required": ["expoPushToken"]
               }
             }
           }
@@ -497,9 +415,7 @@
                       "type": "string"
                     }
                   },
-                  "required": [
-                    "expoPushToken"
-                  ],
+                  "required": ["expoPushToken"],
                   "additionalProperties": false
                 }
               }
@@ -511,9 +427,7 @@
     "/groups": {
       "post": {
         "operationId": "createGroup",
-        "tags": [
-          "groups"
-        ],
+        "tags": ["groups"],
         "requestBody": {
           "required": true,
           "content": {
@@ -527,15 +441,10 @@
                   },
                   "statsMode": {
                     "type": "string",
-                    "enum": [
-                      "organizador",
-                      "colaborativo"
-                    ]
+                    "enum": ["organizador", "colaborativo"]
                   }
                 },
-                "required": [
-                  "name"
-                ]
+                "required": ["name"]
               }
             }
           }
@@ -561,22 +470,13 @@
                     },
                     "statsMode": {
                       "type": "string",
-                      "enum": [
-                        "organizador",
-                        "colaborativo"
-                      ]
+                      "enum": ["organizador", "colaborativo"]
                     },
                     "createdAt": {
                       "type": "string"
                     }
                   },
-                  "required": [
-                    "id",
-                    "name",
-                    "ownerId",
-                    "statsMode",
-                    "createdAt"
-                  ],
+                  "required": ["id", "name", "ownerId", "statsMode", "createdAt"],
                   "additionalProperties": false
                 }
               }
@@ -586,9 +486,7 @@
       },
       "get": {
         "operationId": "listMyGroups",
-        "tags": [
-          "groups"
-        ],
+        "tags": ["groups"],
         "responses": {
           "200": {
             "description": "Default Response",
@@ -612,10 +510,7 @@
                       },
                       "statsMode": {
                         "type": "string",
-                        "enum": [
-                          "organizador",
-                          "colaborativo"
-                        ]
+                        "enum": ["organizador", "colaborativo"]
                       },
                       "createdAt": {
                         "type": "string"
@@ -641,11 +536,7 @@
                             "type": "string"
                           }
                         },
-                        "required": [
-                          "id",
-                          "datetime",
-                          "location"
-                        ],
+                        "required": ["id", "datetime", "location"],
                         "additionalProperties": false
                       }
                     },
@@ -670,9 +561,7 @@
     "/groups/{id}": {
       "get": {
         "operationId": "getGroup",
-        "tags": [
-          "groups"
-        ],
+        "tags": ["groups"],
         "parameters": [
           {
             "schema": {
@@ -706,22 +595,13 @@
                     },
                     "statsMode": {
                       "type": "string",
-                      "enum": [
-                        "organizador",
-                        "colaborativo"
-                      ]
+                      "enum": ["organizador", "colaborativo"]
                     },
                     "createdAt": {
                       "type": "string"
                     }
                   },
-                  "required": [
-                    "id",
-                    "name",
-                    "ownerId",
-                    "statsMode",
-                    "createdAt"
-                  ],
+                  "required": ["id", "name", "ownerId", "statsMode", "createdAt"],
                   "additionalProperties": false
                 }
               }
@@ -733,9 +613,7 @@
     "/groups/{id}/members": {
       "post": {
         "operationId": "addMember",
-        "tags": [
-          "members"
-        ],
+        "tags": ["members"],
         "requestBody": {
           "required": true,
           "content": {
@@ -753,27 +631,13 @@
                   },
                   "primaryPos": {
                     "type": "string",
-                    "enum": [
-                      "goleiro",
-                      "zagueiro",
-                      "lateral",
-                      "volante",
-                      "meia",
-                      "atacante"
-                    ]
+                    "enum": ["goleiro", "zagueiro", "lateral", "volante", "meia", "atacante"]
                   },
                   "secondaryPos": {
                     "type": "array",
                     "items": {
                       "type": "string",
-                      "enum": [
-                        "goleiro",
-                        "zagueiro",
-                        "lateral",
-                        "volante",
-                        "meia",
-                        "atacante"
-                      ]
+                      "enum": ["goleiro", "zagueiro", "lateral", "volante", "meia", "atacante"]
                     }
                   },
                   "affinity": {
@@ -793,10 +657,7 @@
                     }
                   }
                 },
-                "required": [
-                  "name",
-                  "primaryPos"
-                ]
+                "required": ["name", "primaryPos"]
               }
             }
           }
@@ -833,34 +694,17 @@
                     },
                     "role": {
                       "type": "string",
-                      "enum": [
-                        "organizador",
-                        "jogador"
-                      ]
+                      "enum": ["organizador", "jogador"]
                     },
                     "primaryPos": {
                       "type": "string",
-                      "enum": [
-                        "goleiro",
-                        "zagueiro",
-                        "lateral",
-                        "volante",
-                        "meia",
-                        "atacante"
-                      ]
+                      "enum": ["goleiro", "zagueiro", "lateral", "volante", "meia", "atacante"]
                     },
                     "secondaryPos": {
                       "type": "array",
                       "items": {
                         "type": "string",
-                        "enum": [
-                          "goleiro",
-                          "zagueiro",
-                          "lateral",
-                          "volante",
-                          "meia",
-                          "atacante"
-                        ]
+                        "enum": ["goleiro", "zagueiro", "lateral", "volante", "meia", "atacante"]
                       }
                     },
                     "affinity": {
@@ -899,12 +743,7 @@
                           "type": "string"
                         }
                       },
-                      "required": [
-                        "id",
-                        "userId",
-                        "name",
-                        "phone"
-                      ],
+                      "required": ["id", "userId", "name", "phone"],
                       "additionalProperties": false
                     }
                   },
@@ -927,9 +766,7 @@
       },
       "get": {
         "operationId": "listMembers",
-        "tags": [
-          "members"
-        ],
+        "tags": ["members"],
         "parameters": [
           {
             "schema": {
@@ -964,34 +801,17 @@
                       },
                       "role": {
                         "type": "string",
-                        "enum": [
-                          "organizador",
-                          "jogador"
-                        ]
+                        "enum": ["organizador", "jogador"]
                       },
                       "primaryPos": {
                         "type": "string",
-                        "enum": [
-                          "goleiro",
-                          "zagueiro",
-                          "lateral",
-                          "volante",
-                          "meia",
-                          "atacante"
-                        ]
+                        "enum": ["goleiro", "zagueiro", "lateral", "volante", "meia", "atacante"]
                       },
                       "secondaryPos": {
                         "type": "array",
                         "items": {
                           "type": "string",
-                          "enum": [
-                            "goleiro",
-                            "zagueiro",
-                            "lateral",
-                            "volante",
-                            "meia",
-                            "atacante"
-                          ]
+                          "enum": ["goleiro", "zagueiro", "lateral", "volante", "meia", "atacante"]
                         }
                       },
                       "affinity": {
@@ -1030,12 +850,7 @@
                             "type": "string"
                           }
                         },
-                        "required": [
-                          "id",
-                          "userId",
-                          "name",
-                          "phone"
-                        ],
+                        "required": ["id", "userId", "name", "phone"],
                         "additionalProperties": false
                       }
                     },
@@ -1061,9 +876,7 @@
     "/groups/{id}/members/{memberId}": {
       "patch": {
         "operationId": "updateMember",
-        "tags": [
-          "members"
-        ],
+        "tags": ["members"],
         "requestBody": {
           "required": true,
           "content": {
@@ -1073,27 +886,13 @@
                 "properties": {
                   "primaryPos": {
                     "type": "string",
-                    "enum": [
-                      "goleiro",
-                      "zagueiro",
-                      "lateral",
-                      "volante",
-                      "meia",
-                      "atacante"
-                    ]
+                    "enum": ["goleiro", "zagueiro", "lateral", "volante", "meia", "atacante"]
                   },
                   "secondaryPos": {
                     "type": "array",
                     "items": {
                       "type": "string",
-                      "enum": [
-                        "goleiro",
-                        "zagueiro",
-                        "lateral",
-                        "volante",
-                        "meia",
-                        "atacante"
-                      ]
+                      "enum": ["goleiro", "zagueiro", "lateral", "volante", "meia", "atacante"]
                     }
                   },
                   "affinity": {
@@ -1159,34 +958,17 @@
                     },
                     "role": {
                       "type": "string",
-                      "enum": [
-                        "organizador",
-                        "jogador"
-                      ]
+                      "enum": ["organizador", "jogador"]
                     },
                     "primaryPos": {
                       "type": "string",
-                      "enum": [
-                        "goleiro",
-                        "zagueiro",
-                        "lateral",
-                        "volante",
-                        "meia",
-                        "atacante"
-                      ]
+                      "enum": ["goleiro", "zagueiro", "lateral", "volante", "meia", "atacante"]
                     },
                     "secondaryPos": {
                       "type": "array",
                       "items": {
                         "type": "string",
-                        "enum": [
-                          "goleiro",
-                          "zagueiro",
-                          "lateral",
-                          "volante",
-                          "meia",
-                          "atacante"
-                        ]
+                        "enum": ["goleiro", "zagueiro", "lateral", "volante", "meia", "atacante"]
                       }
                     },
                     "affinity": {
@@ -1225,12 +1007,7 @@
                           "type": "string"
                         }
                       },
-                      "required": [
-                        "id",
-                        "userId",
-                        "name",
-                        "phone"
-                      ],
+                      "required": ["id", "userId", "name", "phone"],
                       "additionalProperties": false
                     }
                   },
@@ -1255,9 +1032,7 @@
     "/groups/{id}/matches": {
       "post": {
         "operationId": "createMatch",
-        "tags": [
-          "matches"
-        ],
+        "tags": ["matches"],
         "requestBody": {
           "required": true,
           "content": {
@@ -1291,9 +1066,7 @@
                     "properties": {
                       "weekly": {
                         "type": "boolean",
-                        "enum": [
-                          true
-                        ]
+                        "enum": [true]
                       },
                       "weekday": {
                         "type": "integer",
@@ -1305,18 +1078,10 @@
                         "pattern": "^([01]\\d|2[0-3]):[0-5]\\d$"
                       }
                     },
-                    "required": [
-                      "weekly",
-                      "weekday",
-                      "time"
-                    ]
+                    "required": ["weekly", "weekday", "time"]
                   }
                 },
-                "required": [
-                  "datetime",
-                  "location",
-                  "slots"
-                ]
+                "required": ["datetime", "location", "slots"]
               }
             }
           }
@@ -1373,13 +1138,7 @@
                     },
                     "status": {
                       "type": "string",
-                      "enum": [
-                        "open",
-                        "full",
-                        "closed",
-                        "finished",
-                        "cancelled"
-                      ]
+                      "enum": ["open", "full", "closed", "finished", "cancelled"]
                     },
                     "recurrenceRule": {
                       "nullable": true,
@@ -1387,9 +1146,7 @@
                       "properties": {
                         "weekly": {
                           "type": "boolean",
-                          "enum": [
-                            true
-                          ]
+                          "enum": [true]
                         },
                         "weekday": {
                           "type": "integer",
@@ -1401,11 +1158,7 @@
                           "pattern": "^([01]\\d|2[0-3]):[0-5]\\d$"
                         }
                       },
-                      "required": [
-                        "weekly",
-                        "weekday",
-                        "time"
-                      ],
+                      "required": ["weekly", "weekday", "time"],
                       "additionalProperties": false
                     },
                     "createdAt": {
@@ -1433,9 +1186,7 @@
       },
       "get": {
         "operationId": "listMatches",
-        "tags": [
-          "matches"
-        ],
+        "tags": ["matches"],
         "parameters": [
           {
             "schema": {
@@ -1498,13 +1249,7 @@
                       },
                       "status": {
                         "type": "string",
-                        "enum": [
-                          "open",
-                          "full",
-                          "closed",
-                          "finished",
-                          "cancelled"
-                        ]
+                        "enum": ["open", "full", "closed", "finished", "cancelled"]
                       },
                       "recurrenceRule": {
                         "nullable": true,
@@ -1512,9 +1257,7 @@
                         "properties": {
                           "weekly": {
                             "type": "boolean",
-                            "enum": [
-                              true
-                            ]
+                            "enum": [true]
                           },
                           "weekday": {
                             "type": "integer",
@@ -1526,11 +1269,7 @@
                             "pattern": "^([01]\\d|2[0-3]):[0-5]\\d$"
                           }
                         },
-                        "required": [
-                          "weekly",
-                          "weekday",
-                          "time"
-                        ],
+                        "required": ["weekly", "weekday", "time"],
                         "additionalProperties": false
                       },
                       "createdAt": {
@@ -1561,9 +1300,7 @@
     "/matches/{id}": {
       "get": {
         "operationId": "getMatch",
-        "tags": [
-          "matches"
-        ],
+        "tags": ["matches"],
         "parameters": [
           {
             "schema": {
@@ -1616,13 +1353,7 @@
                     },
                     "status": {
                       "type": "string",
-                      "enum": [
-                        "open",
-                        "full",
-                        "closed",
-                        "finished",
-                        "cancelled"
-                      ]
+                      "enum": ["open", "full", "closed", "finished", "cancelled"]
                     },
                     "recurrenceRule": {
                       "nullable": true,
@@ -1630,9 +1361,7 @@
                       "properties": {
                         "weekly": {
                           "type": "boolean",
-                          "enum": [
-                            true
-                          ]
+                          "enum": [true]
                         },
                         "weekday": {
                           "type": "integer",
@@ -1644,11 +1373,7 @@
                           "pattern": "^([01]\\d|2[0-3]):[0-5]\\d$"
                         }
                       },
-                      "required": [
-                        "weekly",
-                        "weekday",
-                        "time"
-                      ],
+                      "required": ["weekly", "weekday", "time"],
                       "additionalProperties": false
                     },
                     "createdAt": {
@@ -1676,9 +1401,7 @@
       },
       "patch": {
         "operationId": "updateMatch",
-        "tags": [
-          "matches"
-        ],
+        "tags": ["matches"],
         "requestBody": {
           "required": true,
           "content": {
@@ -1713,9 +1436,7 @@
                     "properties": {
                       "weekly": {
                         "type": "boolean",
-                        "enum": [
-                          true
-                        ]
+                        "enum": [true]
                       },
                       "weekday": {
                         "type": "integer",
@@ -1727,11 +1448,7 @@
                         "pattern": "^([01]\\d|2[0-3]):[0-5]\\d$"
                       }
                     },
-                    "required": [
-                      "weekly",
-                      "weekday",
-                      "time"
-                    ]
+                    "required": ["weekly", "weekday", "time"]
                   }
                 }
               }
@@ -1790,13 +1507,7 @@
                     },
                     "status": {
                       "type": "string",
-                      "enum": [
-                        "open",
-                        "full",
-                        "closed",
-                        "finished",
-                        "cancelled"
-                      ]
+                      "enum": ["open", "full", "closed", "finished", "cancelled"]
                     },
                     "recurrenceRule": {
                       "nullable": true,
@@ -1804,9 +1515,7 @@
                       "properties": {
                         "weekly": {
                           "type": "boolean",
-                          "enum": [
-                            true
-                          ]
+                          "enum": [true]
                         },
                         "weekday": {
                           "type": "integer",
@@ -1818,11 +1527,7 @@
                           "pattern": "^([01]\\d|2[0-3]):[0-5]\\d$"
                         }
                       },
-                      "required": [
-                        "weekly",
-                        "weekday",
-                        "time"
-                      ],
+                      "required": ["weekly", "weekday", "time"],
                       "additionalProperties": false
                     },
                     "createdAt": {
@@ -1852,9 +1557,7 @@
     "/matches/{id}/cancel": {
       "post": {
         "operationId": "cancelMatch",
-        "tags": [
-          "matches"
-        ],
+        "tags": ["matches"],
         "parameters": [
           {
             "schema": {
@@ -1907,13 +1610,7 @@
                     },
                     "status": {
                       "type": "string",
-                      "enum": [
-                        "open",
-                        "full",
-                        "closed",
-                        "finished",
-                        "cancelled"
-                      ]
+                      "enum": ["open", "full", "closed", "finished", "cancelled"]
                     },
                     "recurrenceRule": {
                       "nullable": true,
@@ -1921,9 +1618,7 @@
                       "properties": {
                         "weekly": {
                           "type": "boolean",
-                          "enum": [
-                            true
-                          ]
+                          "enum": [true]
                         },
                         "weekday": {
                           "type": "integer",
@@ -1935,11 +1630,7 @@
                           "pattern": "^([01]\\d|2[0-3]):[0-5]\\d$"
                         }
                       },
-                      "required": [
-                        "weekly",
-                        "weekday",
-                        "time"
-                      ],
+                      "required": ["weekly", "weekday", "time"],
                       "additionalProperties": false
                     },
                     "createdAt": {
@@ -1969,9 +1660,7 @@
     "/matches/{id}/finish": {
       "post": {
         "operationId": "finishMatch",
-        "tags": [
-          "matches"
-        ],
+        "tags": ["matches"],
         "parameters": [
           {
             "schema": {
@@ -2024,13 +1713,7 @@
                     },
                     "status": {
                       "type": "string",
-                      "enum": [
-                        "open",
-                        "full",
-                        "closed",
-                        "finished",
-                        "cancelled"
-                      ]
+                      "enum": ["open", "full", "closed", "finished", "cancelled"]
                     },
                     "recurrenceRule": {
                       "nullable": true,
@@ -2038,9 +1721,7 @@
                       "properties": {
                         "weekly": {
                           "type": "boolean",
-                          "enum": [
-                            true
-                          ]
+                          "enum": [true]
                         },
                         "weekday": {
                           "type": "integer",
@@ -2052,11 +1733,7 @@
                           "pattern": "^([01]\\d|2[0-3]):[0-5]\\d$"
                         }
                       },
-                      "required": [
-                        "weekly",
-                        "weekday",
-                        "time"
-                      ],
+                      "required": ["weekly", "weekday", "time"],
                       "additionalProperties": false
                     },
                     "createdAt": {
@@ -2086,9 +1763,7 @@
     "/matches/{id}/finalize": {
       "post": {
         "operationId": "finalizeMatch",
-        "tags": [
-          "matches"
-        ],
+        "tags": ["matches"],
         "parameters": [
           {
             "schema": {
@@ -2141,13 +1816,7 @@
                     },
                     "status": {
                       "type": "string",
-                      "enum": [
-                        "open",
-                        "full",
-                        "closed",
-                        "finished",
-                        "cancelled"
-                      ]
+                      "enum": ["open", "full", "closed", "finished", "cancelled"]
                     },
                     "recurrenceRule": {
                       "nullable": true,
@@ -2155,9 +1824,7 @@
                       "properties": {
                         "weekly": {
                           "type": "boolean",
-                          "enum": [
-                            true
-                          ]
+                          "enum": [true]
                         },
                         "weekday": {
                           "type": "integer",
@@ -2169,11 +1836,7 @@
                           "pattern": "^([01]\\d|2[0-3]):[0-5]\\d$"
                         }
                       },
-                      "required": [
-                        "weekly",
-                        "weekday",
-                        "time"
-                      ],
+                      "required": ["weekly", "weekday", "time"],
                       "additionalProperties": false
                     },
                     "createdAt": {
@@ -2203,9 +1866,7 @@
     "/matches/{id}/attendance": {
       "post": {
         "operationId": "confirmPresence",
-        "tags": [
-          "attendance"
-        ],
+        "tags": ["attendance"],
         "parameters": [
           {
             "schema": {
@@ -2238,11 +1899,7 @@
                     },
                     "status": {
                       "type": "string",
-                      "enum": [
-                        "confirmed",
-                        "waitlisted",
-                        "cancelled"
-                      ]
+                      "enum": ["confirmed", "waitlisted", "cancelled"]
                     },
                     "waitlistPos": {
                       "nullable": true,
@@ -2252,10 +1909,7 @@
                     },
                     "paymentStatus": {
                       "type": "string",
-                      "enum": [
-                        "pending",
-                        "paid"
-                      ]
+                      "enum": ["pending", "paid"]
                     },
                     "paidConfirmedById": {
                       "nullable": true,
@@ -2281,12 +1935,7 @@
                           "type": "string"
                         }
                       },
-                      "required": [
-                        "id",
-                        "userId",
-                        "name",
-                        "phone"
-                      ],
+                      "required": ["id", "userId", "name", "phone"],
                       "additionalProperties": false
                     }
                   },
@@ -2308,9 +1957,7 @@
       },
       "get": {
         "operationId": "listAttendance",
-        "tags": [
-          "attendance"
-        ],
+        "tags": ["attendance"],
         "parameters": [
           {
             "schema": {
@@ -2345,11 +1992,7 @@
                       },
                       "status": {
                         "type": "string",
-                        "enum": [
-                          "confirmed",
-                          "waitlisted",
-                          "cancelled"
-                        ]
+                        "enum": ["confirmed", "waitlisted", "cancelled"]
                       },
                       "waitlistPos": {
                         "nullable": true,
@@ -2359,10 +2002,7 @@
                       },
                       "paymentStatus": {
                         "type": "string",
-                        "enum": [
-                          "pending",
-                          "paid"
-                        ]
+                        "enum": ["pending", "paid"]
                       },
                       "paidConfirmedById": {
                         "nullable": true,
@@ -2388,12 +2028,7 @@
                             "type": "string"
                           }
                         },
-                        "required": [
-                          "id",
-                          "userId",
-                          "name",
-                          "phone"
-                        ],
+                        "required": ["id", "userId", "name", "phone"],
                         "additionalProperties": false
                       }
                     },
@@ -2418,9 +2053,7 @@
     "/matches/{id}/attendance/{attId}/cancel": {
       "post": {
         "operationId": "cancelPresence",
-        "tags": [
-          "attendance"
-        ],
+        "tags": ["attendance"],
         "parameters": [
           {
             "schema": {
@@ -2466,11 +2099,7 @@
                         },
                         "status": {
                           "type": "string",
-                          "enum": [
-                            "confirmed",
-                            "waitlisted",
-                            "cancelled"
-                          ]
+                          "enum": ["confirmed", "waitlisted", "cancelled"]
                         },
                         "waitlistPos": {
                           "nullable": true,
@@ -2480,10 +2109,7 @@
                         },
                         "paymentStatus": {
                           "type": "string",
-                          "enum": [
-                            "pending",
-                            "paid"
-                          ]
+                          "enum": ["pending", "paid"]
                         },
                         "paidConfirmedById": {
                           "nullable": true,
@@ -2509,12 +2135,7 @@
                               "type": "string"
                             }
                           },
-                          "required": [
-                            "id",
-                            "userId",
-                            "name",
-                            "phone"
-                          ],
+                          "required": ["id", "userId", "name", "phone"],
                           "additionalProperties": false
                         }
                       },
@@ -2545,11 +2166,7 @@
                         },
                         "status": {
                           "type": "string",
-                          "enum": [
-                            "confirmed",
-                            "waitlisted",
-                            "cancelled"
-                          ]
+                          "enum": ["confirmed", "waitlisted", "cancelled"]
                         },
                         "waitlistPos": {
                           "nullable": true,
@@ -2559,10 +2176,7 @@
                         },
                         "paymentStatus": {
                           "type": "string",
-                          "enum": [
-                            "pending",
-                            "paid"
-                          ]
+                          "enum": ["pending", "paid"]
                         },
                         "paidConfirmedById": {
                           "nullable": true,
@@ -2588,12 +2202,7 @@
                               "type": "string"
                             }
                           },
-                          "required": [
-                            "id",
-                            "userId",
-                            "name",
-                            "phone"
-                          ],
+                          "required": ["id", "userId", "name", "phone"],
                           "additionalProperties": false
                         }
                       },
@@ -2609,10 +2218,7 @@
                       "additionalProperties": false
                     }
                   },
-                  "required": [
-                    "cancelled",
-                    "promoted"
-                  ],
+                  "required": ["cancelled", "promoted"],
                   "additionalProperties": false
                 }
               }
@@ -2624,9 +2230,7 @@
     "/matches/{id}/attendance/{attId}/mark-paid": {
       "post": {
         "operationId": "markPaid",
-        "tags": [
-          "attendance"
-        ],
+        "tags": ["attendance"],
         "parameters": [
           {
             "schema": {
@@ -2669,11 +2273,7 @@
                     },
                     "status": {
                       "type": "string",
-                      "enum": [
-                        "confirmed",
-                        "waitlisted",
-                        "cancelled"
-                      ]
+                      "enum": ["confirmed", "waitlisted", "cancelled"]
                     },
                     "waitlistPos": {
                       "nullable": true,
@@ -2683,10 +2283,7 @@
                     },
                     "paymentStatus": {
                       "type": "string",
-                      "enum": [
-                        "pending",
-                        "paid"
-                      ]
+                      "enum": ["pending", "paid"]
                     },
                     "paidConfirmedById": {
                       "nullable": true,
@@ -2712,12 +2309,7 @@
                           "type": "string"
                         }
                       },
-                      "required": [
-                        "id",
-                        "userId",
-                        "name",
-                        "phone"
-                      ],
+                      "required": ["id", "userId", "name", "phone"],
                       "additionalProperties": false
                     }
                   },
@@ -2741,9 +2333,7 @@
     "/matches/{id}/attendance/{attId}/confirm-payment": {
       "post": {
         "operationId": "confirmPayment",
-        "tags": [
-          "attendance"
-        ],
+        "tags": ["attendance"],
         "requestBody": {
           "required": true,
           "content": {
@@ -2803,11 +2393,7 @@
                     },
                     "status": {
                       "type": "string",
-                      "enum": [
-                        "confirmed",
-                        "waitlisted",
-                        "cancelled"
-                      ]
+                      "enum": ["confirmed", "waitlisted", "cancelled"]
                     },
                     "waitlistPos": {
                       "nullable": true,
@@ -2817,10 +2403,7 @@
                     },
                     "paymentStatus": {
                       "type": "string",
-                      "enum": [
-                        "pending",
-                        "paid"
-                      ]
+                      "enum": ["pending", "paid"]
                     },
                     "paidConfirmedById": {
                       "nullable": true,
@@ -2846,12 +2429,7 @@
                           "type": "string"
                         }
                       },
-                      "required": [
-                        "id",
-                        "userId",
-                        "name",
-                        "phone"
-                      ],
+                      "required": ["id", "userId", "name", "phone"],
                       "additionalProperties": false
                     }
                   },
@@ -2875,9 +2453,7 @@
     "/matches/{id}/teams": {
       "post": {
         "operationId": "generateTeams",
-        "tags": [
-          "teams"
-        ],
+        "tags": ["teams"],
         "parameters": [
           {
             "schema": {
@@ -2948,20 +2524,12 @@
                                   "maximum": 9007199254740991
                                 }
                               },
-                              "required": [
-                                "playerId",
-                                "name",
-                                "overall"
-                              ],
+                              "required": ["playerId", "name", "overall"],
                               "additionalProperties": false
                             }
                           }
                         },
-                        "required": [
-                          "team",
-                          "overallTotal",
-                          "players"
-                        ],
+                        "required": ["team", "overallTotal", "players"],
                         "additionalProperties": false
                       }
                     },
@@ -2969,11 +2537,7 @@
                       "type": "string"
                     }
                   },
-                  "required": [
-                    "matchId",
-                    "teams",
-                    "generatedAt"
-                  ],
+                  "required": ["matchId", "teams", "generatedAt"],
                   "additionalProperties": false
                 }
               }
@@ -2983,9 +2547,7 @@
       },
       "get": {
         "operationId": "getTeams",
-        "tags": [
-          "teams"
-        ],
+        "tags": ["teams"],
         "parameters": [
           {
             "schema": {
@@ -3045,20 +2607,12 @@
                                   "maximum": 9007199254740991
                                 }
                               },
-                              "required": [
-                                "playerId",
-                                "name",
-                                "overall"
-                              ],
+                              "required": ["playerId", "name", "overall"],
                               "additionalProperties": false
                             }
                           }
                         },
-                        "required": [
-                          "team",
-                          "overallTotal",
-                          "players"
-                        ],
+                        "required": ["team", "overallTotal", "players"],
                         "additionalProperties": false
                       }
                     },
@@ -3066,11 +2620,7 @@
                       "type": "string"
                     }
                   },
-                  "required": [
-                    "matchId",
-                    "teams",
-                    "generatedAt"
-                  ],
+                  "required": ["matchId", "teams", "generatedAt"],
                   "additionalProperties": false
                 }
               }
@@ -3080,9 +2630,7 @@
       },
       "put": {
         "operationId": "updateTeams",
-        "tags": [
-          "teams"
-        ],
+        "tags": ["teams"],
         "requestBody": {
           "required": true,
           "content": {
@@ -3110,16 +2658,11 @@
                           }
                         }
                       },
-                      "required": [
-                        "team",
-                        "playerIds"
-                      ]
+                      "required": ["team", "playerIds"]
                     }
                   }
                 },
-                "required": [
-                  "teams"
-                ]
+                "required": ["teams"]
               }
             }
           }
@@ -3183,20 +2726,12 @@
                                   "maximum": 9007199254740991
                                 }
                               },
-                              "required": [
-                                "playerId",
-                                "name",
-                                "overall"
-                              ],
+                              "required": ["playerId", "name", "overall"],
                               "additionalProperties": false
                             }
                           }
                         },
-                        "required": [
-                          "team",
-                          "overallTotal",
-                          "players"
-                        ],
+                        "required": ["team", "overallTotal", "players"],
                         "additionalProperties": false
                       }
                     },
@@ -3204,11 +2739,7 @@
                       "type": "string"
                     }
                   },
-                  "required": [
-                    "matchId",
-                    "teams",
-                    "generatedAt"
-                  ],
+                  "required": ["matchId", "teams", "generatedAt"],
                   "additionalProperties": false
                 }
               }
@@ -3220,9 +2751,7 @@
     "/matches/{id}/result": {
       "post": {
         "operationId": "recordResult",
-        "tags": [
-          "result"
-        ],
+        "tags": ["result"],
         "requestBody": {
           "required": true,
           "content": {
@@ -3247,10 +2776,7 @@
                           "maximum": 9007199254740991
                         }
                       },
-                      "required": [
-                        "team",
-                        "goals"
-                      ]
+                      "required": ["team", "goals"]
                     }
                   },
                   "winnerTeam": {
@@ -3260,9 +2786,7 @@
                     "maximum": 9007199254740991
                   }
                 },
-                "required": [
-                  "scores"
-                ]
+                "required": ["scores"]
               }
             }
           }
@@ -3308,10 +2832,7 @@
                             "maximum": 9007199254740991
                           }
                         },
-                        "required": [
-                          "team",
-                          "goals"
-                        ],
+                        "required": ["team", "goals"],
                         "additionalProperties": false
                       }
                     },
@@ -3330,13 +2851,7 @@
                       "type": "string"
                     }
                   },
-                  "required": [
-                    "matchId",
-                    "scores",
-                    "winnerTeam",
-                    "recordedById",
-                    "recordedAt"
-                  ],
+                  "required": ["matchId", "scores", "winnerTeam", "recordedById", "recordedAt"],
                   "additionalProperties": false
                 }
               }
@@ -3346,9 +2861,7 @@
       },
       "get": {
         "operationId": "getResult",
-        "tags": [
-          "result"
-        ],
+        "tags": ["result"],
         "parameters": [
           {
             "schema": {
@@ -3390,10 +2903,7 @@
                             "maximum": 9007199254740991
                           }
                         },
-                        "required": [
-                          "team",
-                          "goals"
-                        ],
+                        "required": ["team", "goals"],
                         "additionalProperties": false
                       }
                     },
@@ -3412,13 +2922,7 @@
                       "type": "string"
                     }
                   },
-                  "required": [
-                    "matchId",
-                    "scores",
-                    "winnerTeam",
-                    "recordedById",
-                    "recordedAt"
-                  ],
+                  "required": ["matchId", "scores", "winnerTeam", "recordedById", "recordedAt"],
                   "additionalProperties": false
                 }
               }
@@ -3430,9 +2934,7 @@
     "/matches/{id}/stats": {
       "post": {
         "operationId": "logStats",
-        "tags": [
-          "stats"
-        ],
+        "tags": ["stats"],
         "requestBody": {
           "required": true,
           "content": {
@@ -3479,15 +2981,11 @@
                           "type": "boolean"
                         }
                       },
-                      "required": [
-                        "playerId"
-                      ]
+                      "required": ["playerId"]
                     }
                   }
                 },
-                "required": [
-                  "stats"
-                ]
+                "required": ["stats"]
               }
             }
           }
@@ -3555,10 +3053,7 @@
                       },
                       "source": {
                         "type": "string",
-                        "enum": [
-                          "organizador",
-                          "colaborativo"
-                        ]
+                        "enum": ["organizador", "colaborativo"]
                       },
                       "createdAt": {
                         "type": "string"
@@ -3590,9 +3085,7 @@
       },
       "get": {
         "operationId": "listStats",
-        "tags": [
-          "stats"
-        ],
+        "tags": ["stats"],
         "parameters": [
           {
             "schema": {
@@ -3656,10 +3149,7 @@
                       },
                       "source": {
                         "type": "string",
-                        "enum": [
-                          "organizador",
-                          "colaborativo"
-                        ]
+                        "enum": ["organizador", "colaborativo"]
                       },
                       "createdAt": {
                         "type": "string"
@@ -3693,9 +3183,7 @@
     "/matches/{id}/votes": {
       "post": {
         "operationId": "castVote",
-        "tags": [
-          "votes"
-        ],
+        "tags": ["votes"],
         "requestBody": {
           "required": true,
           "content": {
@@ -3705,12 +3193,7 @@
                 "properties": {
                   "category": {
                     "type": "string",
-                    "enum": [
-                      "mvp",
-                      "melhor_goleiro",
-                      "craque",
-                      "fair_play"
-                    ]
+                    "enum": ["mvp", "melhor_goleiro", "craque", "fair_play"]
                   },
                   "votedPlayerId": {
                     "type": "string",
@@ -3718,10 +3201,7 @@
                     "pattern": "^([0-9a-fA-F]{8}-[0-9a-fA-F]{4}-[1-8][0-9a-fA-F]{3}-[89abAB][0-9a-fA-F]{3}-[0-9a-fA-F]{12}|00000000-0000-0000-0000-000000000000|ffffffff-ffff-ffff-ffff-ffffffffffff)$"
                   }
                 },
-                "required": [
-                  "category",
-                  "votedPlayerId"
-                ]
+                "required": ["category", "votedPlayerId"]
               }
             }
           }
@@ -3763,12 +3243,7 @@
                     },
                     "category": {
                       "type": "string",
-                      "enum": [
-                        "mvp",
-                        "melhor_goleiro",
-                        "craque",
-                        "fair_play"
-                      ]
+                      "enum": ["mvp", "melhor_goleiro", "craque", "fair_play"]
                     },
                     "votedPlayerId": {
                       "type": "string",
@@ -3802,9 +3277,7 @@
     "/matches/{id}/votes/tally": {
       "get": {
         "operationId": "getVoteTally",
-        "tags": [
-          "votes"
-        ],
+        "tags": ["votes"],
         "parameters": [
           {
             "schema": {
@@ -3829,12 +3302,7 @@
                     "properties": {
                       "category": {
                         "type": "string",
-                        "enum": [
-                          "mvp",
-                          "melhor_goleiro",
-                          "craque",
-                          "fair_play"
-                        ]
+                        "enum": ["mvp", "melhor_goleiro", "craque", "fair_play"]
                       },
                       "tally": {
                         "type": "array",
@@ -3852,10 +3320,7 @@
                               "maximum": 9007199254740991
                             }
                           },
-                          "required": [
-                            "playerId",
-                            "votes"
-                          ],
+                          "required": ["playerId", "votes"],
                           "additionalProperties": false
                         }
                       },
@@ -3866,11 +3331,7 @@
                         "pattern": "^([0-9a-fA-F]{8}-[0-9a-fA-F]{4}-[1-8][0-9a-fA-F]{3}-[89abAB][0-9a-fA-F]{3}-[0-9a-fA-F]{12}|00000000-0000-0000-0000-000000000000|ffffffff-ffff-ffff-ffff-ffffffffffff)$"
                       }
                     },
-                    "required": [
-                      "category",
-                      "tally",
-                      "leaderPlayerId"
-                    ],
+                    "required": ["category", "tally", "leaderPlayerId"],
                     "additionalProperties": false
                   }
                 }
@@ -3883,9 +3344,7 @@
     "/matches/{id}/invite": {
       "post": {
         "operationId": "createInvite",
-        "tags": [
-          "invites"
-        ],
+        "tags": ["invites"],
         "parameters": [
           {
             "schema": {
@@ -3913,10 +3372,7 @@
                       "type": "string"
                     }
                   },
-                  "required": [
-                    "token",
-                    "sharePath"
-                  ],
+                  "required": ["token", "sharePath"],
                   "additionalProperties": false
                 }
               }
@@ -3928,9 +3384,7 @@
     "/invite/{token}": {
       "get": {
         "operationId": "resolveInvite",
-        "tags": [
-          "invites"
-        ],
+        "tags": ["invites"],
         "parameters": [
           {
             "schema": {
@@ -3980,13 +3434,7 @@
                     },
                     "status": {
                       "type": "string",
-                      "enum": [
-                        "open",
-                        "full",
-                        "closed",
-                        "finished",
-                        "cancelled"
-                      ]
+                      "enum": ["open", "full", "closed", "finished", "cancelled"]
                     },
                     "confirmedCount": {
                       "type": "integer",
@@ -4022,9 +3470,7 @@
     "/invite/confirm": {
       "post": {
         "operationId": "publicConfirm",
-        "tags": [
-          "invites"
-        ],
+        "tags": ["invites"],
         "requestBody": {
           "required": true,
           "content": {
@@ -4045,10 +3491,7 @@
                     "minLength": 1
                   }
                 },
-                "required": [
-                  "token",
-                  "name"
-                ]
+                "required": ["token", "name"]
               }
             }
           }
@@ -4068,11 +3511,7 @@
                     },
                     "status": {
                       "type": "string",
-                      "enum": [
-                        "confirmed",
-                        "waitlisted",
-                        "cancelled"
-                      ]
+                      "enum": ["confirmed", "waitlisted", "cancelled"]
                     },
                     "waitlistPos": {
                       "nullable": true,
@@ -4081,11 +3520,7 @@
                       "maximum": 9007199254740991
                     }
                   },
-                  "required": [
-                    "attendanceId",
-                    "status",
-                    "waitlistPos"
-                  ],
+                  "required": ["attendanceId", "status", "waitlistPos"],
                   "additionalProperties": false
                 }
               }
@@ -4097,9 +3532,7 @@
     "/players/{playerId}/career": {
       "get": {
         "operationId": "getPlayerCareer",
-        "tags": [
-          "players"
-        ],
+        "tags": ["players"],
         "parameters": [
           {
             "schema": {
@@ -4149,11 +3582,7 @@
                     },
                     "level": {
                       "type": "string",
-                      "enum": [
-                        "bronze",
-                        "prata",
-                        "ouro"
-                      ]
+                      "enum": ["bronze", "prata", "ouro"]
                     },
                     "matchesPlayed": {
                       "type": "integer",
@@ -4239,9 +3668,7 @@
     "/players/claim": {
       "post": {
         "operationId": "claimPlayer",
-        "tags": [
-          "players"
-        ],
+        "tags": ["players"],
         "requestBody": {
           "required": true,
           "content": {
@@ -4254,9 +3681,7 @@
                     "minLength": 1
                   }
                 },
-                "required": [
-                  "phone"
-                ]
+                "required": ["phone"]
               }
             }
           }
@@ -4289,12 +3714,7 @@
                           "type": "string"
                         }
                       },
-                      "required": [
-                        "id",
-                        "userId",
-                        "name",
-                        "phone"
-                      ],
+                      "required": ["id", "userId", "name", "phone"],
                       "additionalProperties": false
                     },
                     "summary": {
@@ -4336,10 +3756,45 @@
                       "additionalProperties": false
                     }
                   },
-                  "required": [
-                    "player",
-                    "summary"
-                  ],
+                  "required": ["player", "summary"],
+                  "additionalProperties": false
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/players/me": {
+      "get": {
+        "operationId": "getMyPlayer",
+        "tags": ["players"],
+        "responses": {
+          "200": {
+            "description": "Default Response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "id": {
+                      "type": "string",
+                      "format": "uuid",
+                      "pattern": "^([0-9a-fA-F]{8}-[0-9a-fA-F]{4}-[1-8][0-9a-fA-F]{3}-[89abAB][0-9a-fA-F]{3}-[0-9a-fA-F]{12}|00000000-0000-0000-0000-000000000000|ffffffff-ffff-ffff-ffff-ffffffffffff)$"
+                    },
+                    "name": {
+                      "type": "string"
+                    },
+                    "phone": {
+                      "nullable": true,
+                      "type": "string"
+                    },
+                    "userId": {
+                      "nullable": true,
+                      "type": "string"
+                    }
+                  },
+                  "required": ["id", "name", "phone", "userId"],
                   "additionalProperties": false
                 }
               }
@@ -4351,9 +3806,7 @@
     "/players/{playerId}/public-profile": {
       "get": {
         "operationId": "getPublicProfile",
-        "tags": [
-          "players"
-        ],
+        "tags": ["players"],
         "parameters": [
           {
             "schema": {
@@ -4384,11 +3837,7 @@
                     },
                     "level": {
                       "type": "string",
-                      "enum": [
-                        "bronze",
-                        "prata",
-                        "ouro"
-                      ]
+                      "enum": ["bronze", "prata", "ouro"]
                     },
                     "overallByPosition": {
                       "type": "object",
@@ -4406,14 +3855,7 @@
                     "bestPosition": {
                       "nullable": true,
                       "type": "string",
-                      "enum": [
-                        "goleiro",
-                        "zagueiro",
-                        "lateral",
-                        "volante",
-                        "meia",
-                        "atacante"
-                      ]
+                      "enum": ["goleiro", "zagueiro", "lateral", "volante", "meia", "atacante"]
                     },
                     "matchesPlayed": {
                       "type": "integer",
