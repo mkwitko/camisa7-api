@@ -7,7 +7,12 @@ export function presentTeamAssignment(assignment: TeamAssignment): TeamAssignmen
     matchId: assignment.matchId,
     teams: assignment.teams.map((split) => ({
       team: split.team,
-      players: split.players.map((p) => ({ playerId: p.playerId, name: p.name })),
+      overallTotal: split.overallTotal,
+      players: split.players.map((p) => ({
+        playerId: p.playerId,
+        name: p.name,
+        overall: p.overall,
+      })),
     })),
     generatedAt: assignment.generatedAt,
   };

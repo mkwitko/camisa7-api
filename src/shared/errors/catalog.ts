@@ -124,7 +124,9 @@ export const ERRORS = {
   // one the brief names explicitly (generate-teams needs >=2 confirmed
   // attendees); INVALID_ROSTER covers update-teams' manual-override guard
   // (every confirmed player must appear exactly once — no missing, no dupes,
-  // no unknown playerId).
+  // no unknown playerId). NOT_GENERATED (404) and CANNOT_VIEW (403) back
+  // `get-teams` — added later once the app needed to fetch the persisted
+  // split without re-running the balancer.
   TEAM: {
     NOT_ENOUGH_PLAYERS: defineError({
       code: "TEAM-T0001",
@@ -135,6 +137,20 @@ export const ERRORS = {
       code: "TEAM-T0002",
       status: 400,
       internalMessage: "team_invalid_roster",
+    }),
+    NOT_GENERATED: defineError({
+      code: "TEAM-T0003",
+      status: 404,
+      internalMessage: "team_not_generated",
+    }),
+    // Same shape as `ATT.CANNOT_MANAGE` (one 403 for "no standing over this
+    // match's <resource>") but kept as its own TEAM code rather than reused
+    // cross-module, since the localized copy needs to talk about teams, not
+    // attendance.
+    CANNOT_VIEW: defineError({
+      code: "TEAM-T0004",
+      status: 403,
+      internalMessage: "team_forbidden",
     }),
   },
   SYS: {

@@ -1,7 +1,17 @@
-/** One team's roster in a `TeamAssignment` — `players` carries just enough to render a roster without a second lookup. */
+/**
+ * One team's roster in a `TeamAssignment` — `players` carries just enough to
+ * render a roster (plus the `overall` used to build it) without a second
+ * lookup. `overallTotal` is the same sum the balancer computes per team
+ * (`BalanceResult.overallByTeam`) — persisted alongside the roster so a
+ * guest player (no `GroupMember` row, `overall` defaulted to 50) still
+ * contributes to the total the app displays instead of silently reading 0.
+ */
+export type TeamPlayer = { playerId: string; name: string; overall: number };
+
 export type TeamSplit = {
   team: number;
-  players: { playerId: string; name: string }[];
+  overallTotal: number;
+  players: TeamPlayer[];
 };
 
 /**

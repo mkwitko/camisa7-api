@@ -15,6 +15,8 @@
   "INV-T0001": "Invalid or expired invite.",
   "TEAM-T0001": "Not enough confirmed players to generate teams.",
   "TEAM-T0002": "Invalid team roster — every confirmed player must appear exactly once.",
+  "TEAM-T0003": "Teams have not been generated for this match yet.",
+  "TEAM-T0004": "You do not have permission over this match's teams.",
   "SYS-T0001": "Validation error.",
   "SYS-T0002": "Internal server error."
 }

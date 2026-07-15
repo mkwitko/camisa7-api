@@ -1,5 +1,6 @@
 import type { FastifyPluginAsync } from "fastify";
 import type { ZodTypeProvider } from "fastify-type-provider-zod";
+import { createMembersRepository } from "@/http/api/groups/children/members/members.repository";
 import { createGroupsRepository } from "@/http/api/groups/groups.repository";
 import { createMatchesRepository } from "@/http/api/matches/matches.repository";
 import { requireUser } from "@/http/hooks/auth";
@@ -28,6 +29,7 @@ export const updateTeamsRoute: FastifyPluginAsync = async (app) => {
         matchesRepo: createMatchesRepository(prisma),
         groupsRepo: createGroupsRepository(prisma),
         attendanceRepo: createAttendanceRepository(prisma),
+        membersRepo: createMembersRepository(prisma),
         teamsRepo: createTeamsRepository(prisma),
       });
       const { userId } = requireUser(req);

@@ -15,6 +15,8 @@
   "INV-T0001": "Invitación inválida o expirada.",
   "TEAM-T0001": "No hay suficientes jugadores confirmados para armar los equipos.",
   "TEAM-T0002": "Alineación inválida — cada jugador confirmado debe aparecer exactamente una vez.",
+  "TEAM-T0003": "Los equipos aún no han sido generados para este partido.",
+  "TEAM-T0004": "No tienes permiso sobre los equipos de este partido.",
   "SYS-T0001": "Error de validación.",
   "SYS-T0002": "Error interno del servidor."
 }

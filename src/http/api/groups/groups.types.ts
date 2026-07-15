@@ -13,3 +13,21 @@ export type Group = {
   statsMode: GroupStatsMode;
   createdAt: string;
 };
+
+/** The soonest still-upcoming match for a group — `null` if there isn't one. */
+export type GroupNextMatch = {
+  id: string;
+  datetime: string;
+  location: string;
+};
+
+/**
+ * `Group` enriched with summary fields `list-my-groups` needs so the app can
+ * render a group card without a follow-up request per group: `memberCount`
+ * (total `GroupMember` rows) and `nextMatch` (the soonest future `open`/
+ * `full` match, or `null`).
+ */
+export type GroupWithMeta = Group & {
+  memberCount: number;
+  nextMatch: GroupNextMatch | null;
+};

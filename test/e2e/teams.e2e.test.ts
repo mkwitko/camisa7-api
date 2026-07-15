@@ -73,6 +73,13 @@ const updateTeams = (
     payload: { teams },
   });
 
+const getTeams = (h: TestApp, token: string, matchId: string) =>
+  h.app.inject({
+    method: "GET",
+    url: `/matches/${matchId}/teams`,
+    headers: { authorization: `Bearer ${token}` },
+  });
+
 /** Joins `userId` to `groupId` as a rated `jogador` member (bypassing HTTP for test setup — same pattern `attendance.e2e.test.ts` uses for its own membership fixture). */
 async function addRatedMember(
   h: TestApp,
@@ -136,7 +143,9 @@ describe("teams e2e", () => {
       expect(body.matchId).toBe(matchId);
       expect(body.teams).toHaveLength(2);
 
-      const allPlayers = body.teams.flatMap((t: { players: { playerId: string }[] }) => t.players);
+      const allPlayers = body.teams.flatMap(
+        (t: { players: { playerId: string; overall: number }[] }) => t.players,
+      );
       expect(allPlayers).toHaveLength(6);
       const sizes = body.teams.map((t: { players: unknown[] }) => t.players.length).sort();
       expect(Math.max(...sizes) - Math.min(...sizes)).toBeLessThanOrEqual(1);
@@ -147,6 +156,52 @@ describe("teams e2e", () => {
           t.players.filter((p) => goalkeeperIds.includes(p.playerId)).length,
       );
       expect(gkCountByTeam.sort()).toEqual([1, 1]);
+
+      // Every player carries the overall the balancer used, and each team's
+      // overallTotal is exactly the sum of its own players' overalls.
+      const ratingByOverall = ratings.map((r) => r.overall).sort((a, b) => a - b);
+      expect(
+        allPlayers.map((p: { overall: number }) => p.overall).sort((a: number, b: number) => a - b),
+      ).toEqual(ratingByOverall);
+      for (const team of body.teams as {
+        overallTotal: number;
+        players: { overall: number }[];
+      }[]) {
+        expect(team.overallTotal).toBe(team.players.reduce((sum, p) => sum + p.overall, 0));
+      }
+    });
+
+    it("defaults a confirmed guest (no GroupMember row) to overall 50, still counted in overallTotal", async () => {
+      const owner = await registerAndGetToken(h, "owner-guest@x.com", "Owner");
+      const group = await createGroup(h, owner.token, { name: "Team Guest" });
+      const { id: groupId } = group.json();
+      const match = await createMatch(h, owner.token, groupId);
+      const { id: matchId } = match.json();
+
+      const rated = await registerAndGetToken(h, "rated-guest@x.com", "Rated");
+      await addRatedMember(h, groupId, rated.userId, { primaryPos: "atacante", overall: 90 });
+      await confirmPresence(h, rated.token, matchId);
+
+      // Confirms presence without ever joining the group as a `GroupMember`
+      // — the app's reported gap: guests showed up as 0 overall.
+      const guest = await registerAndGetToken(h, "guest-noteam@x.com", "Guest");
+      await confirmPresence(h, guest.token, matchId);
+
+      const res = await generateTeams(h, owner.token, matchId, 2);
+
+      expect(res.statusCode).toBe(200);
+      const body = res.json();
+      const allPlayers = body.teams.flatMap(
+        (t: { players: { name: string; overall: number }[] }) => t.players,
+      );
+      const guestPlayer = allPlayers.find((p: { name: string }) => p.name === "Guest");
+      expect(guestPlayer.overall).toBe(50);
+
+      const overallTotalSum = body.teams.reduce(
+        (sum: number, t: { overallTotal: number }) => sum + t.overallTotal,
+        0,
+      );
+      expect(overallTotalSum).toBe(90 + 50);
     });
 
     it("rejects a non-owner with 403 GRP-T0002", async () => {
@@ -206,10 +261,21 @@ describe("teams e2e", () => {
 
       expect(res.statusCode).toBe(200);
       const body = res.json();
+      // Neither p1 nor p2 has a `GroupMember` row here, so both default to
+      // overall 50 (the same fallback `generate-teams` applies) and each
+      // solo team's overallTotal is exactly that one player's overall.
       expect(body.teams).toEqual(
         expect.arrayContaining([
-          expect.objectContaining({ team: 0, players: [{ playerId: playerId1, name: "P1" }] }),
-          expect.objectContaining({ team: 1, players: [{ playerId: playerId2, name: "P2" }] }),
+          expect.objectContaining({
+            team: 0,
+            overallTotal: 50,
+            players: [{ playerId: playerId1, name: "P1", overall: 50 }],
+          }),
+          expect.objectContaining({
+            team: 1,
+            overallTotal: 50,
+            players: [{ playerId: playerId2, name: "P2", overall: 50 }],
+          }),
         ]),
       );
 
@@ -302,6 +368,89 @@ describe("teams e2e", () => {
 
       expect(res.statusCode).toBe(403);
       expect(res.json().code).toBe("GRP-T0002");
+    });
+  });
+
+  describe("GET /matches/:id/teams", () => {
+    it("returns the persisted split to the owner", async () => {
+      const owner = await registerAndGetToken(h, "owner-get@x.com", "Owner");
+      const group = await createGroup(h, owner.token, { name: "Team I" });
+      const { id: groupId } = group.json();
+      const match = await createMatch(h, owner.token, groupId);
+      const { id: matchId } = match.json();
+      const p1 = await registerAndGetToken(h, "p1-get@x.com");
+      const p2 = await registerAndGetToken(h, "p2-get@x.com");
+      await confirmPresence(h, p1.token, matchId);
+      await confirmPresence(h, p2.token, matchId);
+      const generated = await generateTeams(h, owner.token, matchId, 2);
+
+      const res = await getTeams(h, owner.token, matchId);
+
+      expect(res.statusCode).toBe(200);
+      expect(res.json()).toEqual(generated.json());
+    });
+
+    it("returns the persisted split to a group member who isn't the owner", async () => {
+      const owner = await registerAndGetToken(h, "owner-get-member@x.com", "Owner");
+      const group = await createGroup(h, owner.token, { name: "Team J" });
+      const { id: groupId } = group.json();
+      const match = await createMatch(h, owner.token, groupId);
+      const { id: matchId } = match.json();
+      const p1 = await registerAndGetToken(h, "p1-get-member@x.com");
+      const p2 = await registerAndGetToken(h, "p2-get-member@x.com");
+      await confirmPresence(h, p1.token, matchId);
+      await confirmPresence(h, p2.token, matchId);
+      await generateTeams(h, owner.token, matchId, 2);
+
+      const member = await registerAndGetToken(h, "member-get@x.com", "Member");
+      await addRatedMember(h, groupId, member.userId, { primaryPos: "meia", overall: 60 });
+
+      const res = await getTeams(h, member.token, matchId);
+
+      expect(res.statusCode).toBe(200);
+      expect(res.json().matchId).toBe(matchId);
+    });
+
+    it("rejects a non-member with 403 TEAM-T0004", async () => {
+      const owner = await registerAndGetToken(h, "owner-get-403@x.com", "Owner");
+      const group = await createGroup(h, owner.token, { name: "Team K" });
+      const { id: groupId } = group.json();
+      const match = await createMatch(h, owner.token, groupId);
+      const { id: matchId } = match.json();
+      const p1 = await registerAndGetToken(h, "p1-get-403@x.com");
+      const p2 = await registerAndGetToken(h, "p2-get-403@x.com");
+      await confirmPresence(h, p1.token, matchId);
+      await confirmPresence(h, p2.token, matchId);
+      await generateTeams(h, owner.token, matchId, 2);
+
+      const outsider = await registerAndGetToken(h, "outsider-get-403@x.com");
+
+      const res = await getTeams(h, outsider.token, matchId);
+
+      expect(res.statusCode).toBe(403);
+      expect(res.json().code).toBe("TEAM-T0004");
+    });
+
+    it("returns 404 TEAM-T0003 when no split has been generated yet", async () => {
+      const owner = await registerAndGetToken(h, "owner-get-404@x.com", "Owner");
+      const group = await createGroup(h, owner.token, { name: "Team L" });
+      const { id: groupId } = group.json();
+      const match = await createMatch(h, owner.token, groupId);
+      const { id: matchId } = match.json();
+
+      const res = await getTeams(h, owner.token, matchId);
+
+      expect(res.statusCode).toBe(404);
+      expect(res.json().code).toBe("TEAM-T0003");
+    });
+
+    it("returns 404 MTC-T0001 for an unknown match id", async () => {
+      const owner = await registerAndGetToken(h, "owner-get-mtc404@x.com", "Owner");
+
+      const res = await getTeams(h, owner.token, "00000000-0000-0000-0000-000000000000");
+
+      expect(res.statusCode).toBe(404);
+      expect(res.json().code).toBe("MTC-T0001");
     });
   });
 });

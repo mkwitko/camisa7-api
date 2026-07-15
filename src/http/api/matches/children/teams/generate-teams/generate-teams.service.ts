@@ -1,13 +1,13 @@
 import type { MembersRepository } from "@/http/api/groups/children/members/members.repository";
-import type { Position } from "@/http/api/groups/children/members/members.types";
 import type { GroupsRepository } from "@/http/api/groups/groups.repository";
 import { assertMatchOwner } from "@/http/api/matches/matches.authz";
 import type { MatchesRepository } from "@/http/api/matches/matches.repository";
 import { ERRORS } from "@/shared/errors/catalog";
 import type { AttendanceRepository } from "../../attendance/attendance.repository";
 import { type BalancerPlayer, balanceTeams } from "../balancer";
+import { resolveOverall } from "../resolve-overall";
 import type { TeamsRepository } from "../teams.repository";
-import type { TeamAssignment } from "../teams.types";
+import type { TeamAssignment, TeamSplit } from "../teams.types";
 
 export type GenerateTeamsDeps = {
   matchesRepo: MatchesRepository;
@@ -22,10 +22,6 @@ export type GenerateTeamsInput = {
   userId: string;
   teamCount: number;
 };
-
-/** A guest attendee with no `GroupMember` row in this group (e.g. joined via invite, see `InviteToken`'s doc comment) gets a neutral default rating. */
-const DEFAULT_PRIMARY_POS: Position = "meia";
-const DEFAULT_OVERALL = 50;
 
 /**
  * Owner generates (or regenerates — this always overwrites via `save`'s
@@ -53,8 +49,7 @@ export function createGenerateTeamsService(deps: GenerateTeamsDeps) {
 
     const balancerPlayers: BalancerPlayer[] = confirmed.map((attendance) => {
       const member = memberByPlayerId.get(attendance.player.id);
-      const primaryPos = member?.primaryPos ?? DEFAULT_PRIMARY_POS;
-      const overall = member?.seedOverall[primaryPos] ?? DEFAULT_OVERALL;
+      const { primaryPos, overall } = resolveOverall(member);
       return {
         playerId: attendance.player.id,
         name: attendance.player.name,
@@ -63,15 +58,20 @@ export function createGenerateTeamsService(deps: GenerateTeamsDeps) {
         isGoalkeeper: primaryPos === "goleiro",
       };
     });
-    const nameById = new Map(balancerPlayers.map((p) => [p.playerId, p.name]));
+    const infoById = new Map(balancerPlayers.map((p) => [p.playerId, p]));
 
-    const { teams } = balanceTeams(balancerPlayers, input.teamCount);
-    const teamSplits = teams.map((t) => ({
+    const { teams, overallByTeam } = balanceTeams(balancerPlayers, input.teamCount);
+    const teamSplits: TeamSplit[] = teams.map((t) => ({
       team: t.team,
-      players: t.playerIds.map((playerId) => ({
-        playerId,
-        name: nameById.get(playerId) as string,
-      })),
+      overallTotal: overallByTeam[t.team] ?? 0, // unreachable: one entry per team, indexed by team number
+      players: t.playerIds.map((playerId) => {
+        const info = infoById.get(playerId);
+        return {
+          playerId,
+          name: info?.name as string,
+          overall: info?.overall as number,
+        };
+      }),
     }));
 
     return deps.teamsRepo.save(input.matchId, teamSplits);

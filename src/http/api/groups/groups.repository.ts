@@ -1,5 +1,5 @@
 import type { PrismaLike } from "@/infra/db/client";
-import type { Group, GroupStatsMode } from "./groups.types";
+import type { Group, GroupNextMatch, GroupStatsMode, GroupWithMeta } from "./groups.types";
 
 type GroupRow = {
   id: string;
@@ -23,6 +23,17 @@ export interface GroupsRepository {
   insert(input: { name: string; statsMode: GroupStatsMode; ownerId: string }): Promise<Group>;
   findById(id: string): Promise<Group | null>;
   listOwnedBy(ownerId: string): Promise<Group[]>;
+  /**
+   * Same rows as `listOwnedBy`, enriched with `memberCount` and `nextMatch`
+   * for `list-my-groups` — kept as its own method rather than an option on
+   * `listOwnedBy` since it always runs the extra queries, and no other
+   * caller needs the enrichment. Two queries total regardless of how many
+   * groups the owner has: one for the groups themselves (with a Prisma
+   * `_count` on `members`, no N+1), one for every candidate upcoming match
+   * across all of them at once, reduced client-side to the soonest per
+   * group.
+   */
+  listOwnedByWithMeta(ownerId: string): Promise<GroupWithMeta[]>;
 }
 
 /** Factory `createGroupsRepository(db: PrismaLike)` — composes inside a tx or standalone. */
@@ -50,6 +61,44 @@ export function createGroupsRepository(db: PrismaLike): GroupsRepository {
         orderBy: { createdAt: "desc" },
       });
       return rows.map(toDomainGroup);
+    },
+
+    async listOwnedByWithMeta(ownerId) {
+      const rows = await db.group.findMany({
+        where: { ownerId },
+        orderBy: { createdAt: "desc" },
+        include: { _count: { select: { members: true } } },
+      });
+      if (rows.length === 0) return [];
+
+      const groupIds = rows.map((r) => r.id);
+      // Ordered soonest-first so the first match seen per groupId (below) is
+      // its next match — one query for every group's candidates at once
+      // instead of one query per group.
+      const upcoming = await db.match.findMany({
+        where: {
+          groupId: { in: groupIds },
+          datetime: { gt: new Date() },
+          status: { in: ["open", "full"] },
+        },
+        orderBy: { datetime: "asc" },
+        select: { id: true, groupId: true, datetime: true, location: true },
+      });
+      const nextMatchByGroupId = new Map<string, GroupNextMatch>();
+      for (const m of upcoming) {
+        if (nextMatchByGroupId.has(m.groupId)) continue;
+        nextMatchByGroupId.set(m.groupId, {
+          id: m.id,
+          datetime: m.datetime.toISOString(),
+          location: m.location,
+        });
+      }
+
+      return rows.map((row) => ({
+        ...toDomainGroup(row),
+        memberCount: row._count.members,
+        nextMatch: nextMatchByGroupId.get(row.id) ?? null,
+      }));
     },
   };
 }

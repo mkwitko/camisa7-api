@@ -1,15 +1,18 @@
+import type { MembersRepository } from "@/http/api/groups/children/members/members.repository";
 import type { GroupsRepository } from "@/http/api/groups/groups.repository";
 import { assertMatchOwner } from "@/http/api/matches/matches.authz";
 import type { MatchesRepository } from "@/http/api/matches/matches.repository";
 import { ERRORS } from "@/shared/errors/catalog";
 import type { AttendanceRepository } from "../../attendance/attendance.repository";
+import { resolveOverall } from "../resolve-overall";
 import type { TeamsRepository } from "../teams.repository";
-import type { TeamAssignment } from "../teams.types";
+import type { TeamAssignment, TeamSplit } from "../teams.types";
 
 export type UpdateTeamsDeps = {
   matchesRepo: MatchesRepository;
   groupsRepo: GroupsRepository;
   attendanceRepo: AttendanceRepository;
+  membersRepo: MembersRepository;
   teamsRepo: TeamsRepository;
 };
 
@@ -28,12 +31,18 @@ export type UpdateTeamsInput = {
  * `ERRORS.TEAM.INVALID_ROSTER()` (400) otherwise. `save` is the same
  * upsert-by-`matchId` `generate-teams` uses, so a manual override replaces
  * whatever split (generated or previously overridden) already existed.
+ *
+ * Each player's `overall` (and each team's `overallTotal`) is recomputed
+ * from the match's group `GroupMember` rows the same way `generate-teams`
+ * does (`resolveOverall` — same default for a confirmed guest with no
+ * membership row), so a manual override keeps the same totals contract as a
+ * fresh generation instead of leaving stale/absent numbers behind.
  */
 export function createUpdateTeamsService(deps: UpdateTeamsDeps) {
   return async (input: UpdateTeamsInput): Promise<TeamAssignment> => {
     const match = await deps.matchesRepo.findById(input.matchId);
     const group = match ? await deps.groupsRepo.findById(match.groupId) : null;
-    assertMatchOwner(match, group, input.userId);
+    const { match: asserted } = assertMatchOwner(match, group, input.userId);
 
     const attendances = await deps.attendanceRepo.listByMatch(input.matchId);
     const confirmed = attendances.filter((a) => a.status === "confirmed");
@@ -52,13 +61,27 @@ export function createUpdateTeamsService(deps: UpdateTeamsDeps) {
       throw ERRORS.TEAM.INVALID_ROSTER({ reason: "roster_mismatch", missing, unknown });
     }
 
-    const teamSplits = input.teams.map((t) => ({
-      team: t.team,
-      players: t.playerIds.map((playerId) => ({
+    const members = await deps.membersRepo.listByGroup(asserted.groupId);
+    const memberByPlayerId = new Map(members.map((m) => [m.player.id, m]));
+    const overallByConfirmedId = new Map(
+      confirmed.map((a) => [
+        a.player.id,
+        resolveOverall(memberByPlayerId.get(a.player.id)).overall,
+      ]),
+    );
+
+    const teamSplits: TeamSplit[] = input.teams.map((t) => {
+      const players = t.playerIds.map((playerId) => ({
         playerId,
         name: nameByConfirmedId.get(playerId) as string,
-      })),
-    }));
+        overall: overallByConfirmedId.get(playerId) as number,
+      }));
+      return {
+        team: t.team,
+        overallTotal: players.reduce((sum, p) => sum + p.overall, 0),
+        players,
+      };
+    });
 
     return deps.teamsRepo.save(input.matchId, teamSplits);
   };
