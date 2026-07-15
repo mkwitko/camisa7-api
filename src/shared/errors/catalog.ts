@@ -75,6 +75,19 @@ export const ERRORS = {
       status: 404,
       internalMessage: "player_not_found",
     }),
+    // Task 18 (Fase 1, F1-6): `GET /players/:playerId/public-profile` — the
+    // shareable "Strava card". Only REGISTERED players (`userId` set) get a
+    // public profile; a GUEST `Player` (`userId IS NULL`, added manually or
+    // via invite, no account of their own) gets this same 404 rather than
+    // leaking their aggregate stats to an unauthenticated caller who merely
+    // guessed/was handed the uuid. Distinct from `NOT_FOUND` (id doesn't
+    // exist at all) since the localized copy needs to say "not public", not
+    // "not found".
+    NOT_PUBLIC: defineError({
+      code: "PLR-T0003",
+      status: 404,
+      internalMessage: "player_profile_not_public",
+    }),
   },
   MTC: {
     NOT_FOUND: defineError({

@@ -8,6 +8,7 @@
   "GRP-T0002": "No eres el propietario de este grupo.",
   "PLR-T0001": "Miembro no encontrado.",
   "PLR-T0002": "Jugador no encontrado.",
+  "PLR-T0003": "El perfil no es público.",
   "MTC-T0001": "Partido no encontrado.",
   "MTC-T0002": "Este partido ya no se puede editar.",
   "MTC-T0003": "Finaliza el partido antes de registrar el resultado.",

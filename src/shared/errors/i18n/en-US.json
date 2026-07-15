@@ -8,6 +8,7 @@
   "GRP-T0002": "You do not own this group.",
   "PLR-T0001": "Member not found.",
   "PLR-T0002": "Player not found.",
+  "PLR-T0003": "Profile is not public.",
   "MTC-T0001": "Match not found.",
   "MTC-T0002": "This match can no longer be edited.",
   "MTC-T0003": "Finish the match before recording its result.",
