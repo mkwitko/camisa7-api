@@ -23,6 +23,11 @@
   "RES-T0003": "Você não tem permissão sobre o resultado desta partida.",
   "STAT-T0001": "Jogador desconhecido ou não confirmado nesta partida.",
   "STAT-T0002": "Você não tem permissão sobre as estatísticas desta partida.",
+  "VOTE-T0001": "Você precisa ser um participante confirmado desta partida para votar.",
+  "VOTE-T0002": "O jogador votado precisa ser um participante confirmado desta partida.",
+  "VOTE-T0003": "Você não pode votar em si mesmo.",
+  "VOTE-T0004": "A votação para esta partida está encerrada.",
+  "VOTE-T0005": "Você não tem permissão sobre os votos desta partida.",
   "SYS-T0001": "Erro de validação.",
   "SYS-T0002": "Erro interno do servidor."
 }

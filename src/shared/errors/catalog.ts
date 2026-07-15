@@ -211,6 +211,48 @@ export const ERRORS = {
       internalMessage: "stat_forbidden",
     }),
   },
+  // Task 16 (Fase 1, F1-3): `Vote` (`children/votes`) — post-game recognition
+  // voting (mvp/melhor_goleiro/craque/fair_play). Numbered in the order
+  // `cast-vote`'s rules are checked (see `cast-vote.service.ts`):
+  // NOT_PARTICIPANT (403 — caller isn't a confirmed attendee of the match)
+  // first since it's an authz gap, same family as `ATT.CANNOT_MANAGE`/
+  // `STAT.CANNOT_VIEW`; INVALID_CANDIDATE (400 — `votedPlayerId` isn't a
+  // confirmed attendee either) and SELF_VOTE (400 — voter === voted) are
+  // both request-shape validation the Zod body schema can't express (the
+  // valid set of `votedPlayerId`s is per-match, not static); WINDOW_CLOSED
+  // (409 — outside the 48h post-match window, or the match isn't `finished`
+  // yet) is the "stale state" family `MTC.NOT_FINISHED`/`RES.INVALID_SCORES`
+  // already uses this status for. CANNOT_VIEW is the same "owner-or-member"
+  // authz gap `STAT.CANNOT_VIEW`/`RES.CANNOT_VIEW`/`TEAM.CANNOT_VIEW` already
+  // close, kept as its own code (rather than reused cross-module) so the
+  // localized copy talks about votes specifically — backs `list-vote-tally`.
+  VOTE: {
+    NOT_PARTICIPANT: defineError({
+      code: "VOTE-T0001",
+      status: 403,
+      internalMessage: "vote_not_participant",
+    }),
+    INVALID_CANDIDATE: defineError({
+      code: "VOTE-T0002",
+      status: 400,
+      internalMessage: "vote_invalid_candidate",
+    }),
+    SELF_VOTE: defineError({
+      code: "VOTE-T0003",
+      status: 400,
+      internalMessage: "vote_self_vote",
+    }),
+    WINDOW_CLOSED: defineError({
+      code: "VOTE-T0004",
+      status: 409,
+      internalMessage: "vote_window_closed",
+    }),
+    CANNOT_VIEW: defineError({
+      code: "VOTE-T0005",
+      status: 403,
+      internalMessage: "vote_forbidden",
+    }),
+  },
   SYS: {
     VALIDATION: defineError({
       code: "SYS-T0001",

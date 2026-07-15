@@ -23,6 +23,11 @@
   "RES-T0003": "You do not have permission over this match's result.",
   "STAT-T0001": "Unknown player, or player not confirmed for this match.",
   "STAT-T0002": "You do not have permission over this match's stats.",
+  "VOTE-T0001": "You must be a confirmed participant of this match to vote.",
+  "VOTE-T0002": "The voted player must be a confirmed participant of this match.",
+  "VOTE-T0003": "You cannot vote for yourself.",
+  "VOTE-T0004": "Voting for this match is closed.",
+  "VOTE-T0005": "You do not have permission over this match's votes.",
   "SYS-T0001": "Validation error.",
   "SYS-T0002": "Internal server error."
 }

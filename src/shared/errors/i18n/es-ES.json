@@ -23,6 +23,11 @@
   "RES-T0003": "No tienes permiso sobre el resultado de este partido.",
   "STAT-T0001": "Jugador desconocido o no confirmado en este partido.",
   "STAT-T0002": "No tienes permiso sobre las estadísticas de este partido.",
+  "VOTE-T0001": "Debes ser un participante confirmado de este partido para votar.",
+  "VOTE-T0002": "El jugador votado debe ser un participante confirmado de este partido.",
+  "VOTE-T0003": "No puedes votar por ti mismo.",
+  "VOTE-T0004": "La votación de este partido está cerrada.",
+  "VOTE-T0005": "No tienes permiso sobre los votos de este partido.",
   "SYS-T0001": "Error de validación.",
   "SYS-T0002": "Error interno del servidor."
 }

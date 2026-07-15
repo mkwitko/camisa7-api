@@ -105,9 +105,11 @@ model Player {
   createdAt DateTime @default(now()) @db.Timestamptz(3)
   updatedAt DateTime @updatedAt @db.Timestamptz(3)
 
-  memberships GroupMember[]
-  attendances Attendance[]
-  stats       MatchStat[]
+  memberships   GroupMember[]
+  attendances   Attendance[]
+  stats         MatchStat[]
+  votesCast     Vote[]        @relation("VoteVoter")
+  votesReceived Vote[]        @relation("VoteVoted")
 
   @@index([userId])
 }
@@ -178,6 +180,7 @@ model Match {
   teamAssignment TeamAssignment?
   result         MatchResult?
   stats          MatchStat[]
+  votes          Vote[]
 
   @@index([groupId, datetime])
 }
@@ -354,4 +357,56 @@ model MatchStat {
 
   @@unique([matchId, playerId])
   @@index([playerId])
+}
+
+/// Task 16 (Fase 1, F1-3): the 4 post-game recognition categories a
+/// confirmed attendee can vote for. `craque` is Portuguese for the match's
+/// standout player (distinct from `mvp` — the design doc's §4.2 lists them
+/// as separate categories); `fair_play` feeds a reputation signal (§6)
+/// that's kept separate from the technical `overall` a `craque`/`mvp` vote
+/// nudges.
+enum VoteCategory {
+  mvp
+  melhor_goleiro
+  craque
+  fair_play
+}
+
+/// Task 16 (Fase 1, F1-3): one player's vote, for one category, on one
+/// `Match` — `cast-vote` upserts keyed by `(matchId, voterPlayerId,
+/// category)` (`VotesRepository.upsert`), so changing your mind within the
+/// 48h voting window (§5.2 step 10 of the design doc) corrects the same row
+/// rather than accumulating history (same "upsert to correct" convention
+/// `MatchResult`/`MatchStat` use). Both `voterPlayerId` and `votedPlayerId`
+/// point at `Player` — two separate relations (`VoteVoter`/`VoteVoted`,
+/// named since Prisma requires disambiguation for two FKs to the same
+/// model), mirrored by `Player.votesCast`/`Player.votesReceived`. The
+/// service layer (`cast-vote.service.ts`), not a DB constraint, enforces
+/// that both players are CONFIRMED attendees of `matchId` and that
+/// `voterPlayerId !== votedPlayerId` (no self-vote) — Prisma's schema DSL
+/// can't express either check. Individual rows are never exposed over the
+/// API (`list-vote-tally` only returns aggregated counts, see
+/// `votes.repository.ts`'s `tallyByMatch`) — voter identity per vote stays
+/// private, only `listByMatch` (internal, feeds the F1-4 career-growth
+/// engine's MVP/craque counts) reads the raw rows.
+model Vote {
+  id String @id @default(uuid()) @db.Uuid
+
+  matchId String @db.Uuid
+  match   Match  @relation(fields: [matchId], references: [id])
+
+  voterPlayerId String @db.Uuid
+  voter         Player @relation("VoteVoter", fields: [voterPlayerId], references: [id])
+
+  category VoteCategory
+
+  votedPlayerId String @db.Uuid
+  voted         Player @relation("VoteVoted", fields: [votedPlayerId], references: [id])
+
+  createdAt DateTime @default(now()) @db.Timestamptz(3)
+  updatedAt DateTime @updatedAt @db.Timestamptz(3)
+
+  @@unique([matchId, voterPlayerId, category])
+  @@index([matchId])
+  @@index([votedPlayerId])
 }
