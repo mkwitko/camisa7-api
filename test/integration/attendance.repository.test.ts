@@ -224,6 +224,30 @@ describe("attendanceRepository (integration)", () => {
     });
   });
 
+  describe("listByPlayer", () => {
+    it("lists every attendance for a player across every match — feeds the F1-4 career engine", async () => {
+      const m1 = await seedMatch({ slots: 2 });
+      const m2 = await seedMatch({ slots: 2 });
+      const [p1] = await seedPlayers(["P1"]);
+      if (!p1) throw new Error("expected player");
+
+      await repo.confirm(m1.id, p1);
+      await repo.confirm(m2.id, p1);
+
+      const rows = await repo.listByPlayer(p1.id);
+
+      expect(rows).toHaveLength(2);
+      expect(rows.map((r) => r.matchId).sort()).toEqual([m1.id, m2.id].sort());
+    });
+
+    it("returns an empty array for a player with no attendances", async () => {
+      const [p1] = await seedPlayers(["P1"]);
+      if (!p1) throw new Error("expected player");
+
+      expect(await repo.listByPlayer(p1.id)).toEqual([]);
+    });
+  });
+
   describe("findById", () => {
     it("returns the attendance scoped to its match", async () => {
       const m = await seedMatch({ slots: 2 });

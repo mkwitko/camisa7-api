@@ -61,6 +61,15 @@ export interface AttendanceRepository {
   /** All attendances (any status) for a match, oldest first. */
   listByMatch(matchId: string): Promise<Attendance[]>;
   /**
+   * All attendances (any status) for one player, across every match —
+   * mirrors `MatchStatsRepository.listByPlayer`/`VotesRepository.listByMatch`'s
+   * "career-wide" shape. Feeds the F1-4 career-growth engine's replay: a
+   * player's finalized match history is resolved by filtering this to
+   * `status: "confirmed"`, then cross-referencing each match's own `status`
+   * (`"closed"` = finalized, see `finalize-match`).
+   */
+  listByPlayer(playerId: string): Promise<Attendance[]>;
+  /**
    * Looks up one attendance, scoped to `matchId` (mirrors `MembersRepository
    * .findInGroup`'s "scoped lookup" shape). Used by `cancel-presence` to load
    * the target row *before* cancelling it, so the service can authorize
@@ -222,6 +231,15 @@ export function createAttendanceRepository(db: PrismaLike): AttendanceRepository
     async listByMatch(matchId) {
       const rows = await db.attendance.findMany({
         where: { matchId },
+        include: ATTENDANCE_INCLUDE,
+        orderBy: [{ createdAt: "asc" }, { id: "asc" }],
+      });
+      return rows.map(toDomainAttendance);
+    },
+
+    async listByPlayer(playerId) {
+      const rows = await db.attendance.findMany({
+        where: { playerId },
         include: ATTENDANCE_INCLUDE,
         orderBy: [{ createdAt: "asc" }, { id: "asc" }],
       });

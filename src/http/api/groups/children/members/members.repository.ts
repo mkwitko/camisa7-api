@@ -64,6 +64,16 @@ export interface MembersRepository {
   ): Promise<GroupMember>;
   listByGroup(groupId: string): Promise<GroupMember[]>;
   findInGroup(groupId: string, memberId: string): Promise<GroupMember | null>;
+  /**
+   * Looks up a member by `(groupId, playerId)` rather than the member's own
+   * `id` (unlike `findInGroup`) — the F1-4 career-growth engine resolves a
+   * match's group membership from a `Player` id (via the match's
+   * `groupId` + the stat/attendance row's `playerId`), never from a
+   * `GroupMember` id it doesn't have. Feeds the engine's bootstrap
+   * (`seedOverall`) and the position(s) (`primaryPos`/`secondaryPos`) whose
+   * `overall` a finalized match nudges.
+   */
+  findByGroupAndPlayer(groupId: string, playerId: string): Promise<GroupMember | null>;
   updateRating(memberId: string, patch: UpdateRatingPatch): Promise<GroupMember>;
   /**
    * True iff `userId` has a `GroupMember` row in `groupId` (their `Player`'s
@@ -157,6 +167,14 @@ export function createMembersRepository(db: PrismaLike): MembersRepository {
     async findInGroup(groupId, memberId) {
       const row = await db.groupMember.findFirst({
         where: { id: memberId, groupId },
+        include: MEMBER_INCLUDE,
+      });
+      return row ? toDomainMember(row) : null;
+    },
+
+    async findByGroupAndPlayer(groupId, playerId) {
+      const row = await db.groupMember.findFirst({
+        where: { groupId, playerId },
         include: MEMBER_INCLUDE,
       });
       return row ? toDomainMember(row) : null;

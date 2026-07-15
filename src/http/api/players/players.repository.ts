@@ -18,6 +18,8 @@ function toDomainPlayer(row: PlayerRow): Player {
 }
 
 export interface PlayersRepository {
+  /** Looks up a `Player` by id — backs `GET /players/:playerId/career` (F1-4). `null` for an unknown id. */
+  findById(id: string): Promise<Player | null>;
   /** Creates a brand new guest `Player` (`userId: null`) — never reused across groups. */
   createGuest(input: { name: string; phone?: string | null }): Promise<Player>;
   /**
@@ -31,6 +33,11 @@ export interface PlayersRepository {
 /** Factory `createPlayersRepository(db: PrismaLike)` — composes inside a tx or standalone. */
 export function createPlayersRepository(db: PrismaLike): PlayersRepository {
   return {
+    async findById(id) {
+      const row = await db.player.findUnique({ where: { id } });
+      return row ? toDomainPlayer(row) : null;
+    },
+
     async createGuest(input) {
       const row = await db.player.create({
         data: {

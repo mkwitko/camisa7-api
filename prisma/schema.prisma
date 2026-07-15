@@ -110,6 +110,7 @@ model Player {
   stats         MatchStat[]
   votesCast     Vote[]        @relation("VoteVoter")
   votesReceived Vote[]        @relation("VoteVoted")
+  career        PlayerCareer?
 
   @@index([userId])
 }
@@ -409,4 +410,55 @@ model Vote {
   @@unique([matchId, voterPlayerId, category])
   @@index([matchId])
   @@index([votedPlayerId])
+}
+
+/// Task 17 (Fase 1, F1-4): a player's GLOBAL, cross-group identity — 1:1 with
+/// `Player`, materialized for any player (registered or guest; guest→account
+/// merge is F1-5). Grows deterministically off match history via the pure
+/// growth engine (`src/http/api/players/children/career/career-engine.ts`),
+/// replayed by `PlayerCareerRepository.recomputeForPlayer` (triggered by
+/// `POST /matches/:id/finalize` and the finalize cron, `src/jobs/
+/// finalize-matches.job.ts`) — never mutated incrementally, so recomputing
+/// twice from the same match history yields the same row (idempotent).
+/// `overall`/`affinity` are `Json` maps keyed by `Position` (0-99 / 0-100),
+/// same convention `GroupMember.seedOverall`/`affinity` use — `affinity` is
+/// player-declared (set outside this task's scope) and the engine never
+/// writes it, only `overall`. `level` is derived from the best `overall`
+/// entry via `career-config.ts`'s thresholds. `currentStreak` is the
+/// player's active unbeaten (win/draw) run as of their most recent finalized
+/// match; `bestStreak` is the historical max.
+model PlayerCareer {
+  id String @id @default(uuid()) @db.Uuid
+
+  playerId String @unique @db.Uuid
+  player   Player @relation(fields: [playerId], references: [id])
+
+  overall  Json @default("{}")
+  affinity Json @default("{}")
+
+  level PlayerLevel @default(bronze)
+
+  matchesPlayed Int @default(0)
+  wins          Int @default(0)
+  draws         Int @default(0)
+  losses        Int @default(0)
+  goals         Int @default(0)
+  assists       Int @default(0)
+  cleanSheets   Int @default(0)
+  mvpCount      Int @default(0)
+  currentStreak Int @default(0)
+  bestStreak    Int @default(0)
+
+  createdAt DateTime @default(now()) @db.Timestamptz(3)
+  updatedAt DateTime @updatedAt @db.Timestamptz(3)
+}
+
+/// Task 17 (Fase 1, F1-4): `PlayerCareer.level` — derived (never set
+/// directly by a caller) from the player's best per-position `overall` via
+/// `career-config.ts`'s `LEVEL_THRESHOLDS`. bronze is the default for a
+/// brand-new career (bootstrap seed, or no positions touched yet).
+enum PlayerLevel {
+  bronze
+  prata
+  ouro
 }

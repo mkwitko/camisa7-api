@@ -78,6 +78,17 @@ export interface MatchesRepository {
   findFinishedRecurringWithoutFutureSibling(now: Date): Promise<Match[]>;
   /** Inserts the next `open` occurrence, cloning `from`'s shape at `datetime`. */
   createNextOccurrence(from: Match, datetime: Date): Promise<Match>;
+  /**
+   * Candidates for the F1-4 finalize cron (`src/jobs/finalize-matches.job.ts`):
+   * still `"finished"` (not yet `"closed"` — a `finalize-match` re-run would
+   * be a no-op status transition anyway, but the cron shouldn't keep
+   * re-selecting matches it already closed), with a `MatchResult` recorded,
+   * whose `datetime` is strictly before `votingDeadline` (the caller passes
+   * `now - 48h`, the design doc's §5.2/§6 voting window). Oldest first, so a
+   * cron run that finalizes several matches in one pass does so in a stable
+   * order.
+   */
+  findFinishedElapsedWithResult(votingDeadline: Date): Promise<Match[]>;
 }
 
 /** Factory `createMatchesRepository(db: PrismaLike)` — composes inside a tx or standalone. */
@@ -158,6 +169,18 @@ export function createMatchesRepository(db: PrismaLike): MatchesRepository {
       const groupsWithFutureSibling = new Set(futureSiblings.map((s) => s.groupId));
 
       return candidates.filter((c) => !groupsWithFutureSibling.has(c.groupId)).map(toDomainMatch);
+    },
+
+    async findFinishedElapsedWithResult(votingDeadline) {
+      const rows = await db.match.findMany({
+        where: {
+          status: "finished",
+          datetime: { lt: votingDeadline },
+          result: { isNot: null },
+        },
+        orderBy: { datetime: "asc" },
+      });
+      return rows.map(toDomainMatch);
     },
 
     async createNextOccurrence(from, datetime) {

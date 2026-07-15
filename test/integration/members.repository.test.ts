@@ -122,6 +122,25 @@ describe("membersRepository (integration)", () => {
     });
   });
 
+  describe("findByGroupAndPlayer", () => {
+    it("returns the member when the player belongs to the group — feeds the F1-4 career engine's bootstrap", async () => {
+      const groupId = await createGroup();
+      const added = await repo.addGuest(groupId, { name: "Guest", primaryPos: "lateral" });
+
+      const found = await repo.findByGroupAndPlayer(groupId, added.player.id);
+
+      expect(found).toEqual(added);
+    });
+
+    it("returns null when the player has no membership in that group", async () => {
+      const groupA = await createGroup("Group A");
+      const groupB = await createGroup("Group B");
+      const added = await repo.addGuest(groupA, { name: "Guest", primaryPos: "lateral" });
+
+      expect(await repo.findByGroupAndPlayer(groupB, added.player.id)).toBeNull();
+    });
+  });
+
   describe("updateRating", () => {
     it("updates only the fields present in the patch", async () => {
       const groupId = await createGroup();

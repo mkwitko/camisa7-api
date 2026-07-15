@@ -66,6 +66,15 @@ export const ERRORS = {
       status: 404,
       internalMessage: "member_not_found",
     }),
+    // Task 17 (Fase 1, F1-4): `GET /players/:playerId/career` — an unknown
+    // `Player` id (never existed at all). Distinct from `MEMBER_NOT_FOUND`
+    // (a group-scoped `GroupMember` lookup) since `Player` is the global
+    // identity, no group involved here.
+    NOT_FOUND: defineError({
+      code: "PLR-T0002",
+      status: 404,
+      internalMessage: "player_not_found",
+    }),
   },
   MTC: {
     NOT_FOUND: defineError({
@@ -87,6 +96,17 @@ export const ERRORS = {
       code: "MTC-T0003",
       status: 409,
       internalMessage: "match_not_finished",
+    }),
+    // Task 17 (Fase 1, F1-4): `finalize-match` requires the match to already
+    // be `finished` (or already `closed` — re-finalizing is a no-op status
+    // transition, see that service's doc comment) before it'll recompute
+    // careers. Kept as its own code rather than reusing `NOT_FINISHED`
+    // (RES's "finish before recording a score") since the localized copy
+    // needs to talk about finalizing specifically, not result-recording.
+    NOT_FINALIZABLE: defineError({
+      code: "MTC-T0004",
+      status: 409,
+      internalMessage: "match_not_finalizable",
     }),
   },
   ATT: {
