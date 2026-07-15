@@ -188,6 +188,29 @@ export const ERRORS = {
       internalMessage: "result_forbidden",
     }),
   },
+  // Task 15 (Fase 1): `MatchStat` (`children/stats`) — F1-2's organizer-logged
+  // per-player stats (gols/assist/clean_sheet). INELIGIBLE_PLAYER is the one
+  // the brief names explicitly (every `playerId` in a `log-stats` batch must
+  // be a CONFIRMED attendee of the match — an unknown player id or one who
+  // never confirmed/only waitlisted/cancelled gets this same 400, no need to
+  // distinguish the two at the API boundary). CANNOT_VIEW is the same
+  // "owner-or-member" authz gap `RES.CANNOT_VIEW`/`ATT.CANNOT_MANAGE`/
+  // `TEAM.CANNOT_VIEW` already close, kept as its own code so the localized
+  // copy talks about stats specifically. `log-stats` itself reuses
+  // `MTC.NOT_FINISHED` (409) for "match isn't finished yet" — same state
+  // `record-result` already gates on, no need for a stats-specific dup.
+  STAT: {
+    INELIGIBLE_PLAYER: defineError({
+      code: "STAT-T0001",
+      status: 400,
+      internalMessage: "stat_ineligible_player",
+    }),
+    CANNOT_VIEW: defineError({
+      code: "STAT-T0002",
+      status: 403,
+      internalMessage: "stat_forbidden",
+    }),
+  },
   SYS: {
     VALIDATION: defineError({
       code: "SYS-T0001",

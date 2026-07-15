@@ -21,6 +21,8 @@
   "RES-T0001": "Marcador inválido para los equipos de este partido.",
   "RES-T0002": "Aún no se ha registrado un resultado para este partido.",
   "RES-T0003": "No tienes permiso sobre el resultado de este partido.",
+  "STAT-T0001": "Jugador desconocido o no confirmado en este partido.",
+  "STAT-T0002": "No tienes permiso sobre las estadísticas de este partido.",
   "SYS-T0001": "Error de validación.",
   "SYS-T0002": "Error interno del servidor."
 }

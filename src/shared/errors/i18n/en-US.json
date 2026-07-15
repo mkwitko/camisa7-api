@@ -21,6 +21,8 @@
   "RES-T0001": "Invalid score for this match's teams.",
   "RES-T0002": "No result has been recorded for this match yet.",
   "RES-T0003": "You do not have permission over this match's result.",
+  "STAT-T0001": "Unknown player, or player not confirmed for this match.",
+  "STAT-T0002": "You do not have permission over this match's stats.",
   "SYS-T0001": "Validation error.",
   "SYS-T0002": "Internal server error."
 }

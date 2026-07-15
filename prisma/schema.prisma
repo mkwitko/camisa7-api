@@ -107,6 +107,7 @@ model Player {
 
   memberships GroupMember[]
   attendances Attendance[]
+  stats       MatchStat[]
 
   @@index([userId])
 }
@@ -176,6 +177,7 @@ model Match {
   inviteTokens   InviteToken[]
   teamAssignment TeamAssignment?
   result         MatchResult?
+  stats          MatchStat[]
 
   @@index([groupId, datetime])
 }
@@ -306,4 +308,50 @@ model MatchResult {
 
   createdAt DateTime @default(now()) @db.Timestamptz(3)
   updatedAt DateTime @updatedAt @db.Timestamptz(3)
+}
+
+/// Task 15 (Fase 1): F1-2 organizer-logged per-player stats for a `Match`.
+/// Fase 1 only ever writes `source: "organizador"` (the owner logs
+/// gols/assist/clean_sheet after the match) — `colaborativo` (jogadores
+/// reportam + consenso/disputa, `stat_report`) is a later fase; the enum
+/// value exists now so this column never needs a widening migration when
+/// that feature lands (see §4.2/§9 of the Fase 0+1 design doc).
+enum MatchStatSource {
+  organizador
+  colaborativo
+}
+
+/// Task 15 (Fase 1): one player's stat line for one `Match` — `log-stats`
+/// upserts a batch of these keyed by `(matchId, playerId)`
+/// (`MatchStatsRepository.upsertMany`), so re-logging the same player
+/// corrects the row rather than accumulating history (same "upsert to
+/// correct" convention `MatchResult`/`TeamAssignment` use). `team` is the
+/// same 0-based index `TeamScore.team`/`TeamSplit.team` use — optional
+/// since not every group runs `generate-teams` before logging stats.
+/// `cleanSheet` only makes sense for a goalkeeper but isn't itself
+/// constrained to `Position.goleiro` at the DB level (validated, if at all,
+/// at the HTTP boundary). `listByPlayer` (career-wide, ignores `matchId`)
+/// feeds the F1-4 career-growth engine (`player_career`, §6 of the design
+/// doc) once it lands.
+model MatchStat {
+  id String @id @default(uuid()) @db.Uuid
+
+  matchId String @db.Uuid
+  match   Match  @relation(fields: [matchId], references: [id])
+
+  playerId String @db.Uuid
+  player   Player @relation(fields: [playerId], references: [id])
+
+  team       Int?
+  goals      Int             @default(0)
+  assists    Int             @default(0)
+  ownGoals   Int             @default(0)
+  cleanSheet Boolean         @default(false)
+  source     MatchStatSource @default(organizador)
+
+  createdAt DateTime @default(now()) @db.Timestamptz(3)
+  updatedAt DateTime @updatedAt @db.Timestamptz(3)
+
+  @@unique([matchId, playerId])
+  @@index([playerId])
 }

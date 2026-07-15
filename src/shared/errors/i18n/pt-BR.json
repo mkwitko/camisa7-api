@@ -21,6 +21,8 @@
   "RES-T0001": "Placar inválido para os times desta partida.",
   "RES-T0002": "Resultado ainda não registrado para esta partida.",
   "RES-T0003": "Você não tem permissão sobre o resultado desta partida.",
+  "STAT-T0001": "Jogador desconhecido ou não confirmado nesta partida.",
+  "STAT-T0002": "Você não tem permissão sobre as estatísticas desta partida.",
   "SYS-T0001": "Erro de validação.",
   "SYS-T0002": "Erro interno do servidor."
 }
