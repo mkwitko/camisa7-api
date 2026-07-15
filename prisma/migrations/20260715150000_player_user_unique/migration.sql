@@ -1,0 +1,19 @@
+-- Hand-edited (F1-5): closes a known Fase 0 TOCTOU gap — `Player.userId` had
+-- only a plain index (`Player_userId_idx`), not a uniqueness guarantee, so
+-- two concurrent `findOrCreateForUser` calls for the same `userId` (e.g. two
+-- requests racing to auto-provision a user's canonical `Player` on first
+-- use) could both pass the `findFirst` check before either `create` lands,
+-- producing two `Player` rows for the same `User`. The real constraint we
+-- need is "at most one `Player` per NON-NULL `userId`" — guests keep
+-- `userId` null and MUST stay unconstrained there (many guests, no `User` at
+-- all). Prisma's schema DSL can't express a PARTIAL unique index (`CREATE
+-- UNIQUE INDEX ... WHERE ...`), so — same recipe as `attendance_active_unique`
+-- (see 20260714170000_attendance/migration.sql's header) — this is
+-- hand-written, not `prisma migrate diff` output, and schema.prisma has no
+-- corresponding `@@unique` for it (see the `Player` model's doc comment).
+-- `findOrCreateForUser` (players.repository.ts) now catches the resulting
+-- P2002 and re-`findFirst`s instead of surfacing a 500. Verified this
+-- doesn't show up as drift on the next `migrate diff` — a partial index the
+-- schema DSL can't model is invisible to the diff, not drift (same as the
+-- attendance precedent).
+CREATE UNIQUE INDEX "player_user_unique" ON "Player" ("userId") WHERE "userId" IS NOT NULL;

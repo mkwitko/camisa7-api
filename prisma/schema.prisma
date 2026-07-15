@@ -91,9 +91,17 @@ enum MemberRole {
 /// set) or a guest added directly by a group organizer (`userId` null, no
 /// login). One `Player` can be linked to at most one `User` (via
 /// `findOrCreateForUser` in `players.repository.ts`, reused across the same
-/// user's groups) but is NOT unique-constrained on `userId` at the DB level —
-/// guests keep `userId` null and there's no uniqueness among nulls to enforce
-/// anyway.
+/// user's groups) — F1-5 closes a Fase 0 TOCTOU gap by making this a REAL DB
+/// constraint via a hand-written PARTIAL unique index
+/// (`player_user_unique`, covering only non-null `userId`s — see
+/// `prisma/migrations/20260715150000_player_user_unique/migration.sql`;
+/// Prisma's schema DSL can't express partial uniqueness, so there's no
+/// matching `@@unique` here, same as `Attendance`'s
+/// `attendance_active_unique`). Guests keep `userId` null, never constrained
+/// (many guests, no `User` at all — nothing to enforce uniqueness against).
+/// `findOrCreateForUser` catches the P2002 this index can now raise (two
+/// concurrent calls racing to provision the same user's `Player`) and
+/// re-`findFirst`s instead of surfacing a 500.
 model Player {
   id     String  @id @default(uuid()) @db.Uuid
   userId String? @db.Uuid
