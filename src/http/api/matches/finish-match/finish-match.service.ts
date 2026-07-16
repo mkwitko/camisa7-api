@@ -9,11 +9,12 @@ export type FinishMatchDeps = { matchesRepo: MatchesRepository; groupsRepo: Grou
 /**
  * Owner finishes a match — sets `status: "finished"`, closing it out as a
  * historical record. After this, `update-match` rejects field edits with
- * `MTC-T0002`, and the recurrence cron (`src/jobs/recurrence.job.ts`) picks
- * the match up to spawn its next occurrence if it carries a
- * `recurrenceRule`. An already-`finished` or -`cancelled` match rejects with
- * the same `NOT_EDITABLE` error `update-match` uses — "finish an
- * already-closed match" is the same stale state-transition attempt.
+ * `MTC-T0002`. Finishing a match no longer spawns its next occurrence
+ * inline — the recurrence cron (`src/jobs/recurrence.job.ts`) materializes a
+ * rolling horizon of future `Match` rows per `MatchSeries` independently of
+ * any single match's status. An already-`finished` or -`cancelled` match
+ * rejects with the same `NOT_EDITABLE` error `update-match` uses — "finish
+ * an already-closed match" is the same stale state-transition attempt.
  */
 export function createFinishMatchService(deps: FinishMatchDeps) {
   return async (matchId: string, userId: string): Promise<Match> => {

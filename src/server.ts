@@ -7,23 +7,26 @@ import { createMatchResultRepository } from "@/http/api/matches/children/result/
 import { createFinalizeMatchCore } from "@/http/api/matches/finalize-match/finalize-match.core";
 import { createMatchesRepository } from "@/http/api/matches/matches.repository";
 import { createPlayerCareerRepository } from "@/http/api/players/children/career/career.repository";
+import { createSeriesRepository } from "@/http/api/series/series.repository";
 import { prisma } from "@/infra/db/client";
 import { logger } from "@/infra/observability/logger";
 import { finalizeElapsedMatches } from "@/jobs/finalize-matches.job";
-import { generateNextOccurrences } from "@/jobs/recurrence.job";
+import { generateHorizon } from "@/jobs/recurrence.job";
 
 /**
- * Recurrence cron (Task 11) — every 15 minutes, scans `finished` recurring
- * matches with no future sibling yet and spawns their next occurrence. Not
- * started under `NODE_ENV === "test"`: e2e/integration suites build their
- * own app instances against throwaway Testcontainers DBs (see
+ * Recurrence cron (Task 8) — every 15 minutes, tops up each `active`
+ * `MatchSeries`'s future `Match` rows to a rolling horizon (see
+ * `generateHorizon` in `recurrence.job.ts`). Not started under
+ * `NODE_ENV === "test"`: e2e/integration suites build their own app
+ * instances against throwaway Testcontainers DBs (see
  * `test/e2e/helpers/app.ts`) and don't want a background timer touching
  * `prisma`/reaching across test runs.
  */
 function startRecurrenceCron(): void {
+  const seriesRepo = createSeriesRepository(prisma);
   const matchesRepo = createMatchesRepository(prisma);
   cron.schedule("*/15 * * * *", () => {
-    generateNextOccurrences(matchesRepo, new Date()).catch((err: unknown) => {
+    generateHorizon(seriesRepo, matchesRepo, new Date()).catch((err: unknown) => {
       logger.error({ err }, "recurrence.job.failed");
     });
   });

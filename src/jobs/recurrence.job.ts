@@ -1,65 +1,75 @@
 import type { MatchesRepository } from "@/http/api/matches/matches.repository";
 import type { Match } from "@/http/api/matches/matches.types";
+import { computeOccurrences } from "@/http/api/series/recurrence";
+import type { SeriesRepository } from "@/http/api/series/series.repository";
 
-/**
- * Computes the next weekly occurrence's datetime: the next `weekday`
- * (0=Sun..6=Sat) + `time` ("HH:mm", UTC — matches are stored in UTC
- * end-to-end, see the company skill's DATES.md) strictly AFTER
- * `originalDatetime`. Anchors on the RULE's weekday+time, not the original
- * match's own time-of-day, since `update-match` can drift a match's
- * `datetime` away from its `recurrenceRule` without clearing the rule — the
- * rule is the single source of truth for where the series should land.
- */
-function nextRecurrenceDatetime(
-  originalDatetime: Date,
-  rule: { weekday: number; time: string },
-): Date {
-  const [hours, minutes] = rule.time.split(":").map(Number);
-  const candidate = new Date(
-    Date.UTC(
-      originalDatetime.getUTCFullYear(),
-      originalDatetime.getUTCMonth(),
-      originalDatetime.getUTCDate(),
-      hours,
-      minutes,
-      0,
-      0,
-    ),
-  );
-
-  const dayDiff = (rule.weekday - candidate.getUTCDay() + 7) % 7;
-  candidate.setUTCDate(candidate.getUTCDate() + dayDiff);
-
-  // Guarantees strictly-after even when the rule's weekday+time lands on or
-  // before the original datetime (e.g. same weekday, earlier time-of-day).
-  while (candidate.getTime() <= originalDatetime.getTime()) {
-    candidate.setUTCDate(candidate.getUTCDate() + 7);
-  }
-
-  return candidate;
-}
+const HORIZON = 4;
 
 /**
  * Cron body wired in `src/server.ts` (`node-cron`, every 15 minutes, skipped
  * when `NODE_ENV === "test"`). `now` is INJECTED — never read internally via
  * `Date.now()`/`new Date()` — so callers (and tests) can pin it.
  *
- * For each `finished` match with a weekly `recurrenceRule` and no future
- * `open`/`full` sibling yet in its group (see
- * `findFinishedRecurringWithoutFutureSibling`), spawns the next occurrence
- * via `createNextOccurrence`.
+ * Rolling-horizon materializer (replaces the old lazy
+ * "finished match spawns its next occurrence" design): for every `active`
+ * `MatchSeries` (`seriesRepo.listActive`), tops up its future `Match` rows to
+ * `horizon`. Series with `rule.kind === "manual"` or `time === null` are not
+ * generatable (`computeOccurrences` would return `[]` for the former; the
+ * latter has no time-of-day to anchor on) — skipped without counting toward
+ * the horizon. Anchors the next batch's `from` on the series' own last known
+ * future occurrence (not `now`) so top-up runs never regress the cadence
+ * (e.g. a biweekly series' next batch still lands on the right week), and
+ * always passes the series' `startDate` through to `computeOccurrences` so
+ * the interval phase (`weekIndex % interval`) stays anchored there rather
+ * than drifting off `anchor`. A `endDate` upper bound stops a batch early —
+ * `computeOccurrences` doesn't know about it — rather than inserting rows
+ * the organizer explicitly capped the series against.
+ *
+ * `insertOccurrence`'s `try`/`catch` makes a re-run idempotent: the DB's
+ * `@@unique([seriesId, datetime])` constraint (see `schema.prisma`) rejects a
+ * duplicate insert for a date this job (or a concurrent run) already
+ * created, and that's treated as "already exists" rather than a failure.
  */
-export async function generateNextOccurrences(
-  repo: MatchesRepository,
+export async function generateHorizon(
+  seriesRepo: SeriesRepository,
+  matchesRepo: MatchesRepository,
   now: Date,
+  horizon = HORIZON,
 ): Promise<Match[]> {
-  const candidates = await repo.findFinishedRecurringWithoutFutureSibling(now);
-
+  const series = await seriesRepo.listActive(now);
   const created: Match[] = [];
-  for (const match of candidates) {
-    if (!match.recurrenceRule) continue;
-    const nextDatetime = nextRecurrenceDatetime(new Date(match.datetime), match.recurrenceRule);
-    created.push(await repo.createNextOccurrence(match, nextDatetime));
+
+  for (const s of series) {
+    if (s.rule.kind === "manual" || s.time === null) continue;
+
+    const existing = await matchesRepo.countFutureBySeries(s.id, now);
+    const need = horizon - existing;
+    if (need <= 0) continue;
+
+    const future = await matchesRepo.listBySeriesFuture(s.id, now);
+    const lastFuture = future.at(-1);
+    const anchor = lastFuture ? new Date(lastFuture.datetime) : now;
+    const upperBound = s.endDate ? new Date(s.endDate) : null;
+
+    const dates = computeOccurrences(s.rule, s.time, anchor, need, new Date(s.startDate));
+    for (const date of dates) {
+      if (upperBound && date.getTime() > upperBound.getTime()) break;
+      try {
+        created.push(
+          await matchesRepo.insertOccurrence({
+            seriesId: s.id,
+            groupId: s.groupId,
+            datetime: date.toISOString(),
+            location: s.location,
+            priceCents: s.priceCents,
+            slots: s.slots,
+            pixKey: s.pixKey,
+          }),
+        );
+      } catch {
+        // unique([seriesId, datetime]) violated → already exists, idempotent skip.
+      }
+    }
   }
 
   return created;
