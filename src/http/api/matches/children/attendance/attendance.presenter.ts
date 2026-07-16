@@ -1,5 +1,9 @@
-import type { AttendanceResponse, CancelPresenceResponse } from "./attendance.schema";
-import type { Attendance } from "./attendance.types";
+import type {
+  AttendanceListItemResponse,
+  AttendanceResponse,
+  CancelPresenceResponse,
+} from "./attendance.schema";
+import type { Attendance, AttendanceListItem } from "./attendance.types";
 
 /** Flattens a domain `Attendance` (attendance row joined with its `Player`) into the API response shape. */
 export function presentAttendance(attendance: Attendance): AttendanceResponse {
@@ -16,6 +20,21 @@ export function presentAttendance(attendance: Attendance): AttendanceResponse {
       name: attendance.player.name,
       phone: attendance.player.phone,
     },
+  };
+}
+
+/**
+ * `list-attendance`-only: `presentAttendance` plus the DERIVED
+ * `billingMode`/`monthlyDueStatus` fields — see `AttendanceListItem`'s doc
+ * comment in `attendance.types.ts`.
+ */
+export function presentAttendanceListItem(
+  attendance: AttendanceListItem,
+): AttendanceListItemResponse {
+  return {
+    ...presentAttendance(attendance),
+    billingMode: attendance.billingMode,
+    monthlyDueStatus: attendance.monthlyDueStatus,
   };
 }
 

@@ -1,7 +1,11 @@
 import { afterAll, beforeAll, beforeEach, describe, expect, it } from "vitest";
+import { competencyMonth } from "../../src/http/api/dues/competency";
+import { createDuesRepository } from "../../src/http/api/dues/dues.repository";
 import { createMembersRepository } from "../../src/http/api/groups/children/members/members.repository";
 import type { FakePushGateway } from "../mocks/gateways.fake";
 import { buildTestApp, type TestApp } from "./helpers/app";
+
+const THIS_MONTH = competencyMonth(new Date());
 
 const register = (h: TestApp, email: string, name = "Player") =>
   h.app.inject({
@@ -123,7 +127,7 @@ describe("attendance e2e", () => {
 
   beforeEach(async () => {
     await h.prisma.$executeRawUnsafe(
-      'TRUNCATE TABLE "Attendance", "Match", "Player", "Group", "User" CASCADE',
+      'TRUNCATE TABLE "MembershipDue", "Attendance", "GroupMember", "Match", "Player", "Group", "User" CASCADE',
     );
     (h.gateways.push as FakePushGateway).calls.length = 0;
   });
@@ -259,6 +263,88 @@ describe("attendance e2e", () => {
 
       expect(res.statusCode).toBe(403);
       expect(res.json().code).toBe("ATT-T0003");
+    });
+
+    it("derives billingMode avulso + monthlyDueStatus none for an attendee with no group-membership row", async () => {
+      const ownerToken = await registerAndGetToken(h, "owner-avulso@x.com");
+      const group = await createGroup(h, ownerToken, { name: "Team A" });
+      const { id: groupId } = group.json();
+      const match = await createMatch(h, ownerToken, groupId, { slots: 10 });
+      const { id: matchId } = match.json();
+      // Confirms via the plain "declare my own presence" path — never joins
+      // the group as a `GroupMember`, same as any guest-via-invite attendee.
+      const playerToken = await registerAndGetToken(h, "player-avulso@x.com");
+      await confirmPresence(h, playerToken, matchId);
+
+      const res = await listAttendance(h, ownerToken, matchId);
+
+      expect(res.statusCode).toBe(200);
+      expect(res.json()).toHaveLength(1);
+      expect(res.json()[0]).toMatchObject({
+        paymentStatus: "pending",
+        billingMode: "avulso",
+        monthlyDueStatus: "none",
+      });
+    });
+
+    it("derives billingMode mensalista + monthlyDueStatus pending when the member has no due for the current month yet", async () => {
+      const ownerToken = await registerAndGetToken(h, "owner-mensalista-pending@x.com");
+      const group = await createGroup(h, ownerToken, { name: "Team A" });
+      const { id: groupId } = group.json();
+      const match = await createMatch(h, ownerToken, groupId, { slots: 10 });
+      const { id: matchId } = match.json();
+
+      const memberRegister = await register(h, "member-mensalista-pending@x.com", "Mensalista");
+      const memberToken = memberRegister.json().accessToken as string;
+      const memberUserId = memberRegister.json().user.id as string;
+      const membersRepo = createMembersRepository(h.prisma);
+      const member = await membersRepo.addForUser(groupId, memberUserId, "jogador");
+      await membersRepo.updateRating(member.id, { billingMode: "mensalista" });
+      await confirmPresence(h, memberToken, matchId);
+
+      const res = await listAttendance(h, ownerToken, matchId);
+
+      expect(res.statusCode).toBe(200);
+      expect(res.json()[0]).toMatchObject({
+        billingMode: "mensalista",
+        monthlyDueStatus: "pending",
+      });
+    });
+
+    it("derives monthlyDueStatus paid once the member's current-month due is paid, and reflects a billingMode switch without stale state", async () => {
+      const ownerToken = await registerAndGetToken(h, "owner-mensalista-paid@x.com");
+      const group = await createGroup(h, ownerToken, { name: "Team A" });
+      const { id: groupId } = group.json();
+      const match = await createMatch(h, ownerToken, groupId, { slots: 10 });
+      const { id: matchId } = match.json();
+
+      const memberRegister = await register(h, "member-mensalista-paid@x.com", "Mensalista");
+      const memberToken = memberRegister.json().accessToken as string;
+      const memberUserId = memberRegister.json().user.id as string;
+      const membersRepo = createMembersRepository(h.prisma);
+      const member = await membersRepo.addForUser(groupId, memberUserId, "jogador");
+      await membersRepo.updateRating(member.id, { billingMode: "mensalista" });
+      await confirmPresence(h, memberToken, matchId);
+
+      const duesRepo = createDuesRepository(h.prisma);
+      const due = await duesRepo.ensureForMember(member.id, THIS_MONTH, 5000);
+      await duesRepo.setStatus(due.id, "paid", memberUserId);
+
+      const paidRes = await listAttendance(h, ownerToken, matchId);
+      expect(paidRes.json()[0]).toMatchObject({
+        billingMode: "mensalista",
+        monthlyDueStatus: "paid",
+      });
+
+      // Switching the member back to avulso must not leave the previous
+      // mensalista due lingering in the derived response — no stale state.
+      await membersRepo.updateRating(member.id, { billingMode: "avulso" });
+
+      const avulsoRes = await listAttendance(h, ownerToken, matchId);
+      expect(avulsoRes.json()[0]).toMatchObject({
+        billingMode: "avulso",
+        monthlyDueStatus: "none",
+      });
     });
   });
 

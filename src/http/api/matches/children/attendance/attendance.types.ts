@@ -1,3 +1,4 @@
+import type { BillingMode } from "@/http/api/dues/dues.types";
 import type { Player } from "@/http/api/players/players.types";
 
 /**
@@ -29,4 +30,30 @@ export type Attendance = {
   waitlistPos: number | null;
   paymentStatus: PaymentStatus;
   paidConfirmedById: string | null;
+};
+
+/**
+ * Domain `MonthlyDueStatus` — DERIVED membership-dues coverage for one
+ * attendee, computed per-request by `list-attendance.service.ts` from the
+ * match's group `GroupMember.billingMode` and (if `mensalista`) that
+ * group/month's `MembershipDue`. Never persisted on `Attendance` itself.
+ * `"none"`: the player is `avulso` in this group — dues don't apply, the
+ * app should keep showing the per-match `paymentStatus`/PIX chip instead.
+ * `"paid"`/`"pending"`: the player is `mensalista` — mirrors `DueStatus`,
+ * with a missing due for the month (not yet generated, e.g. mid-month
+ * signup) treated the same as `"pending"` (owed, not paid).
+ */
+export type MonthlyDueStatus = "paid" | "pending" | "none";
+
+/**
+ * `Attendance` enriched with the player's group billing context. Kept
+ * separate from `Attendance` (rather than adding the fields there) so only
+ * `list-attendance` — the one endpoint the app renders "mensalista • mês
+ * pago/devendo" from — carries this extra join; `confirm-presence`,
+ * `cancel-presence`, `mark-paid` and `confirm-payment` keep returning the
+ * plain `Attendance` shape via `presentAttendance`.
+ */
+export type AttendanceListItem = Attendance & {
+  billingMode: BillingMode;
+  monthlyDueStatus: MonthlyDueStatus;
 };
