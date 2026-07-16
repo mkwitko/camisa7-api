@@ -2,6 +2,7 @@ import "dotenv/config"; // load .env for local dev (prod injects real env vars)
 import cron from "node-cron";
 import { buildApp } from "@/app";
 import { env } from "@/config/env";
+import { createDuesRepository } from "@/http/api/dues/dues.repository";
 import { createAttendanceRepository } from "@/http/api/matches/children/attendance/attendance.repository";
 import { createMatchResultRepository } from "@/http/api/matches/children/result/result.repository";
 import { createFinalizeMatchCore } from "@/http/api/matches/finalize-match/finalize-match.core";
@@ -11,6 +12,7 @@ import { createSeriesRepository } from "@/http/api/series/series.repository";
 import { prisma } from "@/infra/db/client";
 import { logger } from "@/infra/observability/logger";
 import { finalizeElapsedMatches } from "@/jobs/finalize-matches.job";
+import { generateMonthlyDues } from "@/jobs/membership-dues.job";
 import { generateHorizon } from "@/jobs/recurrence.job";
 
 /**
@@ -53,12 +55,31 @@ function startFinalizeCron(): void {
   });
 }
 
+/**
+ * Membership-dues cron (Task 6) — once a day, ensures every `mensalista`
+ * `GroupMember` with a resolvable fee (`monthlyFeeCentsOverride ?? group.
+ * monthlyFeeCents`) has a `MembershipDue` for the current competency month
+ * (see `generateMonthlyDues` in `membership-dues.job.ts`). `ensureForMember`
+ * upserts idempotently, so unlike the 15-minute recurrence/finalize crons a
+ * daily cadence is plenty — there's no harm in running it more or less often.
+ * Skipped under `NODE_ENV === "test"`, same rationale as the other crons.
+ */
+function startMembershipDuesCron(): void {
+  const duesRepo = createDuesRepository(prisma);
+  cron.schedule("0 6 * * *", () => {
+    generateMonthlyDues(duesRepo, new Date()).catch((err: unknown) => {
+      logger.error({ err }, "membership-dues.job.failed");
+    });
+  });
+}
+
 async function start(): Promise<void> {
   const app = await buildApp();
 
   if (env.NODE_ENV !== "test") {
     startRecurrenceCron();
     startFinalizeCron();
+    startMembershipDuesCron();
   }
 
   const shutdown = async (signal: NodeJS.Signals): Promise<void> => {
