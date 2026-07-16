@@ -45,23 +45,29 @@ export type MatchOutcome = "win" | "draw" | "loss";
 /**
  * One finalized match's inputs to the growth engine, already resolved by
  * `PlayerCareerRepository`'s `gatherPerformances` from `MatchStat` +
- * `MatchResult` + `Vote` + the match's `GroupMember` row — see that file's
- * doc comment for how each field is derived. `computeCareer` itself sorts
- * this list chronologically (by `datetime`, ties broken by `matchId`) — the
- * caller doesn't need to pre-sort, which is what makes a re-run
- * order-independent (idempotent) regardless of the order the repository
- * happens to fetch rows in.
+ * `MatchResult` + `Vote` + the player's declared `affinity` at recompute
+ * time — see that file's doc comment for how each field is derived.
+ * `computeCareer` itself sorts this list chronologically (by `datetime`,
+ * ties broken by `matchId`) — the caller doesn't need to pre-sort, which is
+ * what makes a re-run order-independent (idempotent) regardless of the
+ * order the repository happens to fetch rows in.
  */
 export type MatchPerformance = {
   matchId: string;
   /** ISO 8601 — the match's own `datetime`, not when stats/votes/result were recorded. */
   datetime: string;
-  /** The player's primary position in the match's group at recompute time (Fase 1 has no historical position snapshot). */
-  position: Position;
-  /** The player's secondary positions in that same group — nudged too, at a reduced weight (see `career-config.ts`). */
-  secondaryPositions: Position[];
-  /** That match's group's `seedOverall` — the bootstrap starting point the FIRST time a position is touched during replay. */
-  seedOverall: Partial<Record<Position, number>>;
+  /**
+   * The player's own self-declared affinity (`{position: 0-100}`) at
+   * recompute time — `Player.affinity` if registered, else that match's
+   * `GroupMember.affinity` for a guest (see `career.repository.ts`'s
+   * `gatherPerformances`). The FM rating model (Task 2): every position
+   * with a positive affinity here moves toward this match's signal, scaled
+   * by `affinity[position] / 100` — a position absent or at `0` is never
+   * touched. Not a historical snapshot: Fase 1 has no per-match affinity
+   * record, so a re-finalize replays with whatever the player has declared
+   * NOW, for every match in their history alike.
+   */
+  affinity: Partial<Record<Position, number>>;
   /** The player's own team's result — `"draw"` when it can't be resolved (no `MatchResult`, or the stat row carries no `team`). */
   outcome: MatchOutcome;
   goals: number;

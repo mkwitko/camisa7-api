@@ -11,9 +11,17 @@
  * MVP/craque boost overall, fair_play stays reputation-only) but leaves the
  * exact numbers to implementation — the rationale for each pick is inline
  * below.
+ *
+ * Task 2 (FM rating model): replaced the old primary/secondary-position
+ * split + group `seedOverall` bootstrap with an affinity-weighted model —
+ * see `career-engine.ts`'s doc comment. `secondaryPositionFactor` and
+ * `bootstrapDefaultOverall` are gone: every position `computeCareer` ever
+ * touches carries its own positive `affinity` value (the gate for touching
+ * it at all), so there's no longer a "secondary" role or an "unrated"
+ * default to fall back to.
  */
 export const CAREER_CONFIG = {
-  version: 1,
+  version: 2,
 
   /**
    * Max ± `overall` points ANY single position can move from ONE match —
@@ -21,29 +29,11 @@ export const CAREER_CONFIG = {
    * máximo limitado por jogo"). 3 points means it takes several strong
    * (or poor) performances in a row to meaningfully shift a position,
    * which is the intent: one freak hat-trick shouldn't overnight turn a
-   * bronze player into prata.
+   * bronze player into prata. Applied AFTER the affinity scaling (see
+   * `computeCareer`), so a high-affinity position can still ride the cap on
+   * a big performance while a low-affinity one moves proportionally less.
    */
   perMatchStepCap: 3,
-
-  /**
-   * A position's `overall` moves toward a per-match "signal" (see
-   * `computeSignal` in `career-engine.ts`), capped by `perMatchStepCap`.
-   * Applied at full weight to the player's PRIMARY position for that
-   * match's group; secondary positions move toward the same signal but at
-   * this reduced factor (still capped independently) — reflects that the
-   * performance more directly proves out their primary position.
-   */
-  secondaryPositionFactor: 0.5,
-
-  /**
-   * Starting `overall` for a position the FIRST time the replay touches it
-   * (bootstrap, §6: "jogador novo sem histórico usa seed_overall"). Only
-   * used when that match's `GroupMember.seedOverall` has no entry for the
-   * position either (an organizer who never rated the player) — otherwise
-   * the organizer's own seed wins. 50 is the deliberately neutral
-   * "unrated rookie" midpoint on the 0-99 scale.
-   */
-  bootstrapDefaultOverall: 50,
 
   /**
    * Per-match-performance weights feeding the signal a position's

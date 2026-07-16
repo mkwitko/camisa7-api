@@ -1,4 +1,4 @@
-import type { Position } from "@/http/api/groups/children/members/members.types";
+import { POSITIONS, type Position } from "@/http/api/groups/children/members/members.types";
 import type { ComputedCareer, MatchOutcome, MatchPerformance, PlayerLevel } from "./career.types";
 import { CAREER_CONFIG } from "./career-config";
 
@@ -39,20 +39,32 @@ function computeSignal(position: Position, perf: MatchPerformance): number {
 
 /**
  * Moves `current` toward `signal`, bounded by `CAREER_CONFIG.perMatchStepCap`
- * either direction, clamped to the valid 0-99 overall range.
+ * either direction, then rounded to a whole point (both `overall` and
+ * `affinity` are integer scales — see `OverallValueSchema`/
+ * `AffinityValueSchema` — but `signal` here is generally fractional once
+ * scaled by `affinity / 100`), clamped to the valid 0-99 overall range.
  */
 function stepToward(current: number, signal: number): number {
   const step = clamp(signal, -CAREER_CONFIG.perMatchStepCap, CAREER_CONFIG.perMatchStepCap);
-  return clamp(current + step, 0, 99);
+  return clamp(current + Math.round(step), 0, 99);
 }
 
-/** `overall[position]` if already touched during this replay, else that match's group `seedOverall`, else the config default. */
-function bootstrapOrCurrent(
+/**
+ * `overall[position]` if already touched during this replay, else the
+ * player's OWN declared `affinity[position]` (clamped to the valid 0-99
+ * overall range — affinity itself goes up to 100) seeds it. Only ever
+ * called for a `position` the caller has already gated on
+ * `affinity[position] > 0`, so the fallback is never reached in practice —
+ * `?? 0` just keeps this total for the type.
+ */
+function bootstrap(
   overall: Partial<Record<Position, number>>,
   position: Position,
-  seedOverall: Partial<Record<Position, number>>,
+  affinity: Partial<Record<Position, number>>,
 ): number {
-  return overall[position] ?? seedOverall[position] ?? CAREER_CONFIG.bootstrapDefaultOverall;
+  const current = overall[position];
+  if (current !== undefined) return current;
+  return clamp(affinity[position] ?? 0, 0, 99);
 }
 
 /** The player's best per-position `overall`, or `undefined` if no position has been touched yet. */
@@ -80,14 +92,20 @@ function deriveLevel(overall: Partial<Record<Position, number>>): PlayerLevel {
  * produces the same output (idempotent), and the result never depends on
  * the order matches were fetched in (deterministic) — only on `datetime`.
  *
- * Per match: the player's PRIMARY position (for that match's group) moves
- * toward `computeSignal`'s result at full weight; each secondary position
- * moves toward the same signal at `CAREER_CONFIG.secondaryPositionFactor`
- * (still independently capped). A position neither played as a
- * primary/secondary role is untouched. Bootstrap (`bootstrapOrCurrent`)
- * seeds a position's starting value from that match's group `seedOverall`
- * the FIRST time replay reaches it — every match after that moves from the
- * already-computed value, never re-reads the seed.
+ * Task 2 (FM rating model): per match, for EACH position `p` with
+ * `perf.affinity[p] > 0` — the player's own self-declared affinity, see
+ * `MatchPerformance`'s doc comment — `overall[p]` moves toward
+ * `computeSignal(p, perf)` scaled by `affinity[p] / 100`. High affinity
+ * (the player rates themselves strongly at `p`) moves `overall[p]` more per
+ * match than low affinity; a position absent from `affinity` (or declared
+ * at `0`) is NEVER touched, no matter how the match went. `bootstrap`
+ * seeds a position's starting value from that SAME declared `affinity[p]`
+ * the FIRST time replay reaches it (clamped to 0-99) — every match after
+ * that moves from the already-computed value, never re-reads the
+ * affinity. Because affinity isn't a historical per-match snapshot (Fase 1
+ * has none), every match in a replay uses the player's CURRENT declared
+ * affinity — changing it and re-finalizing shifts the whole replayed
+ * career, not just future matches.
  */
 export function computeCareer(performances: MatchPerformance[]): ComputedCareer {
   const sorted = [...performances].sort(
@@ -109,19 +127,12 @@ export function computeCareer(performances: MatchPerformance[]): ComputedCareer 
   let bestStreak = 0;
 
   for (const perf of sorted) {
-    const signal = computeSignal(perf.position, perf);
-    overall[perf.position] = stepToward(
-      bootstrapOrCurrent(overall, perf.position, perf.seedOverall),
-      signal,
-    );
+    for (const position of POSITIONS) {
+      const affinityValue = perf.affinity[position];
+      if (!affinityValue || affinityValue <= 0) continue; // undeclared (or 0) — never touched
 
-    const secondaries = new Set(perf.secondaryPositions.filter((p) => p !== perf.position));
-    for (const secondaryPos of secondaries) {
-      const secondarySignal = signal * CAREER_CONFIG.secondaryPositionFactor;
-      overall[secondaryPos] = stepToward(
-        bootstrapOrCurrent(overall, secondaryPos, perf.seedOverall),
-        secondarySignal,
-      );
+      const signal = computeSignal(position, perf) * (affinityValue / 100);
+      overall[position] = stepToward(bootstrap(overall, position, perf.affinity), signal);
     }
 
     if (perf.outcome === "win") wins += 1;

@@ -105,6 +105,7 @@ describe("playerCareerRepository (integration)", () => {
     return matchId;
   }
 
+  /** A guest `Player` (`userId: null`) — `resolveAffinity` falls back to that match's `GroupMember.affinity` for these. */
   async function seedPlayer(name: string): Promise<Player> {
     const row = await testDb.prisma.player.create({ data: { name } });
     return {
@@ -116,20 +117,33 @@ describe("playerCareerRepository (integration)", () => {
     };
   }
 
+  /** A registered `Player` (`userId` set, linked to a throwaway `User`) with its OWN self-declared `affinity` — `resolveAffinity` prefers this over the group's. */
+  async function seedRegisteredPlayer(
+    name: string,
+    userId: string,
+    affinity: Record<string, number>,
+  ): Promise<Player> {
+    const row = await testDb.prisma.player.create({ data: { name, userId, affinity } });
+    return {
+      id: row.id,
+      userId: row.userId,
+      name: row.name,
+      phone: row.phone,
+      affinity: (row.affinity ?? {}) as Record<string, number>,
+    };
+  }
+
   describe("recomputeForPlayer", () => {
-    it("bootstraps from the group's seedOverall and trends up on a win with a goal", async () => {
+    it("bootstraps a guest's overall from their group's affinity and trends up on a win with a goal", async () => {
       const groupId = await seedGroup();
-      const player = await seedPlayer("Player");
+      const player = await seedPlayer("Player"); // guest — no `userId`, so `resolveAffinity` reads `GroupMember.affinity`.
       const opponent = await seedPlayer("Opponent");
       await testDb.prisma.groupMember.create({
         data: {
           groupId,
           playerId: player.id,
           role: "jogador",
-          primaryPos: "atacante",
-          secondaryPos: [],
-          affinity: {},
-          seedOverall: { atacante: 60 },
+          affinity: { atacante: 60 },
         },
       });
 
@@ -152,24 +166,59 @@ describe("playerCareerRepository (integration)", () => {
       expect(career.matchesPlayed).toBe(1);
       expect(career.wins).toBe(1);
       expect(career.goals).toBe(2);
-      // win(6) + 2 goals(3 each) = raw 12, bounded to the +3 step cap: 60 -> 63.
+      // win(6) + 2 goals(3 each) = raw 12, * 60% affinity = 7.2, bounded to the +3 step cap: 60 -> 63.
       expect(career.overall.atacante).toBe(63);
       expect(career.level).toBe("bronze");
     });
 
+    it("bootstraps a registered player's overall from their OWN Player.affinity, ignoring the group's affinity", async () => {
+      const groupId = await seedGroup();
+      const ownerUserId = await createOwner(testDb.prisma);
+      const player = await seedRegisteredPlayer("Player", ownerUserId, { meia: 60 });
+      const opponent = await seedPlayer("Opponent");
+      // Group-level affinity is deliberately different (and would bootstrap
+      // to a different position/value) to prove `resolveAffinity` prefers
+      // the player's own declared affinity once they're registered.
+      await testDb.prisma.groupMember.create({
+        data: {
+          groupId,
+          playerId: player.id,
+          role: "jogador",
+          affinity: { atacante: 10 },
+        },
+      });
+
+      await seedFinalizedMatch({
+        groupId,
+        datetime: "2026-08-01T20:00:00.000Z",
+        player,
+        opponent,
+        playerGoals: 2,
+        scores: [
+          { team: 0, goals: 2 },
+          { team: 1, goals: 1 },
+        ],
+        winnerTeam: 0,
+      });
+
+      const career = await repo.recomputeForPlayer(player.id);
+
+      // win(6) + 2 goals(3 each) = raw 12, * 60% (Player.affinity.meia) = 7.2, bounded to +3: 60 -> 63.
+      expect(career.overall.meia).toBe(63);
+      // The group's `atacante` affinity never applied — it belongs to a guest-only fallback.
+      expect(career.overall.atacante).toBeUndefined();
+    });
+
     it("counts MVP votes toward mvpCount and nudges overall, without letting fair_play affect overall", async () => {
       const groupId = await seedGroup();
-      const player = await seedPlayer("Player");
+      const player = await seedPlayer("Player"); // guest — reads `GroupMember.affinity`.
       const opponent = await seedPlayer("Opponent");
       await testDb.prisma.groupMember.create({
         data: {
           groupId,
           playerId: player.id,
           role: "jogador",
-          primaryPos: "meia",
-          secondaryPos: [],
-          affinity: {},
-          seedOverall: { meia: 50 },
+          affinity: { meia: 50 },
         },
       });
       const matchId = await seedFinalizedMatch({
@@ -191,7 +240,7 @@ describe("playerCareerRepository (integration)", () => {
 
       expect(career.mvpCount).toBe(1);
       expect(career.draws).toBe(1);
-      // draw(1) + mvp vote(4) = 5, bounded to +3: 50 -> 53. fair_play contributes nothing.
+      // draw(1) + mvp vote(4) = 5, * 50% affinity = 2.5, rounds to +3: 50 -> 53. fair_play contributes nothing.
       expect(career.overall.meia).toBe(53);
     });
 

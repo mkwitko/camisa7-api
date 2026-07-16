@@ -7,9 +7,7 @@ function perf(overrides: Partial<MatchPerformance> = {}): MatchPerformance {
   return {
     matchId: "m1",
     datetime: "2026-01-01T20:00:00.000Z",
-    position: "atacante",
-    secondaryPositions: [],
-    seedOverall: {},
+    affinity: { atacante: 50 },
     outcome: "draw",
     goals: 0,
     assists: 0,
@@ -22,8 +20,8 @@ function perf(overrides: Partial<MatchPerformance> = {}): MatchPerformance {
   };
 }
 
-describe("computeCareer", () => {
-  it("bootstraps a brand-new position from the config default when no seedOverall entry exists", () => {
+describe("computeCareer (FM affinity model)", () => {
+  it("returns an empty career for no match history", () => {
     const result = computeCareer([]);
 
     expect(result.overall).toEqual({});
@@ -31,50 +29,82 @@ describe("computeCareer", () => {
     expect(result.matchesPlayed).toBe(0);
   });
 
-  it("bootstraps from the group's seedOverall on the first touched match", () => {
-    const result = computeCareer([
-      perf({ matchId: "m1", seedOverall: { atacante: 60 }, outcome: "draw" }),
-    ]);
+  it("bootstraps a declared position from the player's own affinity, then steps by the affinity-scaled signal", () => {
+    // draw-only signal (CAREER_CONFIG.weights.draw = 1) scaled by 80% affinity
+    // = 0.8, rounds to a +1 step off the affinity-80 bootstrap.
+    const result = computeCareer([perf({ affinity: { atacante: 80 }, outcome: "draw" })]);
 
-    // draw contributes +1 (CAREER_CONFIG.weights.draw), capped step applies.
-    expect(result.overall.atacante).toBe(60 + CAREER_CONFIG.weights.draw);
+    expect(result.overall.atacante).toBe(81);
   });
 
-  it("uses the neutral bootstrap default when the group never seeded the position", () => {
-    const result = computeCareer([perf({ matchId: "m1", outcome: "draw", seedOverall: {} })]);
+  it("moves a higher-affinity position more than a lower-affinity one for the same underlying signal", () => {
+    // draw(1) + 2 assists(2 each = 4) = raw signal 5.
+    const perfArgs = { outcome: "draw" as const, assists: 2 };
+    const high = computeCareer([perf({ ...perfArgs, affinity: { atacante: 80 } })]);
+    const low = computeCareer([perf({ ...perfArgs, affinity: { atacante: 40 } })]);
 
-    expect(result.overall.atacante).toBe(
-      CAREER_CONFIG.bootstrapDefaultOverall + CAREER_CONFIG.weights.draw,
+    // high: 5 * 0.8 = 4.0, capped to +3 -> 80 + 3 = 83.
+    expect(high.overall.atacante).toBe(83);
+    // low: 5 * 0.4 = 2.0, under the cap -> 40 + 2 = 42.
+    expect(low.overall.atacante).toBe(42);
+    // Movement off each one's own bootstrap: high moved further than low.
+    expect((high.overall.atacante as number) - 80).toBeGreaterThan(
+      (low.overall.atacante as number) - 40,
     );
   });
 
-  it("trends up on a win with goals", () => {
-    const result = computeCareer([
-      perf({ matchId: "m1", seedOverall: { atacante: 50 }, outcome: "win", goals: 2 }),
+  it("never touches a position that isn't declared in affinity (absent or zero)", () => {
+    const absent = computeCareer([perf({ affinity: {}, outcome: "win", goals: 3, mvpVotes: 1 })]);
+    const zero = computeCareer([
+      perf({ affinity: { atacante: 0 }, outcome: "win", goals: 3, mvpVotes: 1 }),
     ]);
 
-    expect(result.overall.atacante).toBeGreaterThan(50);
-    // Bounded by the per-match step cap even though the raw signal (win + 2 goals) is much larger.
-    expect(result.overall.atacante).toBe(50 + CAREER_CONFIG.perMatchStepCap);
+    expect(absent.overall).toEqual({});
+    expect(zero.overall).toEqual({});
+    // Counters still aggregate — only the position-level `overall` is gated.
+    expect(absent.matchesPlayed).toBe(1);
   });
 
-  it("trends down on a loss with an own goal", () => {
+  it("only ever moves the positions actually declared, even when other stats are extreme", () => {
     const result = computeCareer([
-      perf({ matchId: "m1", seedOverall: { atacante: 50 }, outcome: "loss", ownGoals: 1 }),
+      perf({ affinity: { meia: 60 }, outcome: "win", goals: 10, assists: 10, mvpVotes: 5 }),
     ]);
 
-    expect(result.overall.atacante).toBeLessThan(50);
-    expect(result.overall.atacante).toBe(50 - CAREER_CONFIG.perMatchStepCap);
+    expect(Object.keys(result.overall)).toEqual(["meia"]);
+    expect(result.overall.atacante).toBeUndefined();
+  });
+
+  it("applies clean-sheet/melhor_goleiro credit to the goleiro position only when goleiro is declared", () => {
+    const goleiroDeclared = computeCareer([
+      perf({
+        affinity: { goleiro: 70 },
+        outcome: "draw",
+        cleanSheet: true,
+        melhorGoleiroVotes: 1,
+      }),
+    ]);
+    const goleiroNotDeclared = computeCareer([
+      perf({
+        affinity: { atacante: 70 },
+        outcome: "draw",
+        cleanSheet: true,
+        melhorGoleiroVotes: 1,
+      }),
+    ]);
+
+    // goleiro: draw(1) + cleanSheet(5) + melhorGoleiro(3) = 9, * 70% = 6.3, capped +3 -> 73.
+    expect(goleiroDeclared.overall.goleiro).toBe(73);
+    // atacante gets no GK bonus even though the perf carries cleanSheet/melhorGoleiroVotes:
+    // draw(1) only, * 70% = 0.7, rounds to +1 -> 71.
+    expect(goleiroNotDeclared.overall.atacante).toBe(71);
+    expect(goleiroNotDeclared.overall.goleiro).toBeUndefined();
   });
 
   it("never moves a position by more than perMatchStepCap in a single match, however big the raw signal", () => {
-    const modestResult = computeCareer([
-      perf({ matchId: "m1", seedOverall: { atacante: 50 }, outcome: "win", goals: 1 }),
-    ]);
-    const hugeResult = computeCareer([
+    const modest = computeCareer([perf({ affinity: { atacante: 50 }, outcome: "win", goals: 1 })]);
+    const huge = computeCareer([
       perf({
-        matchId: "m1",
-        seedOverall: { atacante: 50 },
+        affinity: { atacante: 50 },
         outcome: "win",
         goals: 10,
         assists: 10,
@@ -83,26 +113,31 @@ describe("computeCareer", () => {
       }),
     ]);
 
-    expect(modestResult.overall.atacante).toBe(50 + CAREER_CONFIG.perMatchStepCap);
-    expect(hugeResult.overall.atacante).toBe(50 + CAREER_CONFIG.perMatchStepCap);
+    expect(modest.overall.atacante).toBe(50 + CAREER_CONFIG.perMatchStepCap);
+    expect(huge.overall.atacante).toBe(50 + CAREER_CONFIG.perMatchStepCap);
   });
 
-  it("clamps overall to the 0-99 range even from an extreme seed", () => {
-    const high = computeCareer([perf({ seedOverall: { atacante: 99 }, outcome: "win", goals: 5 })]);
-    const low = computeCareer([
-      perf({ seedOverall: { atacante: 0 }, outcome: "loss", ownGoals: 5 }),
-    ]);
+  it("clamps the affinity bootstrap itself to 99, even at the max declared affinity of 100", () => {
+    const result = computeCareer([perf({ affinity: { atacante: 100 }, outcome: "loss" })]);
+
+    // bootstrap clamp(100, 0, 99) = 99, then a loss (-6 * 100% = -6, capped -3) -> 96.
+    expect(result.overall.atacante).toBe(96);
+  });
+
+  it("clamps overall to the 0-99 range even after an extreme step", () => {
+    const high = computeCareer([perf({ affinity: { atacante: 99 }, outcome: "win", goals: 5 })]);
+    const low = computeCareer([perf({ affinity: { atacante: 1 }, outcome: "loss", ownGoals: 5 })]);
 
     expect(high.overall.atacante).toBeLessThanOrEqual(99);
     expect(low.overall.atacante).toBeGreaterThanOrEqual(0);
   });
 
-  it("is deterministic — identical input (any order) produces identical output", () => {
+  it("is deterministic — identical performances (any order) produce identical output", () => {
     const performances = [
       perf({
         matchId: "m1",
         datetime: "2026-01-01T20:00:00.000Z",
-        seedOverall: { atacante: 50 },
+        affinity: { atacante: 50 },
         outcome: "win",
         goals: 2,
       }),
@@ -125,7 +160,7 @@ describe("computeCareer", () => {
       perf({
         matchId: "m1",
         datetime: "2026-01-01T20:00:00.000Z",
-        seedOverall: { atacante: 50 },
+        affinity: { atacante: 50 },
         outcome: "win",
         goals: 2,
       }),
@@ -148,7 +183,7 @@ describe("computeCareer", () => {
     const early = perf({
       matchId: "early",
       datetime: "2026-01-01T20:00:00.000Z",
-      seedOverall: { atacante: 50 },
+      affinity: { atacante: 50 },
       outcome: "win",
       goals: 2,
     });
@@ -159,59 +194,11 @@ describe("computeCareer", () => {
       ownGoals: 1,
     });
 
-    // Given out of order — the engine must still process `early` (which carries the bootstrap seed) first.
+    // Given out of order — the engine must still process `early` (which carries the bootstrap affinity) first.
     const result = computeCareer([late, early]);
 
     // early: 50 -> 53 (capped +3 win+goals); late: 53 -> 50 (capped -3 loss+ownGoal)
     expect(result.overall.atacante).toBe(50);
-  });
-
-  it("moves secondary positions toward the same signal at a reduced factor, independent of the primary", () => {
-    // A plain draw (no goals/assists/votes) keeps the raw signal well under
-    // the step cap for BOTH primary and secondary, so the
-    // `secondaryPositionFactor` scaling is actually visible instead of both
-    // saturating at the same capped value.
-    const result = computeCareer([
-      perf({
-        matchId: "m1",
-        position: "atacante",
-        secondaryPositions: ["meia"],
-        seedOverall: { atacante: 50, meia: 50 },
-        outcome: "draw",
-      }),
-    ]);
-
-    expect(result.overall.atacante).toBeGreaterThan(50);
-    // Secondary position is nudged toward the same signal scaled down — still moves, but less.
-    expect(result.overall.meia).toBeGreaterThan(50);
-    expect(result.overall.meia).toBeLessThan(result.overall.atacante as number);
-  });
-
-  it("only applies clean-sheet/melhor_goleiro credit to the goleiro position", () => {
-    const goleiro = computeCareer([
-      perf({
-        matchId: "m1",
-        position: "goleiro",
-        seedOverall: { goleiro: 50 },
-        outcome: "draw",
-        cleanSheet: true,
-        melhorGoleiroVotes: 1,
-      }),
-    ]);
-    const atacanteWithCleanSheetFlag = computeCareer([
-      perf({
-        matchId: "m1",
-        position: "atacante",
-        seedOverall: { atacante: 50 },
-        outcome: "draw",
-        cleanSheet: true,
-        melhorGoleiroVotes: 1,
-      }),
-    ]);
-
-    expect(goleiro.overall.goleiro).toBeGreaterThan(
-      atacanteWithCleanSheetFlag.overall.atacante as number,
-    );
   });
 
   it("aggregates matchesPlayed/wins/draws/losses/goals/assists/cleanSheets/mvpCount across the replay", () => {
@@ -227,7 +214,7 @@ describe("computeCareer", () => {
       perf({
         matchId: "m2",
         datetime: "2026-01-08T20:00:00.000Z",
-        position: "goleiro",
+        affinity: { goleiro: 50 },
         outcome: "draw",
         cleanSheet: true,
       }),
@@ -258,11 +245,9 @@ describe("computeCareer", () => {
   });
 
   it("derives level bronze/prata/ouro from the best per-position overall, crossing thresholds via a bounded step", () => {
-    const staysOuro = computeCareer([perf({ seedOverall: { atacante: 90 }, outcome: "loss" })]); // 90 -> 87
-    const dropsToOuroFloor = computeCareer([
-      perf({ seedOverall: { atacante: 87 }, outcome: "loss" }),
-    ]); // 87 -> 84
-    const dropsToBronze = computeCareer([perf({ seedOverall: { atacante: 72 }, outcome: "loss" })]); // 72 -> 69
+    const staysOuro = computeCareer([perf({ affinity: { atacante: 90 }, outcome: "loss" })]); // 90 -> 87
+    const dropsToOuroFloor = computeCareer([perf({ affinity: { atacante: 87 }, outcome: "loss" })]); // 87 -> 84
+    const dropsToBronze = computeCareer([perf({ affinity: { atacante: 72 }, outcome: "loss" })]); // 72 -> 69
 
     expect(staysOuro.level).toBe("ouro");
     expect(dropsToOuroFloor.level).toBe("prata");

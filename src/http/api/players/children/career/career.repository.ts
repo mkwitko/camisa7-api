@@ -1,12 +1,14 @@
 import type { Prisma } from "@/generated/prisma/client";
 import { createMembersRepository } from "@/http/api/groups/children/members/members.repository";
-import type { Position } from "@/http/api/groups/children/members/members.types";
+import type { GroupMember, Position } from "@/http/api/groups/children/members/members.types";
 import { createAttendanceRepository } from "@/http/api/matches/children/attendance/attendance.repository";
 import { createMatchResultRepository } from "@/http/api/matches/children/result/result.repository";
 import { createMatchStatsRepository } from "@/http/api/matches/children/stats/stats.repository";
 import type { MatchStat } from "@/http/api/matches/children/stats/stats.types";
 import { createVotesRepository } from "@/http/api/matches/children/votes/votes.repository";
 import { createMatchesRepository } from "@/http/api/matches/matches.repository";
+import { createPlayersRepository } from "@/http/api/players/players.repository";
+import type { Player } from "@/http/api/players/players.types";
 import type { PrismaLike } from "@/infra/db/client";
 import type {
   ComputedCareer,
@@ -75,6 +77,27 @@ function deriveOutcome(
   return result.winnerTeam === team ? "win" : "loss";
 }
 
+/**
+ * The affinity `computeCareer` (Task 2, FM rating model) grows a match's
+ * signal against — the player's OWN self-declared `Player.affinity` if
+ * they're registered (`userId` set), else that match's group
+ * `GroupMember.affinity` (a guest has no login to have declared their own).
+ * Resolved from `player` (fetched once per `gatherPerformances` call, not
+ * per match — a player's `userId`/own affinity doesn't vary by group)
+ * rather than `member.player`, so a registered player's own affinity still
+ * applies even for a match whose group has no `GroupMember` row for them
+ * (attendance doesn't require membership — see `confirm-presence.service.ts`).
+ * `member` missing AND a guest yields `{}`: no position declared, so
+ * `computeCareer` touches nothing for this match.
+ */
+function resolveAffinity(
+  player: Player | null,
+  member: GroupMember | null,
+): Partial<Record<Position, number>> {
+  if (player?.userId != null) return player.affinity as Partial<Record<Position, number>>;
+  return (member?.affinity ?? {}) as Partial<Record<Position, number>>;
+}
+
 export interface PlayerCareerRepository {
   /**
    * Replays the player's ENTIRE finalized match history (every match whose
@@ -100,23 +123,28 @@ export function createPlayerCareerRepository(db: PrismaLike): PlayerCareerReposi
   const resultRepo = createMatchResultRepository(db);
   const votesRepo = createVotesRepository(db);
   const membersRepo = createMembersRepository(db);
+  const playersRepo = createPlayersRepository(db);
 
   /**
    * Assembles `MatchPerformance[]` for `playerId` from the player's
    * confirmed attendances, cross-referenced with each match's own status
    * (only `"closed"` counts), `MatchStat` (only matches with a logged stat
    * row contribute — no stat means nothing to grow from), `MatchResult`
-   * (win/draw/loss), the match's group `GroupMember` row (position(s) +
-   * bootstrap seed), and votes received in that match. Order is whatever
-   * `attendanceRepo.listByPlayer` returns — `computeCareer` itself sorts
-   * chronologically, so this doesn't need to.
+   * (win/draw/loss), the player's own `Player.affinity`/that match's group
+   * `GroupMember.affinity` (resolved via `resolveAffinity`), and votes
+   * received in that match. Order is whatever `attendanceRepo.listByPlayer`
+   * returns — `computeCareer` itself sorts chronologically, so this doesn't
+   * need to.
    */
   async function gatherPerformances(playerId: string): Promise<MatchPerformance[]> {
     const attendances = await attendanceRepo.listByPlayer(playerId);
     const confirmed = attendances.filter((a) => a.status === "confirmed");
     if (confirmed.length === 0) return [];
 
-    const stats = await statsRepo.listByPlayer(playerId);
+    const [stats, player] = await Promise.all([
+      statsRepo.listByPlayer(playerId),
+      playersRepo.findById(playerId),
+    ]);
     const statByMatch = new Map<string, MatchStat>(stats.map((s) => [s.matchId, s]));
 
     const performances: MatchPerformance[] = [];
@@ -140,9 +168,7 @@ export function createPlayerCareerRepository(db: PrismaLike): PlayerCareerReposi
       performances.push({
         matchId: match.id,
         datetime: match.datetime,
-        position: member?.primaryPos ?? "meia",
-        secondaryPositions: member?.secondaryPos ?? [],
-        seedOverall: member?.seedOverall ?? {},
+        affinity: resolveAffinity(player, member),
         outcome: deriveOutcome(result, stat.team),
         goals: stat.goals,
         assists: stat.assists,

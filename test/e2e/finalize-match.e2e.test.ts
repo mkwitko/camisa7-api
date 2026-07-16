@@ -1,5 +1,4 @@
 import { afterAll, beforeAll, beforeEach, describe, expect, it } from "vitest";
-import { createMembersRepository } from "../../src/http/api/groups/children/members/members.repository";
 import { buildTestApp, type TestApp } from "./helpers/app";
 
 const register = (h: TestApp, email: string, name = "Owner") =>
@@ -143,14 +142,14 @@ describe("finalize-match e2e", () => {
     const a1 = await confirmPresence(h, p1.token, matchId);
     const a2 = await confirmPresence(h, p2.token, matchId);
 
-    // Seeds p1's group rating so the career-growth engine bootstraps from a
-    // known value (60) instead of the neutral default (50) — makes the
-    // resulting `overall` deterministic and easy to assert on.
-    const membersRepo = createMembersRepository(h.prisma);
-    const p1Member = await membersRepo.addForUser(groupId, p1.userId, "jogador");
-    await membersRepo.updateRating(p1Member.id, {
-      primaryPos: "atacante",
-      seedOverall: { atacante: 60 },
+    // Seeds p1's OWN self-declared affinity (60 at atacante) so the
+    // career-growth engine bootstraps from a known value instead of leaving
+    // the position untouched — makes the resulting `overall` deterministic
+    // and easy to assert on. p1 is a registered player (has a `userId`), so
+    // `resolveAffinity` reads `Player.affinity`, not the group's.
+    await h.prisma.player.update({
+      where: { id: a1.playerId },
+      data: { affinity: { atacante: 60 } },
     });
 
     await finishMatch(h, owner.token, matchId);
@@ -199,8 +198,10 @@ describe("finalize-match e2e", () => {
       const p2Body = p2Career.json();
       expect(p2Body.matchesPlayed).toBe(1);
       expect(p2Body.losses).toBe(1);
-      // loss(-6) bounded to the -3 step cap, bootstrapped from the neutral default (50): 50 -> 47.
-      expect(p2Body.overall.meia).toBe(47);
+      // p2 never declared an affinity at any position — the FM model never
+      // bootstraps/moves a position that isn't declared, so `overall` stays
+      // empty even though the match's counters (matchesPlayed/losses) do count.
+      expect(p2Body.overall).toEqual({});
     });
 
     it("is idempotent — re-finalizing an already-closed match recomputes to the exact same career values", async () => {
