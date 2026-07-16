@@ -79,4 +79,40 @@ describe("GET /players/me e2e", () => {
 
     expect(res.statusCode).toBe(401);
   });
+
+  // --- PATCH /players/me (FM self-declared affinity) — reuses the same app ---
+  const patchAffinity = (token: string, affinity: Record<string, number>) =>
+    h.app.inject({
+      method: "PATCH",
+      url: "/players/me",
+      headers: { authorization: `Bearer ${token}` },
+      payload: { affinity },
+    });
+
+  it("PATCH sets the caller's self-declared affinity (creating the player on first call)", async () => {
+    const { token } = await registerAndGetToken(h, "me-patch@x.com", "Rafa");
+    const res = await patchAffinity(token, { atacante: 80, meia: 60 });
+    expect(res.statusCode).toBe(200);
+    expect(res.json().affinity).toEqual({ atacante: 80, meia: 60 });
+    const got = await getMyPlayer(h, token);
+    expect(got.json().affinity).toEqual({ atacante: 80, meia: 60 });
+  });
+
+  it("PATCH overwrites affinity on a subsequent call", async () => {
+    const { token } = await registerAndGetToken(h, "me-patch-2@x.com");
+    await patchAffinity(token, { atacante: 80 });
+    const res = await patchAffinity(token, { goleiro: 90 });
+    expect(res.json().affinity).toEqual({ goleiro: 90 });
+  });
+
+  it("PATCH rejects affinity out of 0-100 range", async () => {
+    const { token } = await registerAndGetToken(h, "me-patch-3@x.com");
+    const res = await patchAffinity(token, { atacante: 150 });
+    expect(res.statusCode).toBe(400);
+  });
+
+  it("PATCH requires authentication", async () => {
+    const res = await h.app.inject({ method: "PATCH", url: "/players/me", payload: { affinity: {} } });
+    expect(res.statusCode).toBe(401);
+  });
 });
