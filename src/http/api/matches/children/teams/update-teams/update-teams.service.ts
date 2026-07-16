@@ -2,9 +2,10 @@ import type { MembersRepository } from "@/http/api/groups/children/members/membe
 import type { GroupsRepository } from "@/http/api/groups/groups.repository";
 import { assertMatchOwner } from "@/http/api/matches/matches.authz";
 import type { MatchesRepository } from "@/http/api/matches/matches.repository";
+import type { PlayerCareerRepository } from "@/http/api/players/children/career/career.repository";
 import { ERRORS } from "@/shared/errors/catalog";
 import type { AttendanceRepository } from "../../attendance/attendance.repository";
-import { resolveOverall } from "../resolve-overall";
+import { affinityFor, resolveOverall } from "../resolve-overall";
 import type { TeamsRepository } from "../teams.repository";
 import type { TeamAssignment, TeamSplit } from "../teams.types";
 
@@ -14,6 +15,7 @@ export type UpdateTeamsDeps = {
   attendanceRepo: AttendanceRepository;
   membersRepo: MembersRepository;
   teamsRepo: TeamsRepository;
+  careerRepo: PlayerCareerRepository;
 };
 
 export type UpdateTeamsInput = {
@@ -63,11 +65,21 @@ export function createUpdateTeamsService(deps: UpdateTeamsDeps) {
 
     const members = await deps.membersRepo.listByGroup(asserted.groupId);
     const memberByPlayerId = new Map(members.map((m) => [m.player.id, m]));
+    const careers = await Promise.all(
+      confirmed.map((a) => deps.careerRepo.findByPlayer(a.player.id)),
+    );
+    const careerOverallByPlayerId = new Map(
+      confirmed.map((a, i) => [a.player.id, careers[i]?.overall]),
+    );
     const overallByConfirmedId = new Map(
-      confirmed.map((a) => [
-        a.player.id,
-        resolveOverall(memberByPlayerId.get(a.player.id)).overall,
-      ]),
+      confirmed.map((a) => {
+        const member = memberByPlayerId.get(a.player.id);
+        const affinity = affinityFor(a.player.affinity, member?.affinity);
+        return [
+          a.player.id,
+          resolveOverall(affinity, careerOverallByPlayerId.get(a.player.id)).overall,
+        ];
+      }),
     );
 
     const teamSplits: TeamSplit[] = input.teams.map((t) => {

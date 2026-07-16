@@ -2,10 +2,11 @@ import type { MembersRepository } from "@/http/api/groups/children/members/membe
 import type { GroupsRepository } from "@/http/api/groups/groups.repository";
 import { assertMatchOwner } from "@/http/api/matches/matches.authz";
 import type { MatchesRepository } from "@/http/api/matches/matches.repository";
+import type { PlayerCareerRepository } from "@/http/api/players/children/career/career.repository";
 import { ERRORS } from "@/shared/errors/catalog";
 import type { AttendanceRepository } from "../../attendance/attendance.repository";
 import { type BalancerPlayer, balanceTeams } from "../balancer";
-import { resolveOverall } from "../resolve-overall";
+import { affinityFor, resolveOverall } from "../resolve-overall";
 import type { TeamsRepository } from "../teams.repository";
 import type { TeamAssignment, TeamSplit } from "../teams.types";
 
@@ -15,6 +16,7 @@ export type GenerateTeamsDeps = {
   attendanceRepo: AttendanceRepository;
   membersRepo: MembersRepository;
   teamsRepo: TeamsRepository;
+  careerRepo: PlayerCareerRepository;
 };
 
 export type GenerateTeamsInput = {
@@ -47,9 +49,20 @@ export function createGenerateTeamsService(deps: GenerateTeamsDeps) {
     const members = await deps.membersRepo.listByGroup(asserted.groupId);
     const memberByPlayerId = new Map(members.map((m) => [m.player.id, m]));
 
+    const careers = await Promise.all(
+      confirmed.map((a) => deps.careerRepo.findByPlayer(a.player.id)),
+    );
+    const careerOverallByPlayerId = new Map(
+      confirmed.map((a, i) => [a.player.id, careers[i]?.overall]),
+    );
+
     const balancerPlayers: BalancerPlayer[] = confirmed.map((attendance) => {
       const member = memberByPlayerId.get(attendance.player.id);
-      const { primaryPos, overall } = resolveOverall(member);
+      const affinity = affinityFor(attendance.player.affinity, member?.affinity);
+      const { primaryPos, overall } = resolveOverall(
+        affinity,
+        careerOverallByPlayerId.get(attendance.player.id),
+      );
       return {
         playerId: attendance.player.id,
         name: attendance.player.name,

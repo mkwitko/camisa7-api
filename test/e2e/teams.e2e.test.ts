@@ -97,10 +97,13 @@ async function addRatedMember(
   rating: { primaryPos: Position; overall: number },
 ) {
   const membersRepo = createMembersRepository(h.prisma);
-  const member = await membersRepo.addForUser(groupId, userId, "jogador");
-  await membersRepo.updateRating(member.id, {
-    primaryPos: rating.primaryPos,
-    seedOverall: { [rating.primaryPos]: rating.overall },
+  await membersRepo.addForUser(groupId, userId, "jogador");
+  // FM rating: the player self-declares affinity; the balancer bootstraps the
+  // effective overall from it 1:1 (up to 99) until real stats accrue. Setting
+  // affinity directly is the test's stand-in for the player's self-rating.
+  await h.prisma.player.updateMany({
+    where: { userId },
+    data: { affinity: { [rating.primaryPos]: rating.overall } },
   });
 }
 
