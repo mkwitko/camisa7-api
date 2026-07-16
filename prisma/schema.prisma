@@ -65,6 +65,7 @@ model Group {
 
   members GroupMember[]
   matches Match[]
+  series  MatchSeries[]
 
   @@index([ownerId])
 }
@@ -148,6 +149,48 @@ model GroupMember {
   @@unique([groupId, playerId])
 }
 
+/// Task 1 (Motor de Recorrência): lifecycle of a `MatchSeries`. `active` is
+/// the only status the recurrence job spawns matches for; `paused` stops
+/// generation without deleting history; `ended` is terminal (past
+/// `endDate`, or organizer-stopped).
+enum SeriesStatus {
+  active
+  paused
+  ended
+}
+
+/// Task 1 (Motor de Recorrência): a recurring schedule (e.g. "toda
+/// quarta-feira às 20h") that spawns `Match` rows — replaces the old
+/// `Match.recurrenceRule` Json field (dropped in this same migration,
+/// backfilled into one `MatchSeries` per existing recurring match). `rule`
+/// is a `Json` shape validated at the HTTP boundary (Zod), not a DB
+/// constraint. `Match.seriesId` is nullable (one-off matches have no
+/// series) and `Match.detached` lets an organizer edit a single occurrence
+/// without affecting the rest of the series.
+model MatchSeries {
+  id      String @id @default(uuid()) @db.Uuid
+  groupId String @db.Uuid
+  group   Group  @relation(fields: [groupId], references: [id])
+
+  rule       Json
+  time       String?
+  location   String
+  priceCents Int          @default(0)
+  slots      Int
+  pixKey     String?
+  status     SeriesStatus @default(active)
+  startDate  DateTime     @db.Timestamptz(3)
+  endDate    DateTime?    @db.Timestamptz(3)
+
+  createdAt DateTime @default(now()) @db.Timestamptz(3)
+  updatedAt DateTime @updatedAt @db.Timestamptz(3)
+
+  matches Match[]
+
+  @@index([groupId])
+  @@index([status])
+}
+
 /// Task 6: a scheduled pelada. `full` (slots reached) / `closed` (organizer
 /// locked it manually) are set by Task 7's attendance flow, not here; `open`
 /// is the only status this task's create-match ever sets. `finished` is set
@@ -165,21 +208,26 @@ enum MatchStatus {
 /// attendance (Task 7), PIX charges, invites, teams and recurrence (Tasks
 /// 8-11) hang off. Only the group's owner manages it (`assertMatchOwner` in
 /// `src/http/api/matches/matches.authz.ts`, reusing `assertGroupOwner` on the
-/// match's parent group). `recurrenceRule` is a `Json` column — shape
-/// `{ weekly: true; weekday: 0-6; time: "HH:mm" } | null` — validated at the
-/// HTTP boundary (Zod), not a DB constraint; `null` means a one-off match.
+/// match's parent group). `seriesId` links a spawned occurrence back to its
+/// `MatchSeries` (Task 1, Motor de Recorrência; replaces the old
+/// `recurrenceRule` Json column) — `null` means a one-off match. `detached`
+/// lets an organizer edit/cancel a single occurrence without affecting the
+/// rest of the series (the recurrence job skips detached matches).
 model Match {
   id      String @id @default(uuid()) @db.Uuid
   groupId String @db.Uuid
   group   Group  @relation(fields: [groupId], references: [id])
 
-  datetime       DateTime    @db.Timestamptz(3)
-  location       String
-  priceCents     Int         @default(0)
-  slots          Int
-  pixKey         String?
-  status         MatchStatus @default(open)
-  recurrenceRule Json?
+  datetime   DateTime    @db.Timestamptz(3)
+  location   String
+  priceCents Int         @default(0)
+  slots      Int
+  pixKey     String?
+  status     MatchStatus @default(open)
+
+  seriesId String?      @db.Uuid
+  series   MatchSeries? @relation(fields: [seriesId], references: [id])
+  detached Boolean      @default(false)
 
   createdAt DateTime @default(now()) @db.Timestamptz(3)
   updatedAt DateTime @updatedAt @db.Timestamptz(3)
@@ -192,6 +240,7 @@ model Match {
   votes          Vote[]
 
   @@index([groupId, datetime])
+  @@unique([seriesId, datetime])
 }
 
 /// Task 7: an attendee's state for one `Match`. `confirmed` counts against
