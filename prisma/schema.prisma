@@ -60,6 +60,12 @@ model Group {
 
   statsMode GroupStatsMode @default(organizador)
 
+  /// Task 1 (Mensalista vs Avulso): default monthly fee for `mensalista`
+  /// members of this group, in cents. `null` means the group hasn't set one
+  /// yet. A `GroupMember` can override it via
+  /// `GroupMember.monthlyFeeCentsOverride`.
+  monthlyFeeCents Int?
+
   createdAt DateTime @default(now()) @db.Timestamptz(3)
   updatedAt DateTime @updatedAt @db.Timestamptz(3)
 
@@ -143,10 +149,75 @@ model GroupMember {
   affinity     Json       @default("{}")
   seedOverall  Json       @default("{}")
 
+  /// Task 1 (Mensalista vs Avulso): `mensalista` members owe a recurring
+  /// `MembershipDue` per competency month; `avulso` (default, covers all
+  /// pre-existing rows) pay per-match instead. `monthlyFeeCentsOverride`
+  /// takes precedence over `Group.monthlyFeeCents` when set.
+  billingMode             BillingMode @default(avulso)
+  monthlyFeeCentsOverride Int?
+
   createdAt DateTime @default(now()) @db.Timestamptz(3)
   updatedAt DateTime @updatedAt @db.Timestamptz(3)
 
+  dues MembershipDue[]
+
   @@unique([groupId, playerId])
+}
+
+/// Task 1 (Mensalista vs Avulso): a `GroupMember`'s billing arrangement.
+/// `mensalista` owes a recurring `MembershipDue` per competency month;
+/// `avulso` (default) pays per-match instead, same as every pre-existing
+/// row before this feature.
+enum BillingMode {
+  mensalista
+  avulso
+}
+
+/// Task 1 (Mensalista vs Avulso): a `MembershipDue`'s payment state. `paid`
+/// is set once the group owner (or an organizer) confirms receipt —
+/// `MembershipDue.paidConfirmedById` records who did it, same convention as
+/// `Attendance.paidConfirmedById`/`PaymentStatus`.
+enum DueStatus {
+  pending
+  paid
+}
+
+/// Task 1 (Mensalista vs Avulso): how a `MembershipDue` was (or will be)
+/// settled. `manual` is the only value this task's flows ever write —
+/// `stripe` is a later integration; the enum value exists now so this
+/// column never needs a widening migration when that lands.
+enum DueProvider {
+  manual
+  stripe
+}
+
+/// Task 1 (Mensalista vs Avulso): one `mensalista` `GroupMember`'s monthly
+/// due for one competency month (`competencyMonth`, e.g. "2026-07") — the
+/// `@@unique([groupMemberId, competencyMonth])` makes generating/re-running
+/// the monthly charge idempotent per member per month. `amountCents` is
+/// captured at generation time (from `GroupMember.monthlyFeeCentsOverride`
+/// or `Group.monthlyFeeCents`) so a later change to either doesn't retroactively
+/// alter an already-generated due. `paidConfirmedById` is a plain uuid
+/// column (no FK relation), same convention as
+/// `Attendance.paidConfirmedById`/`MatchResult.recordedById`.
+model MembershipDue {
+  id String @id @default(uuid()) @db.Uuid
+
+  groupMemberId String      @db.Uuid
+  groupMember   GroupMember @relation(fields: [groupMemberId], references: [id])
+
+  competencyMonth   String
+  amountCents       Int
+  status            DueStatus   @default(pending)
+  paidConfirmedById String?     @db.Uuid
+  provider          DueProvider @default(manual)
+  externalRef       String?
+
+  createdAt DateTime @default(now()) @db.Timestamptz(3)
+  updatedAt DateTime @updatedAt @db.Timestamptz(3)
+
+  @@unique([groupMemberId, competencyMonth])
+  @@index([groupMemberId])
 }
 
 /// Task 1 (Motor de Recorrência): lifecycle of a `MatchSeries`. `active` is
