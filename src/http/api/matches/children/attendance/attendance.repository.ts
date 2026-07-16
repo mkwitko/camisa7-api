@@ -11,7 +11,13 @@ type AttendanceRow = {
   waitlistPos: number | null;
   paymentStatus: string;
   paidConfirmedById: string | null;
-  player: { id: string; userId: string | null; name: string; phone: string | null };
+  player: {
+    id: string;
+    userId: string | null;
+    name: string;
+    phone: string | null;
+    affinity: unknown;
+  };
 };
 
 function toDomainAttendance(row: AttendanceRow): Attendance {
@@ -23,6 +29,7 @@ function toDomainAttendance(row: AttendanceRow): Attendance {
       userId: row.player.userId,
       name: row.player.name,
       phone: row.player.phone,
+      affinity: (row.player.affinity ?? {}) as Record<string, number>,
     },
     status: row.status as AttendanceStatus,
     waitlistPos: row.waitlistPos,

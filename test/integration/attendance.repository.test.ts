@@ -46,7 +46,13 @@ describe("attendanceRepository (integration)", () => {
     const players: Player[] = [];
     for (const name of names) {
       const row = await testDb.prisma.player.create({ data: { userId: null, name, phone: null } });
-      players.push({ id: row.id, userId: row.userId, name: row.name, phone: row.phone });
+      players.push({
+        id: row.id,
+        userId: row.userId,
+        name: row.name,
+        phone: row.phone,
+        affinity: (row.affinity ?? {}) as Record<string, number>,
+      });
     }
     return players;
   }

@@ -115,6 +115,26 @@ const getCareer = (h: TestApp, token: string, playerId: string) =>
     headers: { authorization: `Bearer ${token}` },
   });
 
+/**
+ * Task 1 (UX overhaul): `POST /groups/:id/members` no longer accepts a
+ * rating — an owner sets it afterwards via this `PATCH`, same pattern
+ * `members.e2e.test.ts`/`teams.e2e.test.ts` use for their own rated
+ * fixtures.
+ */
+const patchMember = (
+  h: TestApp,
+  token: string,
+  groupId: string,
+  memberId: string,
+  body: Record<string, unknown>,
+) =>
+  h.app.inject({
+    method: "PATCH",
+    url: `/groups/${groupId}/members/${memberId}`,
+    headers: { authorization: `Bearer ${token}` },
+    payload: body,
+  });
+
 const linkMemberUser = (
   h: TestApp,
   token: string,
@@ -157,6 +177,8 @@ describe("link-member-user e2e", () => {
       const added = await addMember(h, owner.token, groupId, {
         name: "Guest Rafa",
         phone: "+5511999990000",
+      });
+      await patchMember(h, owner.token, groupId, added.json().id as string, {
         primaryPos: "atacante",
         seedOverall: { atacante: 70 },
       });
@@ -277,10 +299,12 @@ describe("link-member-user e2e", () => {
       const added = await addMember(h, owner.token, groupId, {
         name: "Guest Rafa",
         phone: "+5511988880000",
+      });
+      const memberId = added.json().id as string;
+      await patchMember(h, owner.token, groupId, memberId, {
         primaryPos: "goleiro",
         seedOverall: { goleiro: 80 },
       });
-      const memberId = added.json().id as string;
 
       const res = await linkMemberUser(
         h,
@@ -311,10 +335,7 @@ describe("link-member-user e2e", () => {
       const other = await registerAndGetToken(h, "other-403-link@x.com");
       const group = await createGroup(h, owner.token, { name: "Team B" });
       const { id: groupId } = group.json();
-      const added = await addMember(h, owner.token, groupId, {
-        name: "Guest Player",
-        primaryPos: "meia",
-      });
+      const added = await addMember(h, owner.token, groupId, { name: "Guest Player" });
       const memberId = added.json().id as string;
 
       await register(h, "target-403-link@x.com");
@@ -328,10 +349,7 @@ describe("link-member-user e2e", () => {
       const owner = await registerAndGetToken(h, "owner-404-link@x.com");
       const group = await createGroup(h, owner.token, { name: "Team C" });
       const { id: groupId } = group.json();
-      const added = await addMember(h, owner.token, groupId, {
-        name: "Guest Player",
-        primaryPos: "meia",
-      });
+      const added = await addMember(h, owner.token, groupId, { name: "Guest Player" });
       const memberId = added.json().id as string;
 
       const res = await linkMemberUser(h, owner.token, groupId, memberId, "no-such-user@x.com");

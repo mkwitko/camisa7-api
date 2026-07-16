@@ -32,25 +32,22 @@ describe("membersRepository (integration)", () => {
   }
 
   describe("addGuest", () => {
-    it("creates a guest Player (userId null) and a jogador GroupMember with the given rating", async () => {
+    it("creates a guest Player (userId null) and a jogador GroupMember, unrated by default (Task 1: organizer no longer sets the rating here)", async () => {
       const groupId = await createGroup();
 
       const member = await repo.addGuest(groupId, {
         name: "Guest Player",
         phone: "+55 11 90000-0000",
-        primaryPos: "atacante",
-        secondaryPos: ["meia"],
-        affinity: { atacante: 8, meia: 6 },
-        seedOverall: { atacante: 70 },
       });
 
       expect(member).toMatchObject({
         groupId,
         role: "jogador",
-        primaryPos: "atacante",
-        secondaryPos: ["meia"],
-        affinity: { atacante: 8, meia: 6 },
-        seedOverall: { atacante: 70 },
+        primaryPos: null,
+        secondaryPos: [],
+        affinity: {},
+        seedOverall: {},
+        billingMode: "avulso",
       });
       expect(member.player).toMatchObject({
         userId: null,
@@ -60,24 +57,36 @@ describe("membersRepository (integration)", () => {
       expect(member.id).toMatch(/^[0-9a-f-]{36}$/);
     });
 
-    it("defaults phone to null, secondaryPos/affinity/seedOverall to empty when omitted", async () => {
+    it("defaults phone to null when omitted", async () => {
       const groupId = await createGroup();
 
-      const member = await repo.addGuest(groupId, { name: "Minimal Guest", primaryPos: "goleiro" });
+      const member = await repo.addGuest(groupId, { name: "Minimal Guest" });
 
       expect(member.player.phone).toBeNull();
+      expect(member.primaryPos).toBeNull();
       expect(member.secondaryPos).toEqual([]);
       expect(member.affinity).toEqual({});
       expect(member.seedOverall).toEqual({});
+    });
+
+    it("accepts an optional billingMode at creation", async () => {
+      const groupId = await createGroup();
+
+      const member = await repo.addGuest(groupId, {
+        name: "Mensalista Guest",
+        billingMode: "mensalista",
+      });
+
+      expect(member.billingMode).toBe("mensalista");
     });
   });
 
   describe("listByGroup", () => {
     it("returns members ordered by player name", async () => {
       const groupId = await createGroup();
-      await repo.addGuest(groupId, { name: "Zeca", primaryPos: "goleiro" });
-      await repo.addGuest(groupId, { name: "Ana", primaryPos: "meia" });
-      await repo.addGuest(groupId, { name: "Bruno", primaryPos: "atacante" });
+      await repo.addGuest(groupId, { name: "Zeca" });
+      await repo.addGuest(groupId, { name: "Ana" });
+      await repo.addGuest(groupId, { name: "Bruno" });
 
       const members = await repo.listByGroup(groupId);
 
@@ -87,8 +96,8 @@ describe("membersRepository (integration)", () => {
     it("does not return members from another group", async () => {
       const groupA = await createGroup("Group A");
       const groupB = await createGroup("Group B");
-      await repo.addGuest(groupA, { name: "Player A", primaryPos: "goleiro" });
-      await repo.addGuest(groupB, { name: "Player B", primaryPos: "goleiro" });
+      await repo.addGuest(groupA, { name: "Player A" });
+      await repo.addGuest(groupB, { name: "Player B" });
 
       const members = await repo.listByGroup(groupA);
 
@@ -106,7 +115,7 @@ describe("membersRepository (integration)", () => {
   describe("findInGroup", () => {
     it("returns the member when it belongs to the group", async () => {
       const groupId = await createGroup();
-      const added = await repo.addGuest(groupId, { name: "Guest", primaryPos: "lateral" });
+      const added = await repo.addGuest(groupId, { name: "Guest" });
 
       const found = await repo.findInGroup(groupId, added.id);
 
@@ -116,7 +125,7 @@ describe("membersRepository (integration)", () => {
     it("returns null when the member belongs to a different group", async () => {
       const groupA = await createGroup("Group A");
       const groupB = await createGroup("Group B");
-      const added = await repo.addGuest(groupA, { name: "Guest", primaryPos: "lateral" });
+      const added = await repo.addGuest(groupA, { name: "Guest" });
 
       expect(await repo.findInGroup(groupB, added.id)).toBeNull();
     });
@@ -125,7 +134,7 @@ describe("membersRepository (integration)", () => {
   describe("findByGroupAndPlayer", () => {
     it("returns the member when the player belongs to the group — feeds the F1-4 career engine's bootstrap", async () => {
       const groupId = await createGroup();
-      const added = await repo.addGuest(groupId, { name: "Guest", primaryPos: "lateral" });
+      const added = await repo.addGuest(groupId, { name: "Guest" });
 
       const found = await repo.findByGroupAndPlayer(groupId, added.player.id);
 
@@ -135,20 +144,23 @@ describe("membersRepository (integration)", () => {
     it("returns null when the player has no membership in that group", async () => {
       const groupA = await createGroup("Group A");
       const groupB = await createGroup("Group B");
-      const added = await repo.addGuest(groupA, { name: "Guest", primaryPos: "lateral" });
+      const added = await repo.addGuest(groupA, { name: "Guest" });
 
       expect(await repo.findByGroupAndPlayer(groupB, added.player.id)).toBeNull();
     });
   });
 
   describe("updateRating", () => {
-    it("updates only the fields present in the patch", async () => {
+    it("updates only the fields present in the patch, rating a previously-unrated member", async () => {
       const groupId = await createGroup();
-      const added = await repo.addGuest(groupId, {
-        name: "Guest",
+      const added = await repo.addGuest(groupId, { name: "Guest" });
+      expect(added.primaryPos).toBeNull(); // Task 1: add-member no longer seeds a rating
+
+      const firstPass = await repo.updateRating(added.id, {
         primaryPos: "zagueiro",
         secondaryPos: ["lateral"],
       });
+      expect(firstPass).toMatchObject({ primaryPos: "zagueiro", secondaryPos: ["lateral"] });
 
       const updated = await repo.updateRating(added.id, {
         primaryPos: "lateral",
@@ -166,7 +178,7 @@ describe("membersRepository (integration)", () => {
   describe("unique constraint (groupId, playerId)", () => {
     it("rejects a second GroupMember row for the same group+player with Prisma P2002", async () => {
       const groupId = await createGroup();
-      const added = await repo.addGuest(groupId, { name: "Guest", primaryPos: "volante" });
+      const added = await repo.addGuest(groupId, { name: "Guest" });
 
       await expect(
         testDb.prisma.groupMember.create({

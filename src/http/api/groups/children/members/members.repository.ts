@@ -7,13 +7,19 @@ type MemberRow = {
   id: string;
   groupId: string;
   role: string;
-  primaryPos: string;
+  primaryPos: string | null;
   secondaryPos: string[];
   affinity: unknown;
   seedOverall: unknown;
   billingMode: string;
   monthlyFeeCentsOverride: number | null;
-  player: { id: string; userId: string | null; name: string; phone: string | null };
+  player: {
+    id: string;
+    userId: string | null;
+    name: string;
+    phone: string | null;
+    affinity: unknown;
+  };
 };
 
 function toDomainMember(row: MemberRow): GroupMember {
@@ -25,9 +31,10 @@ function toDomainMember(row: MemberRow): GroupMember {
       userId: row.player.userId,
       name: row.player.name,
       phone: row.player.phone,
+      affinity: (row.player.affinity ?? {}) as Record<string, number>,
     },
     role: row.role as MemberRole,
-    primaryPos: row.primaryPos as Position,
+    primaryPos: row.primaryPos as Position | null,
     secondaryPos: row.secondaryPos as Position[],
     affinity: (row.affinity ?? {}) as Record<string, number>,
     seedOverall: (row.seedOverall ?? {}) as Record<string, number>,
@@ -46,10 +53,14 @@ const MEMBER_INCLUDE = { player: true } as const;
 export type AddGuestInput = {
   name: string;
   phone?: string | null | undefined;
-  primaryPos: Position;
-  secondaryPos?: Position[] | undefined;
-  affinity?: Record<string, number> | undefined;
-  seedOverall?: Record<string, number> | undefined;
+  /**
+   * Task 1 (UX overhaul): the organizer no longer sets the new member's
+   * rating at add-member time — `primaryPos`/`secondaryPos`/`affinity`/
+   * `seedOverall` all fall back to the `GroupMember` row's own DB defaults
+   * (`null`/`[]`/`{}`/`{}`). An owner rates the member later via
+   * `PATCH .../members/:memberId` (`updateRating`).
+   */
+  billingMode?: BillingMode | undefined;
 };
 
 export type UpdateRatingPatch = {
@@ -100,9 +111,13 @@ export interface MembersRepository {
 /**
  * Auto-added `organizador` members (Task 5's `create-group` transaction) get
  * no position input from the caller (only `name`/`statsMode` are collected
- * at group creation) but `primaryPos` is a required column — `meia`
- * (midfielder) is the neutral default; the owner sets their real position
- * later via `PATCH .../members/:memberId` (this same `updateRating`).
+ * at group creation) — `meia` (midfielder) is the neutral default seeded
+ * onto their `GroupMember` row so the balancer has something to work with
+ * immediately; the owner can set their real rating later via
+ * `PATCH .../members/:memberId` (this same `updateRating`). Since Task 1
+ * (UX overhaul), `primaryPos` is nullable on `GroupMember`, but this
+ * auto-added path still seeds it rather than leaving it `null` — unlike
+ * `addGuest`, which now leaves a freshly added member entirely unrated.
  */
 const DEFAULT_PRIMARY_POS: Position = "meia";
 
@@ -138,10 +153,7 @@ export function createMembersRepository(db: PrismaLike): MembersRepository {
             groupId,
             playerId: player.id,
             role: "jogador",
-            primaryPos: input.primaryPos,
-            secondaryPos: input.secondaryPos ?? [],
-            affinity: input.affinity ?? {},
-            seedOverall: input.seedOverall ?? {},
+            ...(input.billingMode !== undefined ? { billingMode: input.billingMode } : {}),
           },
           include: MEMBER_INCLUDE,
         });

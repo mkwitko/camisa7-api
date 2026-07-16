@@ -107,7 +107,13 @@ describe("playerCareerRepository (integration)", () => {
 
   async function seedPlayer(name: string): Promise<Player> {
     const row = await testDb.prisma.player.create({ data: { name } });
-    return { id: row.id, userId: row.userId, name: row.name, phone: row.phone };
+    return {
+      id: row.id,
+      userId: row.userId,
+      name: row.name,
+      phone: row.phone,
+      affinity: (row.affinity ?? {}) as Record<string, number>,
+    };
   }
 
   describe("recomputeForPlayer", () => {

@@ -67,6 +67,31 @@ describe("playersRepository (integration)", () => {
       expect(player.userId).toBe(userId);
       expect(player.name).toBe("Fresh Player");
       expect(player.phone).toBeNull();
+      // Task 1 (UX overhaul, FM rating model): a brand-new Player starts
+      // with an empty self-declared affinity map.
+      expect(player.affinity).toEqual({});
+    });
+  });
+
+  describe("affinity (Task 1, UX overhaul — FM rating model)", () => {
+    it("defaults to an empty map on a freshly created guest Player", async () => {
+      const player = await repo.createGuest({ name: "Guest" });
+
+      expect(player.affinity).toEqual({});
+    });
+
+    it("round-trips a self-declared affinity map written directly on the Player row", async () => {
+      const userId = await createUser("affinity@x.com");
+      const player = await repo.findOrCreateForUser(userId);
+
+      await testDb.prisma.player.update({
+        where: { id: player.id },
+        data: { affinity: { atacante: 80, meia: 60 } },
+      });
+
+      const reloaded = await repo.findById(player.id);
+
+      expect(reloaded?.affinity).toEqual({ atacante: 80, meia: 60 });
     });
   });
 });

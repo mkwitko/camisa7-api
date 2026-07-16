@@ -54,7 +54,7 @@ describe("members e2e", () => {
   });
 
   describe("POST /groups/:id/members", () => {
-    it("lets the owner add a guest player with a rating, returning 201 with userId:null and role jogador", async () => {
+    it("lets the owner add a member with just a name, returning 201 unrated (Task 1: organizer no longer sets the rating here)", async () => {
       const token = await registerAndGetToken(h, "owner@x.com");
       const created = await createGroup(h, token, { name: "Team A" });
       const { id: groupId } = created.json();
@@ -62,10 +62,6 @@ describe("members e2e", () => {
       const res = await addMember(h, token, groupId, {
         name: "Guest Player",
         phone: "+55 11 90000-0000",
-        primaryPos: "atacante",
-        secondaryPos: ["meia"],
-        affinity: { atacante: 8, meia: 6 },
-        seedOverall: { atacante: 70 },
       });
 
       expect(res.statusCode).toBe(201);
@@ -73,10 +69,41 @@ describe("members e2e", () => {
       expect(body.player.userId).toBeNull();
       expect(body.player.name).toBe("Guest Player");
       expect(body.role).toBe("jogador");
-      expect(body.primaryPos).toBe("atacante");
-      expect(body.secondaryPos).toEqual(["meia"]);
-      expect(body.affinity).toEqual({ atacante: 8, meia: 6 });
-      expect(body.seedOverall).toEqual({ atacante: 70 });
+      expect(body.primaryPos).toBeNull();
+      expect(body.secondaryPos).toEqual([]);
+      expect(body.affinity).toEqual({});
+      expect(body.seedOverall).toEqual({});
+      expect(body.billingMode).toBe("avulso");
+    });
+
+    it("ignores a primaryPos/affinity/seedOverall sent in the body (removed fields, silently stripped, not a 400)", async () => {
+      const token = await registerAndGetToken(h, "owner-legacy@x.com");
+      const created = await createGroup(h, token, { name: "Team Legacy" });
+      const { id: groupId } = created.json();
+
+      const res = await addMember(h, token, groupId, {
+        name: "Guest Player",
+        primaryPos: "atacante",
+        affinity: { atacante: 8 },
+        seedOverall: { atacante: 70 },
+      });
+
+      expect(res.statusCode).toBe(201);
+      expect(res.json().primaryPos).toBeNull();
+    });
+
+    it("accepts an optional billingMode at creation", async () => {
+      const token = await registerAndGetToken(h, "owner-billing@x.com");
+      const created = await createGroup(h, token, { name: "Team Billing" });
+      const { id: groupId } = created.json();
+
+      const res = await addMember(h, token, groupId, {
+        name: "Guest Player",
+        billingMode: "mensalista",
+      });
+
+      expect(res.statusCode).toBe(201);
+      expect(res.json().billingMode).toBe("mensalista");
     });
 
     it("rejects a non-owner with 403", async () => {
@@ -85,96 +112,9 @@ describe("members e2e", () => {
       const created = await createGroup(h, ownerToken, { name: "Team B" });
       const { id: groupId } = created.json();
 
-      const res = await addMember(h, otherToken, groupId, {
-        name: "Guest Player",
-        primaryPos: "goleiro",
-      });
+      const res = await addMember(h, otherToken, groupId, { name: "Guest Player" });
 
       expect(res.statusCode).toBe(403);
-    });
-
-    it("rejects a position key outside the Position enum with 400", async () => {
-      const token = await registerAndGetToken(h, "owner3@x.com");
-      const created = await createGroup(h, token, { name: "Team C" });
-      const { id: groupId } = created.json();
-
-      const res = await addMember(h, token, groupId, {
-        name: "Guest Player",
-        primaryPos: "goleiro",
-        affinity: { invalidPosition: 5 },
-      });
-
-      expect(res.statusCode).toBe(400);
-    });
-
-    it("rejects seedOverall with value > 99 with 400", async () => {
-      const token = await registerAndGetToken(h, "owner9@x.com");
-      const created = await createGroup(h, token, { name: "Team I" });
-      const { id: groupId } = created.json();
-
-      const res = await addMember(h, token, groupId, {
-        name: "Guest Player",
-        primaryPos: "atacante",
-        seedOverall: { atacante: 150 },
-      });
-
-      expect(res.statusCode).toBe(400);
-    });
-
-    it("rejects affinity with value > 100 with 400", async () => {
-      const token = await registerAndGetToken(h, "owner10@x.com");
-      const created = await createGroup(h, token, { name: "Team J" });
-      const { id: groupId } = created.json();
-
-      const res = await addMember(h, token, groupId, {
-        name: "Guest Player",
-        primaryPos: "meia",
-        affinity: { meia: 101 },
-      });
-
-      expect(res.statusCode).toBe(400);
-    });
-
-    it("rejects affinity with negative value with 400", async () => {
-      const token = await registerAndGetToken(h, "owner11@x.com");
-      const created = await createGroup(h, token, { name: "Team K" });
-      const { id: groupId } = created.json();
-
-      const res = await addMember(h, token, groupId, {
-        name: "Guest Player",
-        primaryPos: "volante",
-        affinity: { volante: -5 },
-      });
-
-      expect(res.statusCode).toBe(400);
-    });
-
-    it("rejects seedOverall with negative value with 400", async () => {
-      const token = await registerAndGetToken(h, "owner12@x.com");
-      const created = await createGroup(h, token, { name: "Team L" });
-      const { id: groupId } = created.json();
-
-      const res = await addMember(h, token, groupId, {
-        name: "Guest Player",
-        primaryPos: "zagueiro",
-        seedOverall: { zagueiro: -10 },
-      });
-
-      expect(res.statusCode).toBe(400);
-    });
-
-    it("rejects affinity with fractional value with 400", async () => {
-      const token = await registerAndGetToken(h, "owner13@x.com");
-      const created = await createGroup(h, token, { name: "Team M" });
-      const { id: groupId } = created.json();
-
-      const res = await addMember(h, token, groupId, {
-        name: "Guest Player",
-        primaryPos: "lateral",
-        affinity: { lateral: 50.5 },
-      });
-
-      expect(res.statusCode).toBe(400);
     });
   });
 
@@ -210,11 +150,9 @@ describe("members e2e", () => {
       const token = await registerAndGetToken(h, "owner6@x.com");
       const created = await createGroup(h, token, { name: "Team F" });
       const { id: groupId } = created.json();
-      const added = await addMember(h, token, groupId, {
-        name: "Guest Player",
-        primaryPos: "zagueiro",
-      });
+      const added = await addMember(h, token, groupId, { name: "Guest Player" });
       const { id: memberId } = added.json();
+      expect(added.json().primaryPos).toBeNull(); // Task 1: unrated until the owner PATCHes it
 
       const res = await h.app.inject({
         method: "PATCH",
@@ -251,10 +189,7 @@ describe("members e2e", () => {
       const otherToken = await registerAndGetToken(h, "other8@x.com");
       const created = await createGroup(h, ownerToken, { name: "Team H" });
       const { id: groupId } = created.json();
-      const added = await addMember(h, ownerToken, groupId, {
-        name: "Guest Player",
-        primaryPos: "volante",
-      });
+      const added = await addMember(h, ownerToken, groupId, { name: "Guest Player" });
       const { id: memberId } = added.json();
 
       const res = await h.app.inject({
@@ -267,15 +202,120 @@ describe("members e2e", () => {
       expect(res.statusCode).toBe(403);
     });
 
+    // Task 1 (UX overhaul): add-member itself no longer accepts a rating —
+    // these bounds/enum checks now exercise `UpdateMemberBody` instead
+    // (same shared `AffinityValueSchema`/`SeedOverallValueSchema`/
+    // `PositionSchema` as before, just moved to where the rating is
+    // actually set: the owner's `PATCH .../members/:memberId`).
+    describe("rating field validation", () => {
+      async function addPlainMember(token: string, groupId: string): Promise<string> {
+        const added = await addMember(h, token, groupId, { name: "Guest Player" });
+        return added.json().id as string;
+      }
+
+      it("rejects a position key outside the Position enum with 400", async () => {
+        const token = await registerAndGetToken(h, "owner3@x.com");
+        const created = await createGroup(h, token, { name: "Team C" });
+        const { id: groupId } = created.json();
+        const memberId = await addPlainMember(token, groupId);
+
+        const res = await h.app.inject({
+          method: "PATCH",
+          url: `/groups/${groupId}/members/${memberId}`,
+          headers: { authorization: `Bearer ${token}` },
+          payload: { affinity: { invalidPosition: 5 } },
+        });
+
+        expect(res.statusCode).toBe(400);
+      });
+
+      it("rejects seedOverall with value > 99 with 400", async () => {
+        const token = await registerAndGetToken(h, "owner9@x.com");
+        const created = await createGroup(h, token, { name: "Team I" });
+        const { id: groupId } = created.json();
+        const memberId = await addPlainMember(token, groupId);
+
+        const res = await h.app.inject({
+          method: "PATCH",
+          url: `/groups/${groupId}/members/${memberId}`,
+          headers: { authorization: `Bearer ${token}` },
+          payload: { seedOverall: { atacante: 150 } },
+        });
+
+        expect(res.statusCode).toBe(400);
+      });
+
+      it("rejects affinity with value > 100 with 400", async () => {
+        const token = await registerAndGetToken(h, "owner10@x.com");
+        const created = await createGroup(h, token, { name: "Team J" });
+        const { id: groupId } = created.json();
+        const memberId = await addPlainMember(token, groupId);
+
+        const res = await h.app.inject({
+          method: "PATCH",
+          url: `/groups/${groupId}/members/${memberId}`,
+          headers: { authorization: `Bearer ${token}` },
+          payload: { affinity: { meia: 101 } },
+        });
+
+        expect(res.statusCode).toBe(400);
+      });
+
+      it("rejects affinity with negative value with 400", async () => {
+        const token = await registerAndGetToken(h, "owner11@x.com");
+        const created = await createGroup(h, token, { name: "Team K" });
+        const { id: groupId } = created.json();
+        const memberId = await addPlainMember(token, groupId);
+
+        const res = await h.app.inject({
+          method: "PATCH",
+          url: `/groups/${groupId}/members/${memberId}`,
+          headers: { authorization: `Bearer ${token}` },
+          payload: { affinity: { volante: -5 } },
+        });
+
+        expect(res.statusCode).toBe(400);
+      });
+
+      it("rejects seedOverall with negative value with 400", async () => {
+        const token = await registerAndGetToken(h, "owner12@x.com");
+        const created = await createGroup(h, token, { name: "Team L" });
+        const { id: groupId } = created.json();
+        const memberId = await addPlainMember(token, groupId);
+
+        const res = await h.app.inject({
+          method: "PATCH",
+          url: `/groups/${groupId}/members/${memberId}`,
+          headers: { authorization: `Bearer ${token}` },
+          payload: { seedOverall: { zagueiro: -10 } },
+        });
+
+        expect(res.statusCode).toBe(400);
+      });
+
+      it("rejects affinity with fractional value with 400", async () => {
+        const token = await registerAndGetToken(h, "owner13@x.com");
+        const created = await createGroup(h, token, { name: "Team M" });
+        const { id: groupId } = created.json();
+        const memberId = await addPlainMember(token, groupId);
+
+        const res = await h.app.inject({
+          method: "PATCH",
+          url: `/groups/${groupId}/members/${memberId}`,
+          headers: { authorization: `Bearer ${token}` },
+          payload: { affinity: { lateral: 50.5 } },
+        });
+
+        expect(res.statusCode).toBe(400);
+      });
+    });
+
     it("defaults a newly added guest to billingMode avulso with no override", async () => {
       const token = await registerAndGetToken(h, "owner14@x.com");
       const created = await createGroup(h, token, { name: "Team N" });
       const { id: groupId } = created.json();
 
-      const added = await addMember(h, token, groupId, {
-        name: "Guest Player",
-        primaryPos: "meia",
-      });
+      const added = await addMember(h, token, groupId, { name: "Guest Player" });
 
       expect(added.json()).toMatchObject({ billingMode: "avulso", monthlyFeeCentsOverride: null });
     });
@@ -284,10 +324,7 @@ describe("members e2e", () => {
       const token = await registerAndGetToken(h, "owner15@x.com");
       const created = await createGroup(h, token, { name: "Team O" });
       const { id: groupId } = created.json();
-      const added = await addMember(h, token, groupId, {
-        name: "Guest Player",
-        primaryPos: "meia",
-      });
+      const added = await addMember(h, token, groupId, { name: "Guest Player" });
       const { id: memberId } = added.json();
 
       const res = await h.app.inject({
@@ -308,10 +345,7 @@ describe("members e2e", () => {
       const token = await registerAndGetToken(h, "owner16@x.com");
       const created = await createGroup(h, token, { name: "Team P" });
       const { id: groupId } = created.json();
-      const added = await addMember(h, token, groupId, {
-        name: "Guest Player",
-        primaryPos: "meia",
-      });
+      const added = await addMember(h, token, groupId, { name: "Guest Player" });
       const { id: memberId } = added.json();
       await h.app.inject({
         method: "PATCH",
@@ -339,10 +373,7 @@ describe("members e2e", () => {
       const otherToken = await registerAndGetToken(h, "other17@x.com");
       const created = await createGroup(h, ownerToken, { name: "Team Q" });
       const { id: groupId } = created.json();
-      const added = await addMember(h, ownerToken, groupId, {
-        name: "Guest Player",
-        primaryPos: "meia",
-      });
+      const added = await addMember(h, ownerToken, groupId, { name: "Guest Player" });
       const { id: memberId } = added.json();
 
       const res = await h.app.inject({

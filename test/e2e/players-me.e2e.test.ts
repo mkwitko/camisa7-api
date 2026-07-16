@@ -53,6 +53,7 @@ describe("GET /players/me e2e", () => {
       name: "Real Rafa",
       phone: null,
       userId,
+      affinity: {},
     });
 
     const player = await h.prisma.player.findFirst({ where: { userId } });

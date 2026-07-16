@@ -18,6 +18,7 @@ export function presentMember(member: GroupMember): GroupMemberResponse {
       userId: member.player.userId,
       name: member.player.name,
       phone: member.player.phone,
+      affinity: member.player.affinity,
     },
   };
 }

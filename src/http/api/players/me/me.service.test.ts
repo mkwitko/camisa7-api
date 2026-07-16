@@ -8,6 +8,7 @@ const aPlayer = (overrides: Partial<Player> = {}): Player => ({
   userId: "u1",
   name: "Real Rafa",
   phone: null,
+  affinity: {},
   ...overrides,
 });
 

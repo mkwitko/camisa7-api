@@ -23,6 +23,9 @@ export const PlayerResponse = z.object({
   userId: z.string().nullable(),
   name: z.string(),
   phone: z.string().nullable(),
+  // Task 1 (UX overhaul, FM rating model): the player's OWN self-declared
+  // affinity map (`{position: 0-100}`) — never set by an organizer.
+  affinity: z.partialRecord(PositionSchema, AffinityValueSchema),
 });
 export type PlayerResponse = z.infer<typeof PlayerResponse>;
 
@@ -30,7 +33,7 @@ export const GroupMemberResponse = z.object({
   id: z.uuid(),
   groupId: z.uuid(),
   role: MemberRoleSchema,
-  primaryPos: PositionSchema,
+  primaryPos: PositionSchema.nullable(),
   secondaryPos: z.array(PositionSchema),
   affinity: z.partialRecord(PositionSchema, AffinityValueSchema),
   seedOverall: z.partialRecord(PositionSchema, SeedOverallValueSchema),

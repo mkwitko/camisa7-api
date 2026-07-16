@@ -29,7 +29,13 @@ export type GroupMember = {
   groupId: string;
   player: Player;
   role: MemberRole;
-  primaryPos: Position;
+  /**
+   * Task 1 (UX overhaul): nullable — the organizer no longer sets this at
+   * add-member time; `null` until an owner rates the member via
+   * `PATCH .../members/:memberId` (`updateRating`). Balancer callers
+   * (`resolveOverall`) already treat `null`/`undefined` the same via `??`.
+   */
+  primaryPos: Position | null;
   secondaryPos: Position[];
   affinity: Record<string, number>;
   seedOverall: Record<string, number>;

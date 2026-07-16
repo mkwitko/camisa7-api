@@ -117,6 +117,12 @@ model Player {
   name  String
   phone String?
 
+  /// Task 1 (UX overhaul, FM rating model): the player's own self-declared
+  /// affinity map (`{position: 0-100}`) — the N positions they play and how
+  /// good they judge themselves at each, filled in by the player, never set
+  /// by an organizer. Empty (`{}`) until the player declares it.
+  affinity Json @default("{}")
+
   createdAt DateTime @default(now()) @db.Timestamptz(3)
   updatedAt DateTime @updatedAt @db.Timestamptz(3)
 
@@ -144,7 +150,10 @@ model GroupMember {
   player   Player @relation(fields: [playerId], references: [id])
 
   role         MemberRole
-  primaryPos   Position
+  /// Task 1 (UX overhaul): nullable — the organizer no longer sets this at
+  /// add-member time; it is null until the player links their account and
+  /// fills their own sporting profile.
+  primaryPos   Position?
   secondaryPos Position[]
   affinity     Json       @default("{}")
   seedOverall  Json       @default("{}")

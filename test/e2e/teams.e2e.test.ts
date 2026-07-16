@@ -1,6 +1,7 @@
 import { afterAll, beforeAll, beforeEach, describe, expect, it } from "vitest";
 import { createMembersRepository } from "../../src/http/api/groups/children/members/members.repository";
 import type { Position } from "../../src/http/api/groups/children/members/members.types";
+import { createAttendanceRepository } from "../../src/http/api/matches/children/attendance/attendance.repository";
 import { createTeamsRepository } from "../../src/http/api/matches/children/teams/teams.repository";
 import { buildTestApp, type TestApp } from "./helpers/app";
 
@@ -78,6 +79,14 @@ const getTeams = (h: TestApp, token: string, matchId: string) =>
     method: "GET",
     url: `/matches/${matchId}/teams`,
     headers: { authorization: `Bearer ${token}` },
+  });
+
+const addMemberHttp = (h: TestApp, token: string, groupId: string, body: Record<string, unknown>) =>
+  h.app.inject({
+    method: "POST",
+    url: `/groups/${groupId}/members`,
+    headers: { authorization: `Bearer ${token}` },
+    payload: body,
   });
 
 /** Joins `userId` to `groupId` as a rated `jogador` member (bypassing HTTP for test setup — same pattern `attendance.e2e.test.ts` uses for its own membership fixture). */
@@ -202,6 +211,49 @@ describe("teams e2e", () => {
         0,
       );
       expect(overallTotalSum).toBe(90 + 50);
+    });
+
+    it("treats a member added via add-member (Task 1: unrated, primaryPos null) the same as the no-GroupMember-row guest default: overall 50", async () => {
+      const owner = await registerAndGetToken(h, "owner-unrated@x.com", "Owner");
+      const group = await createGroup(h, owner.token, { name: "Team Unrated" });
+      const { id: groupId } = group.json();
+      const match = await createMatch(h, owner.token, groupId);
+      const { id: matchId } = match.json();
+
+      const rated = await registerAndGetToken(h, "rated-unrated@x.com", "Rated");
+      await addRatedMember(h, groupId, rated.userId, { primaryPos: "atacante", overall: 90 });
+      await confirmPresence(h, rated.token, matchId);
+
+      // Added via the real HTTP add-member endpoint with just a name — Task
+      // 1 removed the rating fields from that body, so the resulting
+      // `GroupMember` row exists (unlike the no-row guest case above) but
+      // `primaryPos` is null.
+      const added = await addMemberHttp(h, owner.token, groupId, { name: "Unrated Member" });
+      const unratedMember = added.json();
+      expect(unratedMember.primaryPos).toBeNull();
+
+      // Confirms this guest's presence directly through the repository
+      // (bypassing HTTP, same as `addRatedMember` above) since a guest
+      // `Player` (userId null) has no login of its own to call
+      // `POST /matches/:id/attendance` with.
+      const attendanceRepo = createAttendanceRepository(h.prisma);
+      await attendanceRepo.confirm(matchId, {
+        id: unratedMember.player.id,
+        userId: unratedMember.player.userId,
+        name: unratedMember.player.name,
+        phone: unratedMember.player.phone,
+        affinity: unratedMember.player.affinity,
+      });
+
+      const res = await generateTeams(h, owner.token, matchId, 2);
+
+      expect(res.statusCode).toBe(200);
+      const body = res.json();
+      const allPlayers = body.teams.flatMap(
+        (t: { players: { name: string; overall: number }[] }) => t.players,
+      );
+      const unratedPlayer = allPlayers.find((p: { name: string }) => p.name === "Unrated Member");
+      expect(unratedPlayer.overall).toBe(50);
     });
 
     it("rejects a non-owner with 403 GRP-T0002", async () => {

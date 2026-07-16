@@ -858,51 +858,16 @@
                     "type": "string",
                     "minLength": 1
                   },
-                  "primaryPos": {
+                  "billingMode": {
                     "type": "string",
                     "enum": [
-                      "goleiro",
-                      "zagueiro",
-                      "lateral",
-                      "volante",
-                      "meia",
-                      "atacante"
+                      "mensalista",
+                      "avulso"
                     ]
-                  },
-                  "secondaryPos": {
-                    "type": "array",
-                    "items": {
-                      "type": "string",
-                      "enum": [
-                        "goleiro",
-                        "zagueiro",
-                        "lateral",
-                        "volante",
-                        "meia",
-                        "atacante"
-                      ]
-                    }
-                  },
-                  "affinity": {
-                    "type": "object",
-                    "additionalProperties": {
-                      "type": "integer",
-                      "minimum": 0,
-                      "maximum": 100
-                    }
-                  },
-                  "seedOverall": {
-                    "type": "object",
-                    "additionalProperties": {
-                      "type": "integer",
-                      "minimum": 0,
-                      "maximum": 99
-                    }
                   }
                 },
                 "required": [
-                  "name",
-                  "primaryPos"
+                  "name"
                 ]
               }
             }
@@ -946,6 +911,7 @@
                       ]
                     },
                     "primaryPos": {
+                      "nullable": true,
                       "type": "string",
                       "enum": [
                         "goleiro",
@@ -1017,13 +983,22 @@
                         "phone": {
                           "nullable": true,
                           "type": "string"
+                        },
+                        "affinity": {
+                          "type": "object",
+                          "additionalProperties": {
+                            "type": "integer",
+                            "minimum": 0,
+                            "maximum": 100
+                          }
                         }
                       },
                       "required": [
                         "id",
                         "userId",
                         "name",
-                        "phone"
+                        "phone",
+                        "affinity"
                       ],
                       "additionalProperties": false
                     }
@@ -1092,6 +1067,7 @@
                         ]
                       },
                       "primaryPos": {
+                        "nullable": true,
                         "type": "string",
                         "enum": [
                           "goleiro",
@@ -1163,13 +1139,22 @@
                           "phone": {
                             "nullable": true,
                             "type": "string"
+                          },
+                          "affinity": {
+                            "type": "object",
+                            "additionalProperties": {
+                              "type": "integer",
+                              "minimum": 0,
+                              "maximum": 100
+                            }
                           }
                         },
                         "required": [
                           "id",
                           "userId",
                           "name",
-                          "phone"
+                          "phone",
+                          "affinity"
                         ],
                         "additionalProperties": false
                       }
@@ -1315,6 +1300,7 @@
                       ]
                     },
                     "primaryPos": {
+                      "nullable": true,
                       "type": "string",
                       "enum": [
                         "goleiro",
@@ -1386,13 +1372,22 @@
                         "phone": {
                           "nullable": true,
                           "type": "string"
+                        },
+                        "affinity": {
+                          "type": "object",
+                          "additionalProperties": {
+                            "type": "integer",
+                            "minimum": 0,
+                            "maximum": 100
+                          }
                         }
                       },
                       "required": [
                         "id",
                         "userId",
                         "name",
-                        "phone"
+                        "phone",
+                        "affinity"
                       ],
                       "additionalProperties": false
                     }
@@ -1494,6 +1489,7 @@
                           ]
                         },
                         "primaryPos": {
+                          "nullable": true,
                           "type": "string",
                           "enum": [
                             "goleiro",
@@ -1565,13 +1561,22 @@
                             "phone": {
                               "nullable": true,
                               "type": "string"
+                            },
+                            "affinity": {
+                              "type": "object",
+                              "additionalProperties": {
+                                "type": "integer",
+                                "minimum": 0,
+                                "maximum": 100
+                              }
                             }
                           },
                           "required": [
                             "id",
                             "userId",
                             "name",
-                            "phone"
+                            "phone",
+                            "affinity"
                           ],
                           "additionalProperties": false
                         }
@@ -4500,13 +4505,22 @@
                     "userId": {
                       "nullable": true,
                       "type": "string"
+                    },
+                    "affinity": {
+                      "type": "object",
+                      "additionalProperties": {
+                        "type": "integer",
+                        "minimum": 0,
+                        "maximum": 100
+                      }
                     }
                   },
                   "required": [
                     "id",
                     "name",
                     "phone",
-                    "userId"
+                    "userId",
+                    "affinity"
                   ],
                   "additionalProperties": false
                 }

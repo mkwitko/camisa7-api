@@ -47,7 +47,7 @@ describe("generateMonthlyDues (integration)", () => {
     name: string,
     overrideCents: number | null | undefined = undefined,
   ): Promise<string> {
-    const member = await membersRepo.addGuest(groupId, { name, primaryPos: "meia" });
+    const member = await membersRepo.addGuest(groupId, { name });
     await membersRepo.updateRating(member.id, {
       billingMode: "mensalista",
       ...(overrideCents !== undefined ? { monthlyFeeCentsOverride: overrideCents } : {}),
@@ -56,7 +56,7 @@ describe("generateMonthlyDues (integration)", () => {
   }
 
   async function addAvulso(groupId: string, name: string): Promise<string> {
-    const member = await membersRepo.addGuest(groupId, { name, primaryPos: "meia" });
+    const member = await membersRepo.addGuest(groupId, { name });
     return member.id;
   }
 

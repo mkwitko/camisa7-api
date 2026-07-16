@@ -7,6 +7,7 @@ type PlayerRow = {
   userId: string | null;
   name: string;
   phone: string | null;
+  affinity: unknown;
 };
 
 function toDomainPlayer(row: PlayerRow): Player {
@@ -15,6 +16,7 @@ function toDomainPlayer(row: PlayerRow): Player {
     userId: row.userId,
     name: row.name,
     phone: row.phone,
+    affinity: (row.affinity ?? {}) as Record<string, number>,
   };
 }
 
