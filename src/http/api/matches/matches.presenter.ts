@@ -6,13 +6,14 @@ export function presentMatch(match: Match): MatchResponse {
   return {
     id: match.id,
     groupId: match.groupId,
+    seriesId: match.seriesId,
+    detached: match.detached,
     datetime: match.datetime,
     location: match.location,
     priceCents: match.priceCents,
     slots: match.slots,
     pixKey: match.pixKey,
     status: match.status,
-    recurrenceRule: match.recurrenceRule,
     createdAt: match.createdAt,
   };
 }

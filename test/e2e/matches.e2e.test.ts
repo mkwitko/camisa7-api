@@ -106,13 +106,14 @@ describe("matches e2e", () => {
         slots: 14,
         pixKey: "owner@pix.com",
         status: "open",
-        recurrenceRule: null,
+        seriesId: null,
+        detached: false,
       });
       expect(typeof body.id).toBe("string");
       expect(body.datetime).toBe("2026-08-01T20:00:00.000Z");
     });
 
-    it("defaults priceCents to 0 and recurrenceRule to null when omitted", async () => {
+    it("defaults priceCents to 0 and seriesId/detached to null/false when omitted", async () => {
       const token = await registerAndGetToken(h, "owner-defaults@x.com");
       const group = await createGroup(h, token, { name: "Team A" });
       const { id: groupId } = group.json();
@@ -120,20 +121,12 @@ describe("matches e2e", () => {
       const res = await createMatch(h, token, groupId);
 
       expect(res.statusCode).toBe(201);
-      expect(res.json()).toMatchObject({ priceCents: 0, recurrenceRule: null, pixKey: null });
-    });
-
-    it("accepts a weekly recurrenceRule", async () => {
-      const token = await registerAndGetToken(h, "owner-recur@x.com");
-      const group = await createGroup(h, token, { name: "Team A" });
-      const { id: groupId } = group.json();
-
-      const res = await createMatch(h, token, groupId, {
-        recurrenceRule: { weekly: true, weekday: 3, time: "20:00" },
+      expect(res.json()).toMatchObject({
+        priceCents: 0,
+        pixKey: null,
+        seriesId: null,
+        detached: false,
       });
-
-      expect(res.statusCode).toBe(201);
-      expect(res.json().recurrenceRule).toEqual({ weekly: true, weekday: 3, time: "20:00" });
     });
 
     it("rejects slots below 2 with 400", async () => {
@@ -152,30 +145,6 @@ describe("matches e2e", () => {
       const { id: groupId } = group.json();
 
       const res = await createMatch(h, token, groupId, { slots: 65 });
-
-      expect(res.statusCode).toBe(400);
-    });
-
-    it("rejects an invalid recurrenceRule weekday with 400", async () => {
-      const token = await registerAndGetToken(h, "owner-badrecur@x.com");
-      const group = await createGroup(h, token, { name: "Team A" });
-      const { id: groupId } = group.json();
-
-      const res = await createMatch(h, token, groupId, {
-        recurrenceRule: { weekly: true, weekday: 7, time: "20:00" },
-      });
-
-      expect(res.statusCode).toBe(400);
-    });
-
-    it("rejects an invalid recurrenceRule time format with 400", async () => {
-      const token = await registerAndGetToken(h, "owner-badtime@x.com");
-      const group = await createGroup(h, token, { name: "Team A" });
-      const { id: groupId } = group.json();
-
-      const res = await createMatch(h, token, groupId, {
-        recurrenceRule: { weekly: true, weekday: 2, time: "8pm" },
-      });
 
       expect(res.statusCode).toBe(400);
     });

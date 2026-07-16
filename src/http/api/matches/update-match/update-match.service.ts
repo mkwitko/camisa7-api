@@ -17,6 +17,11 @@ export type UpdateMatchInput = {
  * historical record — editing it after the fact (price, slots, datetime)
  * would silently rewrite what actually happened, so it's rejected with
  * `ERRORS.MTC.NOT_EDITABLE()` (409) before touching the repository.
+ *
+ * Editing a single occurrence that still belongs to an active `MatchSeries`
+ * (`seriesId` set, `detached: false`) detaches it from the series — the
+ * recurrence job's `updateFutureNonDetached` (series-wide edits) must never
+ * clobber a change the organizer made to just this one match.
  */
 export function createUpdateMatchService(deps: UpdateMatchDeps) {
   return async (input: UpdateMatchInput): Promise<Match> => {
@@ -28,6 +33,10 @@ export function createUpdateMatchService(deps: UpdateMatchDeps) {
       throw ERRORS.MTC.NOT_EDITABLE();
     }
 
-    return deps.matchesRepo.update(input.matchId, input.patch);
+    const willDetach = asserted.seriesId !== null && !asserted.detached;
+    return deps.matchesRepo.update(input.matchId, {
+      ...input.patch,
+      ...(willDetach ? { detached: true } : {}),
+    });
   };
 }

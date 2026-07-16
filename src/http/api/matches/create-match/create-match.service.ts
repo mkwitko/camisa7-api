@@ -21,7 +21,6 @@ export function createCreateMatchService(deps: CreateMatchDeps) {
       priceCents: input.priceCents ?? 0,
       slots: input.slots,
       pixKey: input.pixKey ?? null,
-      recurrenceRule: input.recurrenceRule ?? null,
     });
   };
 }
