@@ -1,9 +1,15 @@
+import { Prisma } from "@/generated/prisma/client";
 import type { MatchesRepository } from "@/http/api/matches/matches.repository";
 import type { Match } from "@/http/api/matches/matches.types";
 import { computeOccurrences } from "@/http/api/series/recurrence";
 import type { SeriesRepository } from "@/http/api/series/series.repository";
 
 const HORIZON = 4;
+
+/** True for a Prisma P2002 (unique constraint) — here, `Match`'s `@@unique([seriesId, datetime])`. */
+function isUniqueViolation(error: unknown): boolean {
+  return error instanceof Prisma.PrismaClientKnownRequestError && error.code === "P2002";
+}
 
 /**
  * Cron body wired in `src/server.ts` (`node-cron`, every 15 minutes, skipped
@@ -28,7 +34,9 @@ const HORIZON = 4;
  * `insertOccurrence`'s `try`/`catch` makes a re-run idempotent: the DB's
  * `@@unique([seriesId, datetime])` constraint (see `schema.prisma`) rejects a
  * duplicate insert for a date this job (or a concurrent run) already
- * created, and that's treated as "already exists" rather than a failure.
+ * created, and that's treated as "already exists" rather than a failure —
+ * detected narrowly via `isUniqueViolation` (Prisma P2002) so any other,
+ * unexpected DB error still propagates instead of being silently discarded.
  */
 export async function generateHorizon(
   seriesRepo: SeriesRepository,
@@ -66,7 +74,8 @@ export async function generateHorizon(
             pixKey: s.pixKey,
           }),
         );
-      } catch {
+      } catch (error) {
+        if (!isUniqueViolation(error)) throw error;
         // unique([seriesId, datetime]) violated → already exists, idempotent skip.
       }
     }
