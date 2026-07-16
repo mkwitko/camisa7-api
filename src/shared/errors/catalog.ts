@@ -326,6 +326,32 @@ export const ERRORS = {
       internalMessage: "series_not_manual",
     }),
   },
+  // Task 5 (Mensalista vs Avulso, Bloco B follow-up): `MembershipDue` HTTP
+  // endpoints (`list-dues`/`mark-paid-due`/`confirm-due`). NOT_FOUND backs an
+  // unknown due id on `mark-paid-due`/`confirm-due` (before either even gets
+  // to authorize). CANNOT_MANAGE is one 403 covering both authz gaps that
+  // have no dedicated GRP/owner-only primitive: `list-dues` (caller is
+  // neither the group owner nor a member of it — same "owner-or-member" shape
+  // `ATT.CANNOT_MANAGE`/`TEAM.CANNOT_VIEW`/`RES.CANNOT_VIEW`/`STAT.CANNOT_VIEW`/
+  // `VOTE.CANNOT_VIEW` already close) and `mark-paid-due` (caller is neither
+  // the due's own member — via `player.userId` — nor the group owner, same
+  // "self-or-owner" shape `ATT.CANNOT_MANAGE` already closes for
+  // `mark-paid`/`cancel-presence`). `confirm-due` is owner-only and reuses
+  // `GRP-T0001`/`GRP-T0002` via `assertDueOwner` (mirrors `confirm-payment`
+  // reusing those same codes via `assertMatchOwner`) — no DUE code needed
+  // there.
+  DUE: {
+    NOT_FOUND: defineError({
+      code: "DUE-T0001",
+      status: 404,
+      internalMessage: "due_not_found",
+    }),
+    CANNOT_MANAGE: defineError({
+      code: "DUE-T0002",
+      status: 403,
+      internalMessage: "due_forbidden",
+    }),
+  },
   SYS: {
     VALIDATION: defineError({
       code: "SYS-T0001",

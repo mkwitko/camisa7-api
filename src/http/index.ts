@@ -2,6 +2,7 @@ import type { FastifyPluginAsync } from "fastify";
 import type { ZodTypeProvider } from "fastify-type-provider-zod";
 import { z } from "zod/v4";
 import { authRoutes } from "@/http/api/auth/index";
+import { duesRoutes } from "@/http/api/dues/index";
 import { groupsRoutes } from "@/http/api/groups/index";
 import { invitesRoutes } from "@/http/api/invites/index";
 import { matchesRoutes } from "@/http/api/matches/index";
@@ -40,4 +41,5 @@ export const httpRoutes: FastifyPluginAsync = async (app) => {
   await app.register(invitesRoutes);
   await app.register(playersRoutes);
   await app.register(seriesRoutes);
+  await app.register(duesRoutes);
 };

@@ -29,6 +29,17 @@ function toDomainDue(row: DueRow): MembershipDue {
 
 export interface DuesRepository {
   findById(id: string): Promise<MembershipDue | null>;
+  /**
+   * Task 5: same lookup as `findById`, plus the two bits the HTTP layer
+   * needs to authorize `mark-paid-due`/`confirm-due` without leaking Prisma
+   * into the service — the due's parent `GroupMember`'s `groupId` (to
+   * resolve/assert the group owner) and that member's `player.userId` (to
+   * check the "self" path on `mark-paid-due`). Returns `null` if `id` doesn't
+   * exist.
+   */
+  findByIdWithMember(
+    id: string,
+  ): Promise<{ due: MembershipDue; groupId: string; playerUserId: string | null } | null>;
   /** Dues of `mensalista` members of `groupId` for `month` ("YYYY-MM") — joins via `groupMember.groupId`. */
   listByGroupMonth(groupId: string, month: string): Promise<MembershipDue[]>;
   /** All dues of a player across groups — joins via `groupMember.playerId`. Newest competency first. */
@@ -69,6 +80,20 @@ export function createDuesRepository(db: PrismaLike): DuesRepository {
     async findById(id) {
       const row = await db.membershipDue.findUnique({ where: { id } });
       return row ? toDomainDue(row) : null;
+    },
+
+    async findByIdWithMember(id) {
+      const row = await db.membershipDue.findUnique({
+        where: { id },
+        include: { groupMember: { include: { player: true } } },
+      });
+      if (!row) return null;
+      const { groupMember, ...dueRow } = row;
+      return {
+        due: toDomainDue(dueRow),
+        groupId: groupMember.groupId,
+        playerUserId: groupMember.player.userId,
+      };
     },
 
     async listByGroupMonth(groupId, month) {

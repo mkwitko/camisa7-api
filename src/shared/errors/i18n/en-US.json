@@ -35,6 +35,8 @@
   "VOTE-T0005": "You do not have permission over this match's votes.",
   "SER-T0001": "Series not found.",
   "SER-T0002": "This series isn't manual — dates are generated automatically.",
+  "DUE-T0001": "Due not found.",
+  "DUE-T0002": "You do not have permission over this due.",
   "SYS-T0001": "Validation error.",
   "SYS-T0002": "Internal server error."
 }

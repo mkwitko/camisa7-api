@@ -35,6 +35,8 @@
   "VOTE-T0005": "No tienes permiso sobre los votos de este partido.",
   "SER-T0001": "Serie no encontrada.",
   "SER-T0002": "Esta serie no es manual — las fechas se generan automáticamente.",
+  "DUE-T0001": "Mensualidad no encontrada.",
+  "DUE-T0002": "No tienes permiso sobre esta mensualidad.",
   "SYS-T0001": "Error de validación.",
   "SYS-T0002": "Error interno del servidor."
 }
