@@ -9,9 +9,9 @@ import type { Gateways } from "@/types/fastify";
 /**
  * Builds the real gateway instances from `env`. `jwt` is the own JWT gateway
  * (Task 2) — no Cognito. `google` verifies Sign-In ID tokens against the
- * comma-separated `GOOGLE_CLIENT_IDS` (Task 3). `push` sends Expo push
- * notifications (Task 12) — `EXPO_ACCESS_TOKEN` is optional (Expo's enhanced
- * security feature), so it's only included when set (exactOptionalPropertyTypes).
+ * comma-separated `GOOGLE_CLIENT_IDS` (Task 3). `push` sends FCM notifications
+ * (Task 12) via firebase-admin — enabled only when `GOOGLE_APPLICATION_CREDENTIALS`
+ * points to a service-account JSON; otherwise push is a silent no-op.
  */
 export function buildDefaultGateways(): Gateways {
   return {
@@ -24,7 +24,7 @@ export function buildDefaultGateways(): Gateways {
     google: createGoogleGateway({
       clientIds: env.GOOGLE_CLIENT_IDS.split(",").map((id) => id.trim()),
     }),
-    push: createPushGateway(env.EXPO_ACCESS_TOKEN ? { accessToken: env.EXPO_ACCESS_TOKEN } : {}),
+    push: createPushGateway({ enabled: Boolean(env.GOOGLE_APPLICATION_CREDENTIALS) }),
   };
 }
 

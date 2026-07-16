@@ -1,0 +1,32 @@
+# Node / package manager
+node_modules
+.pnpm-store
+
+# Build output (rebuilt fresh inside the image)
+dist
+
+# Prisma 7 generated client (gitignored; regenerated in-build via `prisma generate`)
+src/generated
+
+# Env / secrets — never bake into an image
+.env
+.env.*
+!.env.example
+
+# VCS / editor / tooling
+.git
+.gitignore
+.github
+.vscode
+.idea
+.claude
+.superpowers
+
+# Tests / coverage — not needed at runtime (Testcontainers only used by `pnpm test`)
+test
+coverage
+**/*.test.ts
+
+# Docs / misc
+*.log
+openapi.json

@@ -66,7 +66,7 @@ export function createCancelPresenceService(deps: CancelPresenceDeps) {
     const result = await deps.attendanceRepo.cancelAndPromote(matchId, attendanceId);
 
     if (result.promoted?.player.userId) {
-      await notifyPromoted(deps, result.promoted.player.userId);
+      await notifyPromoted(deps, result.promoted.player.userId, matchId);
     }
 
     return result;
@@ -74,11 +74,21 @@ export function createCancelPresenceService(deps: CancelPresenceDeps) {
 }
 
 /** Best-effort: looks up the promoted player's push token and fires the notification; never throws. */
-async function notifyPromoted(deps: CancelPresenceDeps, promotedUserId: string): Promise<void> {
+async function notifyPromoted(
+  deps: CancelPresenceDeps,
+  promotedUserId: string,
+  matchId: string,
+): Promise<void> {
   try {
     const token = await deps.authRepo.getPushToken(promotedUserId);
     if (!token) return;
-    await deps.push.send({ to: token, title: "Pelada", body: "Você subiu da fila!" });
+    await deps.push.send({
+      to: token,
+      title: "Pelada",
+      body: "Você subiu da fila!",
+      // `data` alimenta o deep-link no app: tap abre a tela da pelada.
+      data: { type: "waitlist_promoted", matchId },
+    });
   } catch (error) {
     logger.warn(
       { userId: promotedUserId, err: error },

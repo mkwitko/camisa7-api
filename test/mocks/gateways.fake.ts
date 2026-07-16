@@ -27,7 +27,7 @@ function createFakeGoogleGateway(): GoogleGateway {
 
 export type FakePushGateway = PushGateway & {
   /** Every `send` call recorded, in order — asserted on directly in e2e tests (Task 12). */
-  calls: Array<{ to: string; title: string; body: string }>;
+  calls: Array<{ to: string; title: string; body: string; data?: Record<string, string> }>;
 };
 
 /** Fake `PushGateway` — no real Expo HTTP call, just records every `send` for assertions. */

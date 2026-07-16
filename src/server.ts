@@ -1,3 +1,4 @@
+import "dotenv/config"; // load .env for local dev (prod injects real env vars)
 import cron from "node-cron";
 import { buildApp } from "@/app";
 import { env } from "@/config/env";

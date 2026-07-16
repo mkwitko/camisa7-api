@@ -15,7 +15,9 @@ const EnvSchema = z.object({
   JWT_REFRESH_TTL: z.string().min(1).default("30d"),
 
   GOOGLE_CLIENT_IDS: z.string().min(1),
-  EXPO_ACCESS_TOKEN: z.string().optional(),
+  // Path to the Firebase service-account JSON, read by firebase-admin's
+  // Application Default Credentials. Optional: when unset, push is a no-op.
+  GOOGLE_APPLICATION_CREDENTIALS: z.string().optional(),
 
   TRUST_PROXY_HOPS: z.coerce.number().int().min(0).default(1),
 });
