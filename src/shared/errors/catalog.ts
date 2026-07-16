@@ -316,6 +316,15 @@ export const ERRORS = {
       status: 404,
       internalMessage: "series_not_found",
     }),
+    // Task 7: `POST /series/:id/dates` (add-series-dates) only makes sense
+    // for a `manual`-rule series (the one kind with no auto-generation) —
+    // 400 for any other rule kind, same "request-shape the Zod body schema
+    // can't express" family as `PLR.MEMBER_NOT_GUEST`/`TEAM.INVALID_ROSTER`.
+    NOT_MANUAL: defineError({
+      code: "SER-T0002",
+      status: 400,
+      internalMessage: "series_not_manual",
+    }),
   },
   SYS: {
     VALIDATION: defineError({
