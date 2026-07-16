@@ -19,8 +19,8 @@ function defineError({ code, status, internalMessage }: ErrorDefinition) {
 // SIGLAs reservadas para este projeto (módulos ainda por vir nas próximas tasks):
 // AUTH (autenticação/autorização), GRP (group), PLR (player), MTC (match),
 // ATT (attendance), INV (invite), TEAM (team), RES (match result, Fase 1),
-// SYS (cross-cutting). Uma sigla só ganha entradas quando o módulo
-// correspondente nasce.
+// SER (match series, Motor de Recorrência), SYS (cross-cutting). Uma sigla só
+// ganha entradas quando o módulo correspondente nasce.
 export const ERRORS = {
   AUTH: {
     INVALID_TOKEN: defineError({
@@ -303,6 +303,18 @@ export const ERRORS = {
       code: "VOTE-T0005",
       status: 403,
       internalMessage: "vote_forbidden",
+    }),
+  },
+  // Bloco B (Motor de Recorrência), Task 5: `MatchSeries` (`series.repository`/
+  // `series.authz`). Ownership itself is `assertGroupOwner`'s `GRP-T0001`/
+  // `GRP-T0002` (a series has no owner of its own — its parent group does);
+  // this single code covers the series-specific existence check
+  // `assertSeriesOwner` needs before delegating to `assertGroupOwner`.
+  SER: {
+    NOT_FOUND: defineError({
+      code: "SER-T0001",
+      status: 404,
+      internalMessage: "series_not_found",
     }),
   },
   SYS: {

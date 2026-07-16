@@ -33,6 +33,7 @@
   "VOTE-T0003": "Você não pode votar em si mesmo.",
   "VOTE-T0004": "A votação para esta partida está encerrada.",
   "VOTE-T0005": "Você não tem permissão sobre os votos desta partida.",
+  "SER-T0001": "Série não encontrada.",
   "SYS-T0001": "Erro de validação.",
   "SYS-T0002": "Erro interno do servidor."
 }

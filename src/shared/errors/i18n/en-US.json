@@ -33,6 +33,7 @@
   "VOTE-T0003": "You cannot vote for yourself.",
   "VOTE-T0004": "Voting for this match is closed.",
   "VOTE-T0005": "You do not have permission over this match's votes.",
+  "SER-T0001": "Series not found.",
   "SYS-T0001": "Validation error.",
   "SYS-T0002": "Internal server error."
 }
