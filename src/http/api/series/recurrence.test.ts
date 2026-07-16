@@ -165,4 +165,32 @@ describe("computeOccurrences", () => {
       "2026-01-17T20:00:00.000Z",
     ]);
   });
+
+  it("T13 monthly_dom respeita startDate futuro (exclui ocorrência antes de startDate)", () => {
+    const r = computeOccurrences(
+      { kind: "monthly_dom", day: 10 },
+      "20:00",
+      new Date("2026-07-16T00:00:00.000Z"),
+      2,
+      new Date("2026-09-01T00:00:00.000Z"),
+    );
+    expect(r.map((d) => d.toISOString())).toEqual([
+      "2026-09-10T20:00:00.000Z",
+      "2026-10-10T20:00:00.000Z",
+    ]);
+  });
+
+  it("T14 monthly_nth respeita startDate futuro (exclui ocorrência antes de startDate)", () => {
+    const r = computeOccurrences(
+      { kind: "monthly_nth", week: 2, weekday: 2 },
+      "20:00",
+      new Date("2026-07-16T00:00:00.000Z"),
+      2,
+      new Date("2026-09-01T00:00:00.000Z"),
+    );
+    expect(r.map((d) => d.toISOString())).toEqual([
+      "2026-09-08T20:00:00.000Z",
+      "2026-10-13T20:00:00.000Z",
+    ]);
+  });
 });

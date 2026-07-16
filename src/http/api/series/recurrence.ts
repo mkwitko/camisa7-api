@@ -33,7 +33,7 @@ const WEEK_MS = 7 * DAY_MS;
  *
  * `weekly` ancora a fase do `interval` em `startDate` (não em `from`), e
  * compara elegibilidade por DATA (dia UTC): exclui ocorrências cuja data é
- * ≤ à data de `from` ou < à data de `startDate`. `monthly_*` ignoram `startDate`.
+ * ≤ à data de `from` ou < à data de `startDate`.
  */
 export function computeOccurrences(
   rule: RecurrenceRule,
@@ -44,10 +44,10 @@ export function computeOccurrences(
 ): Date[] {
   if (rule.kind === "manual") return [];
   const out: Date[] = [];
+  const startDay = dateOnlyUTC(startDate).getTime();
 
   if (rule.kind === "weekly") {
     const fromDay = dateOnlyUTC(from).getTime();
-    const startDay = dateOnlyUTC(startDate).getTime();
     const anchor = sundayOfUTC(startDate); // domingo da semana de startDate → weekIndex 0
     const weekdays = [...rule.weekdays].sort((a, b) => a - b);
 
@@ -81,7 +81,8 @@ export function computeOccurrences(
     while (out.length < count) {
       const day = Math.min(rule.day, lastDayOfMonth(y, mo));
       const cand = atTimeUTC(new Date(Date.UTC(y, mo, day)), time);
-      if (cand.getTime() > from.getTime()) out.push(cand);
+      if (cand.getTime() > from.getTime() && dateOnlyUTC(cand).getTime() >= startDay)
+        out.push(cand);
       mo++;
       if (mo > 11) {
         mo = 0;
@@ -120,7 +121,8 @@ export function computeOccurrences(
     }
     if (target) {
       const cand = atTimeUTC(target, time);
-      if (cand.getTime() > from.getTime()) out.push(cand);
+      if (cand.getTime() > from.getTime() && dateOnlyUTC(cand).getTime() >= startDay)
+        out.push(cand);
     }
     mo++;
     if (mo > 11) {
