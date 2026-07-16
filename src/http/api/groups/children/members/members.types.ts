@@ -1,3 +1,4 @@
+import type { BillingMode } from "@/http/api/dues/dues.types";
 import type { Player } from "@/http/api/players/players.types";
 
 /**
@@ -32,4 +33,12 @@ export type GroupMember = {
   secondaryPos: Position[];
   affinity: Record<string, number>;
   seedOverall: Record<string, number>;
+  /**
+   * Task 1 (Mensalista vs Avulso): `mensalista` members owe a recurring
+   * `MembershipDue` per competency month; `avulso` (default) pay per-match.
+   * `monthlyFeeCentsOverride` takes precedence over `Group.monthlyFeeCents`
+   * when set, `null` meaning "use the group's default".
+   */
+  billingMode: BillingMode;
+  monthlyFeeCentsOverride: number | null;
 };

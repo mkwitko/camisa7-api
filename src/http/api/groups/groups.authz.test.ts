@@ -7,6 +7,7 @@ const aGroup = (overrides: Partial<Group> = {}): Group => ({
   name: "Test Group",
   ownerId: "u1",
   statsMode: "organizador",
+  monthlyFeeCents: null,
   createdAt: new Date().toISOString(),
   ...overrides,
 });

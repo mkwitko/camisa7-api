@@ -11,6 +11,13 @@ export type Group = {
   name: string;
   ownerId: string;
   statsMode: GroupStatsMode;
+  /**
+   * Task 1 (Mensalista vs Avulso): default monthly fee for `mensalista`
+   * members of this group, in cents. `null` means the group hasn't set one
+   * yet — a `GroupMember` can override it via
+   * `GroupMember.monthlyFeeCentsOverride`.
+   */
+  monthlyFeeCents: number | null;
   createdAt: string;
 };
 

@@ -1,3 +1,4 @@
+import type { BillingMode } from "@/http/api/dues/dues.types";
 import { createPlayersRepository } from "@/http/api/players/players.repository";
 import type { PrismaLike } from "@/infra/db/client";
 import type { GroupMember, MemberRole, Position } from "./members.types";
@@ -10,6 +11,8 @@ type MemberRow = {
   secondaryPos: string[];
   affinity: unknown;
   seedOverall: unknown;
+  billingMode: string;
+  monthlyFeeCentsOverride: number | null;
   player: { id: string; userId: string | null; name: string; phone: string | null };
 };
 
@@ -28,6 +31,8 @@ function toDomainMember(row: MemberRow): GroupMember {
     secondaryPos: row.secondaryPos as Position[],
     affinity: (row.affinity ?? {}) as Record<string, number>,
     seedOverall: (row.seedOverall ?? {}) as Record<string, number>,
+    billingMode: row.billingMode as BillingMode,
+    monthlyFeeCentsOverride: row.monthlyFeeCentsOverride,
   };
 }
 
@@ -52,6 +57,14 @@ export type UpdateRatingPatch = {
   secondaryPos?: Position[] | undefined;
   affinity?: Record<string, number> | undefined;
   seedOverall?: Record<string, number> | undefined;
+  billingMode?: BillingMode | undefined;
+  /**
+   * `null` explicitly clears the member's override (falls back to
+   * `Group.monthlyFeeCents`); `undefined` (not provided) leaves it
+   * untouched — the `update` service/repo both distinguish the two via
+   * `!== undefined` rather than truthiness.
+   */
+  monthlyFeeCentsOverride?: number | null | undefined;
 };
 
 export interface MembersRepository {
@@ -196,6 +209,10 @@ export function createMembersRepository(db: PrismaLike): MembersRepository {
           ...(patch.secondaryPos !== undefined ? { secondaryPos: patch.secondaryPos } : {}),
           ...(patch.affinity !== undefined ? { affinity: patch.affinity } : {}),
           ...(patch.seedOverall !== undefined ? { seedOverall: patch.seedOverall } : {}),
+          ...(patch.billingMode !== undefined ? { billingMode: patch.billingMode } : {}),
+          ...(patch.monthlyFeeCentsOverride !== undefined
+            ? { monthlyFeeCentsOverride: patch.monthlyFeeCentsOverride }
+            : {}),
         },
         include: MEMBER_INCLUDE,
       });

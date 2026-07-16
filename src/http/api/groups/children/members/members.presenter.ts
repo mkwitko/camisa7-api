@@ -11,6 +11,8 @@ export function presentMember(member: GroupMember): GroupMemberResponse {
     secondaryPos: member.secondaryPos,
     affinity: member.affinity,
     seedOverall: member.seedOverall,
+    billingMode: member.billingMode,
+    monthlyFeeCentsOverride: member.monthlyFeeCentsOverride,
     player: {
       id: member.player.id,
       userId: member.player.userId,

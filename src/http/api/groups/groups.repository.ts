@@ -6,6 +6,7 @@ type GroupRow = {
   name: string;
   ownerId: string;
   statsMode: GroupStatsMode;
+  monthlyFeeCents: number | null;
   createdAt: Date;
 };
 
@@ -15,13 +16,25 @@ function toDomainGroup(row: GroupRow): Group {
     name: row.name,
     ownerId: row.ownerId,
     statsMode: row.statsMode,
+    monthlyFeeCents: row.monthlyFeeCents,
     createdAt: row.createdAt.toISOString(),
   };
 }
 
+export type UpdateGroupPatch = {
+  /**
+   * `null` explicitly clears the group's default fee (members fall back to
+   * no default unless they carry their own `monthlyFeeCentsOverride`);
+   * `undefined` (not provided) leaves it untouched — `update` distinguishes
+   * the two via `!== undefined` rather than truthiness.
+   */
+  monthlyFeeCents?: number | null | undefined;
+};
+
 export interface GroupsRepository {
   insert(input: { name: string; statsMode: GroupStatsMode; ownerId: string }): Promise<Group>;
   findById(id: string): Promise<Group | null>;
+  update(id: string, patch: UpdateGroupPatch): Promise<Group>;
   listOwnedBy(ownerId: string): Promise<Group[]>;
   /**
    * Same rows as `listOwnedBy`, enriched with `memberCount` and `nextMatch`
@@ -53,6 +66,18 @@ export function createGroupsRepository(db: PrismaLike): GroupsRepository {
     async findById(id) {
       const row = await db.group.findUnique({ where: { id } });
       return row ? toDomainGroup(row) : null;
+    },
+
+    async update(id, patch) {
+      const row = await db.group.update({
+        where: { id },
+        data: {
+          ...(patch.monthlyFeeCents !== undefined
+            ? { monthlyFeeCents: patch.monthlyFeeCents }
+            : {}),
+        },
+      });
+      return toDomainGroup(row);
     },
 
     async listOwnedBy(ownerId) {

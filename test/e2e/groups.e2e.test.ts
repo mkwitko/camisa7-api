@@ -249,4 +249,99 @@ describe("groups e2e", () => {
       expect(res.statusCode).toBe(401);
     });
   });
+
+  describe("PATCH /groups/:id", () => {
+    it("lets the owner set monthlyFeeCents, defaulting to null on creation", async () => {
+      const { token } = await registerAndGetToken(h, "patchowner@x.com");
+      const created = await createGroup(h, token, { name: "Fee Group" });
+      const { id } = created.json();
+      expect(created.json().monthlyFeeCents).toBeNull();
+
+      const res = await h.app.inject({
+        method: "PATCH",
+        url: `/groups/${id}`,
+        headers: { authorization: `Bearer ${token}` },
+        payload: { monthlyFeeCents: 8000 },
+      });
+
+      expect(res.statusCode).toBe(200);
+      expect(res.json()).toMatchObject({ id, monthlyFeeCents: 8000 });
+    });
+
+    it("clears monthlyFeeCents when explicitly set to null", async () => {
+      const { token } = await registerAndGetToken(h, "patchowner2@x.com");
+      const created = await createGroup(h, token, { name: "Fee Group 2" });
+      const { id } = created.json();
+      await h.app.inject({
+        method: "PATCH",
+        url: `/groups/${id}`,
+        headers: { authorization: `Bearer ${token}` },
+        payload: { monthlyFeeCents: 8000 },
+      });
+
+      const res = await h.app.inject({
+        method: "PATCH",
+        url: `/groups/${id}`,
+        headers: { authorization: `Bearer ${token}` },
+        payload: { monthlyFeeCents: null },
+      });
+
+      expect(res.statusCode).toBe(200);
+      expect(res.json()).toMatchObject({ id, monthlyFeeCents: null });
+    });
+
+    it("rejects a non-owner with 403", async () => {
+      const { token: ownerToken } = await registerAndGetToken(h, "patchowner3@x.com");
+      const { token: otherToken } = await registerAndGetToken(h, "patchother3@x.com");
+      const created = await createGroup(h, ownerToken, { name: "Fee Group 3" });
+      const { id } = created.json();
+
+      const res = await h.app.inject({
+        method: "PATCH",
+        url: `/groups/${id}`,
+        headers: { authorization: `Bearer ${otherToken}` },
+        payload: { monthlyFeeCents: 5000 },
+      });
+
+      expect(res.statusCode).toBe(403);
+    });
+
+    it("returns 404 for an unknown group id", async () => {
+      const { token } = await registerAndGetToken(h, "patchunknown@x.com");
+
+      const res = await h.app.inject({
+        method: "PATCH",
+        url: "/groups/00000000-0000-0000-0000-000000000000",
+        headers: { authorization: `Bearer ${token}` },
+        payload: { monthlyFeeCents: 5000 },
+      });
+
+      expect(res.statusCode).toBe(404);
+    });
+
+    it("rejects a negative monthlyFeeCents with 400", async () => {
+      const { token } = await registerAndGetToken(h, "patchinvalid@x.com");
+      const created = await createGroup(h, token, { name: "Fee Group 4" });
+      const { id } = created.json();
+
+      const res = await h.app.inject({
+        method: "PATCH",
+        url: `/groups/${id}`,
+        headers: { authorization: `Bearer ${token}` },
+        payload: { monthlyFeeCents: -100 },
+      });
+
+      expect(res.statusCode).toBe(400);
+    });
+
+    it("rejects a request with no bearer token with 401", async () => {
+      const res = await h.app.inject({
+        method: "PATCH",
+        url: "/groups/00000000-0000-0000-0000-000000000000",
+        payload: { monthlyFeeCents: 5000 },
+      });
+
+      expect(res.statusCode).toBe(401);
+    });
+  });
 });

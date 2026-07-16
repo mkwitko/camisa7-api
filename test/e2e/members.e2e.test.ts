@@ -266,5 +266,93 @@ describe("members e2e", () => {
 
       expect(res.statusCode).toBe(403);
     });
+
+    it("defaults a newly added guest to billingMode avulso with no override", async () => {
+      const token = await registerAndGetToken(h, "owner14@x.com");
+      const created = await createGroup(h, token, { name: "Team N" });
+      const { id: groupId } = created.json();
+
+      const added = await addMember(h, token, groupId, {
+        name: "Guest Player",
+        primaryPos: "meia",
+      });
+
+      expect(added.json()).toMatchObject({ billingMode: "avulso", monthlyFeeCentsOverride: null });
+    });
+
+    it("lets the owner set billingMode to mensalista with a fee override", async () => {
+      const token = await registerAndGetToken(h, "owner15@x.com");
+      const created = await createGroup(h, token, { name: "Team O" });
+      const { id: groupId } = created.json();
+      const added = await addMember(h, token, groupId, {
+        name: "Guest Player",
+        primaryPos: "meia",
+      });
+      const { id: memberId } = added.json();
+
+      const res = await h.app.inject({
+        method: "PATCH",
+        url: `/groups/${groupId}/members/${memberId}`,
+        headers: { authorization: `Bearer ${token}` },
+        payload: { billingMode: "mensalista", monthlyFeeCentsOverride: 5000 },
+      });
+
+      expect(res.statusCode).toBe(200);
+      expect(res.json()).toMatchObject({
+        billingMode: "mensalista",
+        monthlyFeeCentsOverride: 5000,
+      });
+    });
+
+    it("clears monthlyFeeCentsOverride when explicitly set to null", async () => {
+      const token = await registerAndGetToken(h, "owner16@x.com");
+      const created = await createGroup(h, token, { name: "Team P" });
+      const { id: groupId } = created.json();
+      const added = await addMember(h, token, groupId, {
+        name: "Guest Player",
+        primaryPos: "meia",
+      });
+      const { id: memberId } = added.json();
+      await h.app.inject({
+        method: "PATCH",
+        url: `/groups/${groupId}/members/${memberId}`,
+        headers: { authorization: `Bearer ${token}` },
+        payload: { billingMode: "mensalista", monthlyFeeCentsOverride: 5000 },
+      });
+
+      const res = await h.app.inject({
+        method: "PATCH",
+        url: `/groups/${groupId}/members/${memberId}`,
+        headers: { authorization: `Bearer ${token}` },
+        payload: { monthlyFeeCentsOverride: null },
+      });
+
+      expect(res.statusCode).toBe(200);
+      expect(res.json()).toMatchObject({
+        billingMode: "mensalista",
+        monthlyFeeCentsOverride: null,
+      });
+    });
+
+    it("rejects a non-owner setting billingMode with 403", async () => {
+      const ownerToken = await registerAndGetToken(h, "owner17@x.com");
+      const otherToken = await registerAndGetToken(h, "other17@x.com");
+      const created = await createGroup(h, ownerToken, { name: "Team Q" });
+      const { id: groupId } = created.json();
+      const added = await addMember(h, ownerToken, groupId, {
+        name: "Guest Player",
+        primaryPos: "meia",
+      });
+      const { id: memberId } = added.json();
+
+      const res = await h.app.inject({
+        method: "PATCH",
+        url: `/groups/${groupId}/members/${memberId}`,
+        headers: { authorization: `Bearer ${otherToken}` },
+        payload: { billingMode: "mensalista" },
+      });
+
+      expect(res.statusCode).toBe(403);
+    });
   });
 });

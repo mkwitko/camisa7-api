@@ -9,6 +9,7 @@ export const GroupResponse = z.object({
   name: z.string(),
   ownerId: z.string(),
   statsMode: GroupStatsModeSchema,
+  monthlyFeeCents: z.number().int().nullable(),
   createdAt: z.string(),
 });
 export type GroupResponse = z.infer<typeof GroupResponse>;
