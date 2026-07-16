@@ -18,3 +18,9 @@ export const MyPlayerResponse = z.object({
   affinity: z.partialRecord(PositionSchema, AffinityValueSchema),
 });
 export type MyPlayerResponse = z.infer<typeof MyPlayerResponse>;
+
+/** `PATCH /players/me` — the player edits their OWN self-declared affinity (FM rating). */
+export const UpdateMyPlayerBody = z.object({
+  affinity: z.partialRecord(PositionSchema, AffinityValueSchema),
+});
+export type UpdateMyPlayerBody = z.infer<typeof UpdateMyPlayerBody>;

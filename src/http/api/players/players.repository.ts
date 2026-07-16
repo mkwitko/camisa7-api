@@ -38,6 +38,8 @@ export interface PlayersRepository {
    * rather than surfacing a 500.
    */
   findOrCreateForUser(userId: string): Promise<Player>;
+  /** Overwrites a player's self-declared `affinity` map (`{position: 0-100}`). */
+  updateAffinity(playerId: string, affinity: Record<string, number>): Promise<Player>;
 }
 
 /** Factory `createPlayersRepository(db: PrismaLike)` — composes inside a tx or standalone. */
@@ -63,23 +65,34 @@ export function createPlayersRepository(db: PrismaLike): PlayersRepository {
       const existing = await db.player.findFirst({ where: { userId } });
       if (existing) return toDomainPlayer(existing);
 
-      const user = await db.user.findUniqueOrThrow({ where: { id: userId } });
-      try {
-        const row = await db.player.create({
-          data: { userId, name: user.name, phone: null },
-        });
-        return toDomainPlayer(row);
-      } catch (error) {
-        if (error instanceof Prisma.PrismaClientKnownRequestError && error.code === "P2002") {
-          // `player_user_unique` is the only unique constraint `Player` has
-          // besides its own pkey (see that migration's header) — any P2002
-          // out of this `create` is exactly the concurrent-provisioning race
-          // this method is documented to tolerate. Re-find the winner's row.
-          const winner = await db.player.findFirst({ where: { userId } });
-          if (winner) return toDomainPlayer(winner);
-        }
-        throw error;
-      }
+      const userForCreate = await db.user.findUniqueOrThrow({ where: { id: userId } });
+      return createLinkedPlayer(db, userId, userForCreate.name);
+    },
+
+    async updateAffinity(playerId, affinity) {
+      const row = await db.player.update({
+        where: { id: playerId },
+        data: { affinity: affinity as unknown as Prisma.InputJsonValue },
+      });
+      return toDomainPlayer(row);
     },
   };
+}
+
+/** Shared body of `findOrCreateForUser`'s create path (kept race-safe, see interface doc). */
+async function createLinkedPlayer(db: PrismaLike, userId: string, name: string): Promise<Player> {
+  try {
+    const row = await db.player.create({ data: { userId, name, phone: null } });
+    return toDomainPlayer(row);
+  } catch (error) {
+    if (error instanceof Prisma.PrismaClientKnownRequestError && error.code === "P2002") {
+      // `player_user_unique` is the only unique constraint `Player` has
+      // besides its own pkey (see that migration's header) — any P2002 out of
+      // this `create` is exactly the concurrent-provisioning race
+      // `findOrCreateForUser` is documented to tolerate. Re-find the winner.
+      const winner = await db.player.findFirst({ where: { userId } });
+      if (winner) return toDomainPlayer(winner);
+    }
+    throw error;
+  }
 }

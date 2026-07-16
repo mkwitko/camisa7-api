@@ -15,3 +15,15 @@ export function createMyPlayerService(deps: MyPlayerDeps) {
     return deps.playersRepo.findOrCreateForUser(userId);
   };
 }
+
+/**
+ * `PATCH /players/me` — the caller edits their OWN self-declared `affinity`.
+ * Resolves (or lazily provisions) the caller's `Player` first, then
+ * overwrites its affinity map.
+ */
+export function createUpdateMyPlayerService(deps: MyPlayerDeps) {
+  return async (userId: string, affinity: Record<string, number>): Promise<Player> => {
+    const player = await deps.playersRepo.findOrCreateForUser(userId);
+    return deps.playersRepo.updateAffinity(player.id, affinity);
+  };
+}

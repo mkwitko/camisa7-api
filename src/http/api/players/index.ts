@@ -1,6 +1,6 @@
 import type { FastifyPluginAsync } from "fastify";
 import { careerRoutes } from "./children/career/index";
-import { myPlayerRoute } from "./me/me.controller";
+import { myPlayerRoute, updateMyPlayerRoute } from "./me/me.controller";
 import { publicProfileRoute } from "./public-profile/public-profile.controller";
 
 /**
@@ -23,5 +23,6 @@ import { publicProfileRoute } from "./public-profile/public-profile.controller";
 export const playersRoutes: FastifyPluginAsync = async (app) => {
   await app.register(careerRoutes);
   await app.register(myPlayerRoute);
+  await app.register(updateMyPlayerRoute);
   await app.register(publicProfileRoute);
 };
