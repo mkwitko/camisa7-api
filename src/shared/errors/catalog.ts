@@ -191,6 +191,24 @@ export const ERRORS = {
       status: 403,
       internalMessage: "attendance_forbidden",
     }),
+    // Geo G3: confirming presence at a match of a PRIVATE group now requires
+    // being a member of that group (`membersRepo.findByGroupAndPlayer`) — a
+    // stranger who merely holds the match id gets this 403. (The guest-via-
+    // invite path is unaffected: it goes through `public-confirm`.)
+    NOT_A_MEMBER: defineError({
+      code: "ATT-T0004",
+      status: 403,
+      internalMessage: "attendance_not_a_member",
+    }),
+    // Geo G3: the match belongs to a PUBLIC group whose `joinPolicy` is
+    // `request` — a stranger can't confirm directly; they must open a join
+    // request (Fase 2) and wait for the organizer to approve. 409 (stale/
+    // wrong-flow), same family as `ALREADY_IN`.
+    JOIN_REQUEST_REQUIRED: defineError({
+      code: "ATT-T0005",
+      status: 409,
+      internalMessage: "attendance_join_request_required",
+    }),
   },
   // Task 9: invite tokens (`InviteToken`). One code so far — both public
   // routes (`GET /invite/:token`, `POST /invite/confirm`) throw the same

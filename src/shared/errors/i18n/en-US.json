@@ -19,6 +19,8 @@
   "ATT-T0001": "You are already confirmed or waitlisted for this match.",
   "ATT-T0002": "Attendance not found.",
   "ATT-T0003": "You do not have permission over this attendance.",
+  "ATT-T0004": "You must be a member of this group to confirm attendance.",
+  "ATT-T0005": "This match requires approval — request to join and wait for the organizer.",
   "INV-T0001": "Invalid or expired invite.",
   "TEAM-T0001": "Not enough confirmed players to generate teams.",
   "TEAM-T0002": "Invalid team roster — every confirmed player must appear exactly once.",

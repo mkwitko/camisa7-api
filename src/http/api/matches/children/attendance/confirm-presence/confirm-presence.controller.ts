@@ -1,5 +1,8 @@
 import type { FastifyPluginAsync } from "fastify";
 import type { ZodTypeProvider } from "fastify-type-provider-zod";
+import { createMembersRepository } from "@/http/api/groups/children/members/members.repository";
+import { createGroupsRepository } from "@/http/api/groups/groups.repository";
+import { createMatchesRepository } from "@/http/api/matches/matches.repository";
 import { createPlayersRepository } from "@/http/api/players/players.repository";
 import { requireUser } from "@/http/hooks/auth";
 import { prisma } from "@/infra/db/client";
@@ -24,6 +27,9 @@ export const confirmPresenceRoute: FastifyPluginAsync = async (app) => {
       const service = createConfirmPresenceService({
         attendanceRepo: createAttendanceRepository(prisma),
         playersRepo: createPlayersRepository(prisma),
+        matchesRepo: createMatchesRepository(prisma),
+        groupsRepo: createGroupsRepository(prisma),
+        membersRepo: createMembersRepository(prisma),
       });
       const { userId } = requireUser(req);
       const attendance = await service({ matchId: req.params.id, userId });

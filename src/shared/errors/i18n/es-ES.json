@@ -19,6 +19,8 @@
   "ATT-T0001": "Ya estás confirmado o en la lista de espera de este partido.",
   "ATT-T0002": "Asistencia no encontrada.",
   "ATT-T0003": "No tienes permiso sobre esta asistencia.",
+  "ATT-T0004": "Debes ser miembro de este grupo para confirmar tu asistencia.",
+  "ATT-T0005": "Este partido requiere aprobación — solicita unirte y espera al organizador.",
   "INV-T0001": "Invitación inválida o expirada.",
   "TEAM-T0001": "No hay suficientes jugadores confirmados para armar los equipos.",
   "TEAM-T0002": "Alineación inválida — cada jugador confirmado debe aparecer exactamente una vez.",

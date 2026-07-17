@@ -9,13 +9,23 @@ const register = (h: TestApp, email: string, name: string) =>
     payload: { email, password: "s3cret!!", name },
   });
 
-const createGroup = (h: TestApp, token: string, body: { name: string }) =>
-  h.app.inject({
+const createGroup = async (h: TestApp, token: string, body: { name: string }) => {
+  const res = await h.app.inject({
     method: "POST",
     url: "/groups",
     headers: { authorization: `Bearer ${token}` },
     payload: body,
   });
+  // Geo G3: confirming presence at a PRIVATE group now requires membership.
+  // Flip the group to public+open in the DB so the smoke confirm keeps working.
+  if (res.statusCode === 201) {
+    await h.prisma.group.update({
+      where: { id: res.json().id as string },
+      data: { isPublic: true, joinPolicy: "open" },
+    });
+  }
+  return res;
+};
 
 const addMember = (h: TestApp, token: string, groupId: string, body: Record<string, unknown>) =>
   h.app.inject({

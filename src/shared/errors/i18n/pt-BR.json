@@ -19,6 +19,8 @@
   "ATT-T0001": "Você já está confirmado ou na fila de espera desta partida.",
   "ATT-T0002": "Presença não encontrada.",
   "ATT-T0003": "Você não tem permissão sobre esta presença.",
+  "ATT-T0004": "Você precisa ser membro deste grupo para confirmar presença.",
+  "ATT-T0005": "Esta partida exige aprovação — peça para entrar e aguarde o organizador.",
   "INV-T0001": "Convite inválido ou expirado.",
   "TEAM-T0001": "Jogadores confirmados insuficientes para montar os times.",
   "TEAM-T0002": "Escalação inválida — cada jogador confirmado deve aparecer exatamente uma vez.",

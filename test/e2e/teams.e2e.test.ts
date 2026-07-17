@@ -21,13 +21,24 @@ async function registerAndGetToken(
   return { token: res.json().accessToken as string, userId: res.json().user.id as string };
 }
 
-const createGroup = (h: TestApp, token: string, body: { name: string } = { name: "Team A" }) =>
-  h.app.inject({
+const createGroup = async (h: TestApp, token: string, body: { name: string } = { name: "Team A" }) => {
+  const res = await h.app.inject({
     method: "POST",
     url: "/groups",
     headers: { authorization: `Bearer ${token}` },
     payload: body,
   });
+  // Geo G3: confirming presence at a PRIVATE group now requires membership.
+  // Flip the freshly-created group to public+open directly in the DB so the
+  // non-member confirms these tests rely on keep working.
+  if (res.statusCode === 201) {
+    await h.prisma.group.update({
+      where: { id: res.json().id as string },
+      data: { isPublic: true, joinPolicy: "open" },
+    });
+  }
+  return res;
+};
 
 const createMatch = (
   h: TestApp,

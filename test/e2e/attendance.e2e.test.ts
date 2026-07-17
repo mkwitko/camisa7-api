@@ -19,13 +19,35 @@ async function registerAndGetToken(h: TestApp, email: string, name = "Player"): 
   return res.json().accessToken as string;
 }
 
-const createGroup = (h: TestApp, token: string, body: { name: string } = { name: "Team A" }) =>
+// Raw group create (stays PRIVATE — the default). Used by the Geo G3 authz
+// tests that need to control visibility/policy explicitly.
+const createGroupRaw = (h: TestApp, token: string, body: { name: string } = { name: "Team A" }) =>
   h.app.inject({
     method: "POST",
     url: "/groups",
     headers: { authorization: `Bearer ${token}` },
     payload: body,
   });
+
+// Sets a group's discovery visibility/policy directly in the DB — a PATCH
+// would need the `public_groups` entitlement (off in tests).
+const setGroupVisibility = (
+  h: TestApp,
+  groupId: string,
+  isPublic: boolean,
+  joinPolicy: "open" | "request" = "open",
+) => h.prisma.group.update({ where: { id: groupId }, data: { isPublic, joinPolicy } });
+
+// Geo G3: confirming presence at a PRIVATE group now requires membership, but
+// most of these tests confirm as non-members. This helper creates the group
+// then flips it to public+open so those confirms keep working unchanged.
+const createGroup = async (h: TestApp, token: string, body: { name: string } = { name: "Team A" }) => {
+  const res = await createGroupRaw(h, token, body);
+  if (res.statusCode === 201) {
+    await setGroupVisibility(h, res.json().id as string, true, "open");
+  }
+  return res;
+};
 
 const createMatch = (
   h: TestApp,
@@ -211,6 +233,82 @@ describe("attendance e2e", () => {
       const r3 = await confirmPresence(h, p3Token, matchId);
       expect(r3.statusCode).toBe(201);
       expect(r3.json()).toMatchObject({ status: "waitlisted", waitlistPos: 1 });
+    });
+  });
+
+  describe("POST /matches/:id/attendance — Geo G3 authz", () => {
+    it("rejects a non-member confirming at a PRIVATE group's match with 403 ATT-T0004", async () => {
+      const ownerToken = await registerAndGetToken(h, "authz-owner-private@x.com");
+      const group = await createGroupRaw(h, ownerToken, { name: "Private" });
+      const { id: groupId } = group.json();
+      const match = await createMatch(h, ownerToken, groupId, { slots: 10 });
+      const { id: matchId } = match.json();
+
+      const outsiderToken = await registerAndGetToken(h, "authz-outsider@x.com");
+      const res = await confirmPresence(h, outsiderToken, matchId);
+
+      expect(res.statusCode).toBe(403);
+      expect(res.json().code).toBe("ATT-T0004");
+    });
+
+    it("allows a MEMBER to confirm at a PRIVATE group's match", async () => {
+      const ownerToken = await registerAndGetToken(h, "authz-owner-member@x.com");
+      const group = await createGroupRaw(h, ownerToken, { name: "Private Member" });
+      const { id: groupId } = group.json();
+      const match = await createMatch(h, ownerToken, groupId, { slots: 10 });
+      const { id: matchId } = match.json();
+
+      const memberReg = await register(h, "authz-member@x.com", "Member");
+      const memberToken = memberReg.json().accessToken as string;
+      const memberUserId = memberReg.json().user.id as string;
+      await createMembersRepository(h.prisma).addForUser(groupId, memberUserId, "jogador");
+
+      const res = await confirmPresence(h, memberToken, matchId);
+
+      expect(res.statusCode).toBe(201);
+      expect(res.json()).toMatchObject({ status: "confirmed" });
+    });
+
+    it("lets the group owner (always a member) confirm at their own PRIVATE match", async () => {
+      const ownerToken = await registerAndGetToken(h, "authz-owner-self@x.com");
+      const group = await createGroupRaw(h, ownerToken, { name: "Private Self" });
+      const { id: groupId } = group.json();
+      const match = await createMatch(h, ownerToken, groupId, { slots: 10 });
+      const { id: matchId } = match.json();
+
+      const res = await confirmPresence(h, ownerToken, matchId);
+
+      expect(res.statusCode).toBe(201);
+    });
+
+    it("allows any authenticated non-member to confirm at a PUBLIC + open match", async () => {
+      const ownerToken = await registerAndGetToken(h, "authz-owner-open@x.com");
+      const group = await createGroupRaw(h, ownerToken, { name: "Public Open" });
+      const { id: groupId } = group.json();
+      await setGroupVisibility(h, groupId, true, "open");
+      const match = await createMatch(h, ownerToken, groupId, { slots: 10 });
+      const { id: matchId } = match.json();
+
+      const strangerToken = await registerAndGetToken(h, "authz-stranger-open@x.com");
+      const res = await confirmPresence(h, strangerToken, matchId);
+
+      expect(res.statusCode).toBe(201);
+      expect(res.json()).toMatchObject({ status: "confirmed" });
+    });
+
+    it("rejects a direct confirm at a PUBLIC + request match with 409 ATT-T0005", async () => {
+      const ownerToken = await registerAndGetToken(h, "authz-owner-request@x.com");
+      const group = await createGroupRaw(h, ownerToken, { name: "Public Request" });
+      const { id: groupId } = group.json();
+      await setGroupVisibility(h, groupId, true, "request");
+      const match = await createMatch(h, ownerToken, groupId, { slots: 10 });
+      const { id: matchId } = match.json();
+
+      const strangerToken = await registerAndGetToken(h, "authz-stranger-request@x.com");
+      const res = await confirmPresence(h, strangerToken, matchId);
+
+      expect(res.statusCode).toBe(409);
+      expect(res.json().code).toBe("ATT-T0005");
     });
   });
 
