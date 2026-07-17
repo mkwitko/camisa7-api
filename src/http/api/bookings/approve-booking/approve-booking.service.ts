@@ -28,10 +28,17 @@ export type ApproveBookingResult = {
  * "request mode holds off on money" design — this is where it catches up).
  * Non-owner callers get `BKG.NOT_ALLOWED` (403). On success: the same
  * config-gate + Connect check as `create-booking`
- * (`assertOwnerChargesEnabled` — `BIL.DISABLED`/`CON.NOT_READY`), then a
- * destination-charge PaymentIntent for `depositCents ?? priceCents`
- * (`createPaymentIntentForBooking`, shared with `create-booking`), then the
- * booking transitions to `pending_payment`.
+ * (`assertOwnerChargesEnabled` — `BIL.DISABLED`/`CON.NOT_READY`), then an
+ * atomic `transitionStatus` claim of the row (`requested` ->
+ * `pending_payment`) — this is what prevents two concurrent/retried
+ * approves from both passing the `status === "requested"` check and both
+ * creating a live Stripe PaymentIntent for the same booking (last
+ * `setPaymentIntent` would otherwise win, orphaning one PI). Only a
+ * successful claim (`count === 1`) proceeds to create the destination-charge
+ * PaymentIntent for `depositCents ?? priceCents`
+ * (`createPaymentIntentForBooking`, shared with `create-booking`); a losing
+ * claim (`count === 0`, someone else already transitioned it) is
+ * `BKG.BAD_STATE` and never touches Stripe.
  */
 export function createApproveBookingService(deps: ApproveBookingDeps) {
   return async (input: ApproveBookingInput): Promise<ApproveBookingResult> => {
@@ -48,12 +55,18 @@ export function createApproveBookingService(deps: ApproveBookingDeps) {
     const owner = await deps.authRepo.findById(court.venue.ownerId);
     const ownerStripeAccountId = await assertOwnerChargesEnabled(owner?.stripeAccountId ?? null);
 
+    const claimed = await deps.bookingRepo.transitionStatus(
+      booking.id,
+      ["requested"],
+      "pending_payment",
+    );
+    if (claimed === 0) throw ERRORS.BKG.BAD_STATE();
+
     const { booking: withPayment, payment } = await createPaymentIntentForBooking(
       { db: deps.db, authRepo: deps.authRepo },
       { booking, ownerStripeAccountId },
     );
-    const confirmed = await deps.bookingRepo.setStatus(withPayment.id, "pending_payment");
 
-    return { booking: presentBooking(confirmed), payment };
+    return { booking: presentBooking(withPayment), payment };
   };
 }

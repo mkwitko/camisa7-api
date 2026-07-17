@@ -75,6 +75,17 @@ export interface BookingRepository {
   /** All bookings for a `Venue`'s courts within `[from, to]` (inclusive, `YYYY-MM-DD`) — the owner's agenda view. */
   listByVenueRange(venueId: string, from: string, to: string): Promise<Booking[]>;
   setStatus(id: string, status: BookingStatus): Promise<Booking>;
+  /**
+   * Atomic guarded transition — `UPDATE ... WHERE id = ? AND status IN
+   * (fromStatuses)`. Returns the number of rows moved: `1` on success, `0`
+   * if the booking wasn't in an allowed `from` status (someone else already
+   * transitioned it — a concurrent/retried lifecycle call). Callers CLAIM
+   * the row with this BEFORE any side effect (e.g. creating a Stripe
+   * PaymentIntent) so two racing calls can't both pass a stale
+   * check-then-write and both act; only the caller that gets `count === 1`
+   * proceeds, the other throws `BKG.BAD_STATE()`.
+   */
+  transitionStatus(id: string, fromStatuses: BookingStatus[], toStatus: BookingStatus): Promise<number>;
   setPaymentIntent(id: string, paymentIntentId: string): Promise<Booking>;
   /** `startMinute`s of a court's ACTIVE bookings on `date` — what `computeAvailability` needs to mark slots unavailable. */
   activeSlotsFor(courtId: string, date: string): Promise<number[]>;
@@ -139,6 +150,14 @@ export function createBookingRepository(db: PrismaLike): BookingRepository {
     async setStatus(id, status) {
       const row = await db.booking.update({ where: { id }, data: { status } });
       return toDomainBooking(row);
+    },
+
+    async transitionStatus(id, fromStatuses, toStatus) {
+      const result = await db.booking.updateMany({
+        where: { id, status: { in: fromStatuses } },
+        data: { status: toStatus },
+      });
+      return result.count;
     },
 
     async setPaymentIntent(id, paymentIntentId) {

@@ -807,6 +807,33 @@ describe("bookings e2e", () => {
       expect(res.statusCode).toBe(404);
       expect(res.json().code).toBe("BKG-T0001");
     });
+
+    it("a second approve after a successful claim gets 409 BKG-T0005 and never creates a second PaymentIntent", async () => {
+      // Proves the atomic `transitionStatus` claim (`requested` ->
+      // `pending_payment`) closes the race from the B7 follow-up finding:
+      // two concurrent/retried approves must not both create a live Stripe
+      // PaymentIntent for the same booking. A true concurrent race is hard
+      // to force in e2e, so this exercises the guard sequentially — by the
+      // time the second call's pre-checks run, the booking is no longer
+      // `requested`, so it never even reaches the claim.
+      const { ownerToken, courtId } = await setUpBookableCourt(h, "owner-approve8@x.com", "request");
+      const { token: bookerToken } = await registerAndGetToken(h, "booker-approve8@x.com");
+      const bookRes = await bookSlot(h, bookerToken, {
+        courtId,
+        date: MONDAY,
+        startMinute: 600,
+        endMinute: 660,
+      });
+      const bookingId = bookRes.json().booking.id as string;
+
+      const first = await approveBooking(h, ownerToken, bookingId);
+      const second = await approveBooking(h, ownerToken, bookingId);
+
+      expect(first.statusCode).toBe(200);
+      expect(second.statusCode).toBe(409);
+      expect(second.json().code).toBe("BKG-T0005");
+      expect(mocks.createBookingPaymentIntent).toHaveBeenCalledTimes(1);
+    });
   });
 
   describe("POST /bookings/:id/reject", () => {

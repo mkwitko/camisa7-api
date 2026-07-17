@@ -15,7 +15,10 @@ export type RejectBookingInput = { bookingId: string; userId: string };
  * "request"` booking still `status === "requested"`, freeing the slot
  * (`activeSlotsFor`/the partial unique index only covers ACTIVE statuses,
  * and `rejected` isn't one of them). Any other mode/status is
- * `BKG.BAD_STATE` (409); non-owner is `BKG.NOT_ALLOWED` (403).
+ * `BKG.BAD_STATE` (409); non-owner is `BKG.NOT_ALLOWED` (403). The final
+ * flip is an atomic `transitionStatus` claim (`requested` -> `rejected`) so
+ * a concurrent/retried reject (or a race with approve) can't both act on a
+ * stale `status === "requested"` read.
  */
 export function createRejectBookingService(deps: RejectBookingDeps) {
   return async (input: RejectBookingInput): Promise<Booking> => {
@@ -29,6 +32,11 @@ export function createRejectBookingService(deps: RejectBookingDeps) {
       throw ERRORS.BKG.BAD_STATE();
     }
 
-    return deps.bookingRepo.setStatus(booking.id, "rejected");
+    const claimed = await deps.bookingRepo.transitionStatus(booking.id, ["requested"], "rejected");
+    if (claimed === 0) throw ERRORS.BKG.BAD_STATE();
+
+    const updated = await deps.bookingRepo.findById(booking.id);
+    if (!updated) throw ERRORS.BKG.NOT_FOUND();
+    return updated;
   };
 }
