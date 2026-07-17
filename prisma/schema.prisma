@@ -199,6 +199,7 @@ model Player {
   votesCast     Vote[]        @relation("VoteVoter")
   votesReceived Vote[]        @relation("VoteVoted")
   career        PlayerCareer?
+  joinRequests  JoinRequest[]
 
   @@index([userId])
 }
@@ -391,6 +392,7 @@ model Match {
   result         MatchResult?
   stats          MatchStat[]
   votes          Vote[]
+  joinRequests   JoinRequest[]
 
   @@index([groupId, datetime])
   @@unique([seriesId, datetime])
@@ -671,4 +673,45 @@ enum PlayerLevel {
   bronze
   prata
   ouro
+}
+
+/// Geo G3 (Fase 2, descoberta pública): the decision state of a request to
+/// join one PUBLIC group's match whose `Group.joinPolicy` is `request`. A
+/// stranger opens a `pending` request (`POST /matches/:id/join-request`); the
+/// match's group owner approves (→ `approved`, which also creates the
+/// `Attendance` + fires a push) or rejects it (→ `rejected`).
+enum JoinRequestStatus {
+  pending
+  approved
+  rejected
+}
+
+/// Geo G3 (Fase 2): a request to join one `Match` of a PUBLIC group whose
+/// `joinPolicy` is `request` — only meaningful for that policy (an `open`
+/// group's matches are joined directly via `confirm-presence`). The
+/// `@@unique([matchId, playerId])` is a FULL unique (one row per
+/// match+player ever, unlike `Attendance`'s partial `active` index): a
+/// request that was `rejected`/`approved` is REOPENED in place (status back
+/// to `pending`, `decidedById` cleared) rather than inserting a second row,
+/// so the same player can ask again after a rejection without violating the
+/// constraint (see `join-request.service.ts`'s `requestJoin`). `decidedById`
+/// is the acting owner `User.id` — a plain uuid column with no FK relation,
+/// same convention as `Attendance.paidConfirmedById`/`MatchResult.recordedById`.
+model JoinRequest {
+  id String @id @default(uuid()) @db.Uuid
+
+  matchId String @db.Uuid
+  match   Match  @relation(fields: [matchId], references: [id])
+
+  playerId String @db.Uuid
+  player   Player @relation(fields: [playerId], references: [id])
+
+  status      JoinRequestStatus @default(pending)
+  decidedById String?           @db.Uuid
+
+  createdAt DateTime @default(now()) @db.Timestamptz(3)
+  updatedAt DateTime @updatedAt @db.Timestamptz(3)
+
+  @@unique([matchId, playerId])
+  @@index([matchId])
 }
