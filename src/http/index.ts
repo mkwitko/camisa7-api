@@ -3,6 +3,7 @@ import type { ZodTypeProvider } from "fastify-type-provider-zod";
 import { z } from "zod/v4";
 import { authRoutes } from "@/http/api/auth/index";
 import { billingRoutes } from "@/http/api/billing/index";
+import { bookingsRoutes } from "@/http/api/bookings/index";
 import { connectRoutes } from "@/http/api/connect/index";
 import { courtsRoutes } from "@/http/api/courts/index";
 import { discoverRoutes } from "@/http/api/discover/discover.controller";
@@ -54,4 +55,5 @@ export const httpRoutes: FastifyPluginAsync = async (app) => {
   await app.register(venuesRoutes);
   await app.register(connectRoutes);
   await app.register(courtsRoutes);
+  await app.register(bookingsRoutes);
 };
