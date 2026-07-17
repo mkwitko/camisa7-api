@@ -13,6 +13,7 @@ const aUser = (overrides: Partial<User> = {}): User => ({
   lastCity: null,
   lastLat: null,
   lastLng: null,
+  stripeCustomerId: null,
   createdAt: new Date().toISOString(),
   ...overrides,
 });
@@ -27,6 +28,7 @@ function makeFakeRepo(overrides: Partial<AuthRepository> = {}): AuthRepository {
     setPushToken: vi.fn(),
     getPushToken: vi.fn(),
     setLocation: vi.fn(),
+    setStripeCustomerId: vi.fn(),
     ...overrides,
   };
 }

@@ -12,6 +12,7 @@ type UserRow = {
   lastCity: string | null;
   lastLat: number | null;
   lastLng: number | null;
+  stripeCustomerId: string | null;
   createdAt: Date;
 };
 
@@ -25,6 +26,7 @@ function toDomainUser(row: UserRow): User {
     lastCity: row.lastCity ?? null,
     lastLat: row.lastLat ?? null,
     lastLng: row.lastLng ?? null,
+    stripeCustomerId: row.stripeCustomerId ?? null,
     createdAt: row.createdAt.toISOString(),
   };
 }
@@ -89,6 +91,12 @@ export interface AuthRepository {
    * (cidade manual = só `city`). Retorna o `User` atualizado.
    */
   setLocation(id: string, input: { lat?: number | undefined; lng?: number | undefined; city: string }): Promise<User>;
+  /**
+   * Billing: persists the Stripe customer id for a user (from
+   * `getOrCreateCustomer`, on first checkout/portal). The only billing write
+   * we do — entitlements themselves live in Stripe, not here.
+   */
+  setStripeCustomerId(id: string, stripeCustomerId: string): Promise<void>;
 }
 
 /** Factory `createAuthRepository(db: PrismaLike)` — composes inside a tx or standalone. */
@@ -136,6 +144,10 @@ export function createAuthRepository(db: PrismaLike): AuthRepository {
         },
       });
       return toDomainUser(row);
+    },
+
+    async setStripeCustomerId(id, stripeCustomerId) {
+      await db.user.update({ where: { id }, data: { stripeCustomerId } });
     },
 
     async insert(input) {

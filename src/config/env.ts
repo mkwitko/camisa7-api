@@ -30,6 +30,21 @@ const EnvSchema = z.object({
   R2_SECRET_ACCESS_KEY: z.string().optional(),
   R2_BUCKET: z.string().optional(),
   R2_PUBLIC_URL: z.string().url().optional(),
+
+  // Stripe billing + entitlements. Todos opcionais/config-gated: sem
+  // `STRIPE_SECRET_KEY` o billing fica OFF (`/billing/*` → 503, `hasFeature`
+  // false), igual R2/push. `STRIPE_WEBHOOK_SECRET` valida a assinatura do
+  // `POST /webhooks/stripe`. `STRIPE_PRICE_*` são os price ids dos planos.
+  // `REVIEWER_EMAILS` (csv) é a allowlist de contas revisoras das lojas: quem
+  // está na lista recebe todas as features e `paymentsEnabled: false` (o app
+  // esconde toda UI de pagamento). `APP_DEEPLINK_SCHEME` é o scheme dos
+  // deep-links de retorno do checkout/portal.
+  STRIPE_SECRET_KEY: z.string().optional(),
+  STRIPE_WEBHOOK_SECRET: z.string().optional(),
+  STRIPE_PRICE_ORGANIZER: z.string().optional(),
+  STRIPE_PRICE_PLAYER: z.string().optional(),
+  REVIEWER_EMAILS: z.string().default(""),
+  APP_DEEPLINK_SCHEME: z.string().default("futebolapp"),
 });
 
 export type EnvConfig = z.infer<typeof EnvSchema>;

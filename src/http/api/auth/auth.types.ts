@@ -14,5 +14,11 @@ export type User = {
   lastCity: string | null;
   lastLat: number | null;
   lastLng: number | null;
+  /**
+   * Stripe customer id (billing correlation). Internal — never exposed on
+   * `UserResponse`. `null` until the user first hits checkout/portal (see
+   * `getOrCreateCustomer`). The only billing state we persist.
+   */
+  stripeCustomerId: string | null;
   createdAt: string;
 };

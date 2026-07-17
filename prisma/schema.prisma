@@ -31,6 +31,11 @@ model User {
   googleSub      String? @unique
   expoPushToken  String?
 
+  /// Correlation to the Stripe customer (billing/entitlements). The ONLY
+  /// billing state in our DB — entitlements are resolved live via the Stripe
+  /// Entitlements API (+ short in-memory cache), never persisted here.
+  stripeCustomerId String?
+
   lastCity String?
   lastLat  Float?
   lastLng  Float?
