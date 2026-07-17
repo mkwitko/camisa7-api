@@ -10,5 +10,9 @@ export type User = {
   name: string;
   hasPassword: boolean;
   googleSub: string | null;
+  /** Última localização conhecida do jogador (Geo G1) — default de ranking por cidade. */
+  lastCity: string | null;
+  lastLat: number | null;
+  lastLng: number | null;
   createdAt: string;
 };

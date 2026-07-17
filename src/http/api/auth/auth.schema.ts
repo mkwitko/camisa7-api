@@ -8,6 +8,9 @@ export const UserResponse = z.object({
   name: z.string(),
   hasPassword: z.boolean(),
   googleSub: z.string().nullable(),
+  lastCity: z.string().nullable(),
+  lastLat: z.number().nullable(),
+  lastLng: z.number().nullable(),
   createdAt: z.string(),
 });
 export type UserResponse = z.infer<typeof UserResponse>;

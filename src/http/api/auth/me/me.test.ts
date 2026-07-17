@@ -9,6 +9,9 @@ const aUser = (overrides: Partial<User> = {}): User => ({
   name: "Alice",
   hasPassword: true,
   googleSub: null,
+  lastCity: null,
+  lastLat: null,
+  lastLng: null,
   createdAt: new Date().toISOString(),
   ...overrides,
 });
@@ -22,6 +25,7 @@ function makeFakeRepo(overrides: Partial<AuthRepository> = {}): AuthRepository {
     linkGoogle: vi.fn(),
     setPushToken: vi.fn(),
     getPushToken: vi.fn(),
+    setLocation: vi.fn(),
     ...overrides,
   };
 }

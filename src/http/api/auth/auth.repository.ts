@@ -9,6 +9,9 @@ type UserRow = {
   name: string;
   passwordHash: string | null;
   googleSub: string | null;
+  lastCity: string | null;
+  lastLat: number | null;
+  lastLng: number | null;
   createdAt: Date;
 };
 
@@ -19,6 +22,9 @@ function toDomainUser(row: UserRow): User {
     name: row.name,
     hasPassword: row.passwordHash !== null,
     googleSub: row.googleSub,
+    lastCity: row.lastCity ?? null,
+    lastLat: row.lastLat ?? null,
+    lastLng: row.lastLng ?? null,
     createdAt: row.createdAt.toISOString(),
   };
 }
@@ -77,6 +83,12 @@ export interface AuthRepository {
    * user has push enabled.
    */
   getPushToken(id: string): Promise<string | null>;
+  /**
+   * Geo (G1): grava a última localização conhecida do jogador
+   * (`lastCity/lastLat/lastLng`), de `PUT /me/location`. `lat`/`lng` opcionais
+   * (cidade manual = só `city`). Retorna o `User` atualizado.
+   */
+  setLocation(id: string, input: { lat?: number | undefined; lng?: number | undefined; city: string }): Promise<User>;
 }
 
 /** Factory `createAuthRepository(db: PrismaLike)` — composes inside a tx or standalone. */
@@ -112,6 +124,18 @@ export function createAuthRepository(db: PrismaLike): AuthRepository {
         select: { expoPushToken: true },
       });
       return row?.expoPushToken ?? null;
+    },
+
+    async setLocation(id, input) {
+      const row = await db.user.update({
+        where: { id },
+        data: {
+          lastCity: input.city,
+          lastLat: input.lat ?? null,
+          lastLng: input.lng ?? null,
+        },
+      });
+      return toDomainUser(row);
     },
 
     async insert(input) {
