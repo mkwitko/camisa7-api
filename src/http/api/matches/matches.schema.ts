@@ -18,6 +18,10 @@ export const MatchResponse = z.object({
   pixKey: z.string().nullable(),
   status: MatchStatusSchema,
   modality: ModalitySchema,
+  latitude: z.number().nullable(),
+  longitude: z.number().nullable(),
+  city: z.string().nullable(),
+  address: z.string().nullable(),
   createdAt: z.string(),
 });
 export type MatchResponse = z.infer<typeof MatchResponse>;

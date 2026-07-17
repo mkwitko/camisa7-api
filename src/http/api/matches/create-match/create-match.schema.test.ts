@@ -18,3 +18,21 @@ describe("CreateMatchBody.modality", () => {
     expect(CreateMatchBody.safeParse({ ...base, modality: "beach" }).success).toBe(false);
   });
 });
+
+describe("CreateMatchBody geo (G1)", () => {
+  it("accepts optional geo fields", () => {
+    const r = CreateMatchBody.safeParse({
+      ...base,
+      modality: "campo",
+      latitude: -30.03,
+      longitude: -51.21,
+      city: "Porto Alegre",
+      address: "Quadra X",
+    });
+    expect(r.success).toBe(true);
+  });
+
+  it("is valid without geo fields", () => {
+    expect(CreateMatchBody.safeParse(base).success).toBe(true);
+  });
+});

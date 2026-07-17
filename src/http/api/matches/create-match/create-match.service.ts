@@ -22,6 +22,10 @@ export function createCreateMatchService(deps: CreateMatchDeps) {
       slots: input.slots,
       pixKey: input.pixKey ?? null,
       modality: input.modality,
+      latitude: input.latitude ?? null,
+      longitude: input.longitude ?? null,
+      city: input.city ?? null,
+      address: input.address ?? null,
     });
   };
 }

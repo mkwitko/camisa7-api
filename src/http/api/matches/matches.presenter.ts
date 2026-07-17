@@ -15,6 +15,10 @@ export function presentMatch(match: Match): MatchResponse {
     pixKey: match.pixKey,
     status: match.status,
     modality: match.modality,
+    latitude: match.latitude,
+    longitude: match.longitude,
+    city: match.city,
+    address: match.address,
     createdAt: match.createdAt,
   };
 }

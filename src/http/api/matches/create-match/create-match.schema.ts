@@ -15,5 +15,10 @@ export const CreateMatchBody = z.object({
   // App envia sempre (campo obrigatório no form); default `campo` cobre o DB
   // default e mantém compat com chamadas legadas/materialização de série.
   modality: ModalitySchema.default("campo"),
+  // Geo (G1) — opcionais; partida sem localização = null.
+  latitude: z.number().optional(),
+  longitude: z.number().optional(),
+  city: z.string().max(120).optional(),
+  address: z.string().max(200).optional(),
 });
 export type CreateMatchBody = z.infer<typeof CreateMatchBody>;

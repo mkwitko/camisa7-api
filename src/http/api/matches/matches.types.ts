@@ -33,5 +33,9 @@ export type Match = {
   pixKey: string | null;
   status: MatchStatus;
   modality: Modality;
+  latitude: number | null;
+  longitude: number | null;
+  city: string | null;
+  address: string | null;
   createdAt: string;
 };

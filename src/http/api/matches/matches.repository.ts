@@ -13,6 +13,10 @@ type MatchRow = {
   pixKey: string | null;
   status: string;
   modality: string;
+  latitude: number | null;
+  longitude: number | null;
+  city: string | null;
+  address: string | null;
   createdAt: Date;
 };
 
@@ -29,6 +33,10 @@ function toDomainMatch(row: MatchRow): Match {
     pixKey: row.pixKey,
     status: row.status as MatchStatus,
     modality: row.modality as Modality,
+    latitude: row.latitude ?? null,
+    longitude: row.longitude ?? null,
+    city: row.city ?? null,
+    address: row.address ?? null,
     createdAt: row.createdAt.toISOString(),
   };
 }
@@ -54,6 +62,11 @@ export type InsertMatchInput = {
   pixKey?: string | null | undefined;
   /** Defaults to `campo` when omitted (e.g. series-spawned occurrences). */
   modality?: Modality | undefined;
+  /** Geo (G1) — opcionais; ausente = null. */
+  latitude?: number | null | undefined;
+  longitude?: number | null | undefined;
+  city?: string | null | undefined;
+  address?: string | null | undefined;
 };
 
 export type UpdateMatchPatch = {
@@ -122,6 +135,10 @@ export function createMatchesRepository(db: PrismaLike): MatchesRepository {
           slots: input.slots,
           pixKey: input.pixKey ?? null,
           modality: input.modality ?? "campo",
+          latitude: input.latitude ?? null,
+          longitude: input.longitude ?? null,
+          city: input.city ?? null,
+          address: input.address ?? null,
         },
       });
       return toDomainMatch(row);
