@@ -37,5 +37,11 @@ export type Match = {
   longitude: number | null;
   city: string | null;
   address: string | null;
+  /**
+   * Marketplace V1: the `Venue` this match points at (`null` = no venue). When
+   * set at create time, the match's `latitude/longitude/city/address` were
+   * copied from that venue (the venue is the source of location).
+   */
+  venueId: string | null;
   createdAt: string;
 };

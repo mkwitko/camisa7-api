@@ -20,5 +20,8 @@ export const CreateMatchBody = z.object({
   longitude: z.number().optional(),
   city: z.string().max(120).optional(),
   address: z.string().max(200).optional(),
+  // Marketplace V1: quadra vinculada. Quando presente, o service carrega a
+  // Venue e copia `latitude/longitude/city/address` dela (sobrepõe os manuais).
+  venueId: z.uuid().optional(),
 });
 export type CreateMatchBody = z.infer<typeof CreateMatchBody>;

@@ -22,6 +22,7 @@ export const MatchResponse = z.object({
   longitude: z.number().nullable(),
   city: z.string().nullable(),
   address: z.string().nullable(),
+  venueId: z.uuid().nullable(),
   createdAt: z.string(),
 });
 export type MatchResponse = z.infer<typeof MatchResponse>;

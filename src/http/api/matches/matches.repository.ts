@@ -17,6 +17,7 @@ type MatchRow = {
   longitude: number | null;
   city: string | null;
   address: string | null;
+  venueId: string | null;
   createdAt: Date;
 };
 
@@ -37,6 +38,7 @@ function toDomainMatch(row: MatchRow): Match {
     longitude: row.longitude ?? null,
     city: row.city ?? null,
     address: row.address ?? null,
+    venueId: row.venueId ?? null,
     createdAt: row.createdAt.toISOString(),
   };
 }
@@ -67,6 +69,8 @@ export type InsertMatchInput = {
   longitude?: number | null | undefined;
   city?: string | null | undefined;
   address?: string | null | undefined;
+  /** Marketplace V1: quadra vinculada (ausente = null). */
+  venueId?: string | null | undefined;
 };
 
 export type UpdateMatchPatch = {
@@ -139,6 +143,7 @@ export function createMatchesRepository(db: PrismaLike): MatchesRepository {
           longitude: input.longitude ?? null,
           city: input.city ?? null,
           address: input.address ?? null,
+          venueId: input.venueId ?? null,
         },
       });
       return toDomainMatch(row);

@@ -19,6 +19,7 @@ export function presentMatch(match: Match): MatchResponse {
     longitude: match.longitude,
     city: match.city,
     address: match.address,
+    venueId: match.venueId,
     createdAt: match.createdAt,
   };
 }
