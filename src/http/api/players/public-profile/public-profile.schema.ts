@@ -31,5 +31,14 @@ export const PublicProfileResponse = z.object({
   mvpCount: z.number().int().min(0),
   currentStreak: z.number().int().min(0),
   bestStreak: z.number().int().min(0),
+  achievements: z.array(
+    z.object({
+      key: z.string(),
+      label: z.string(),
+      description: z.string(),
+      icon: z.string(),
+      unlocked: z.boolean(),
+    }),
+  ),
 });
 export type PublicProfileResponse = z.infer<typeof PublicProfileResponse>;

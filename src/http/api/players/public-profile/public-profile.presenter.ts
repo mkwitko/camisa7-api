@@ -1,5 +1,6 @@
 import type { FieldPosition } from "@/http/api/groups/children/members/members.types";
 import type { PlayerCareer } from "../children/career/career.types";
+import { unlockedAchievements } from "../children/career/achievements";
 import type { Player } from "../players.types";
 import type { PublicProfileResponse } from "./public-profile.schema";
 
@@ -47,5 +48,14 @@ export function presentPublicProfile(
     mvpCount: career?.mvpCount ?? 0,
     currentStreak: career?.currentStreak ?? 0,
     bestStreak: career?.bestStreak ?? 0,
+    achievements: unlockedAchievements({
+      matchesPlayed,
+      wins,
+      goals: career?.goals ?? 0,
+      assists: career?.assists ?? 0,
+      cleanSheets: career?.cleanSheets ?? 0,
+      mvpCount: career?.mvpCount ?? 0,
+      bestStreak: career?.bestStreak ?? 0,
+    }),
   };
 }

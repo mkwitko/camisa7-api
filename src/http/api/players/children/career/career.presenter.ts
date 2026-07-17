@@ -1,3 +1,4 @@
+import { unlockedAchievements } from "./achievements";
 import type { PlayerCareerResponse } from "./career.schema";
 import type { PlayerCareer } from "./career.types";
 
@@ -31,6 +32,15 @@ export function presentPlayerCareer(
       mvpCount: 0,
       currentStreak: 0,
       bestStreak: 0,
+      achievements: unlockedAchievements({
+        matchesPlayed: 0,
+        wins: 0,
+        goals: 0,
+        assists: 0,
+        cleanSheets: 0,
+        mvpCount: 0,
+        bestStreak: 0,
+      }),
       updatedAt: null,
     };
   }
@@ -51,6 +61,15 @@ export function presentPlayerCareer(
     mvpCount: career.mvpCount,
     currentStreak: career.currentStreak,
     bestStreak: career.bestStreak,
+    achievements: unlockedAchievements({
+      matchesPlayed: career.matchesPlayed,
+      wins: career.wins,
+      goals: career.goals,
+      assists: career.assists,
+      cleanSheets: career.cleanSheets,
+      mvpCount: career.mvpCount,
+      bestStreak: career.bestStreak,
+    }),
     updatedAt: career.updatedAt,
   };
 }

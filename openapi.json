@@ -4517,6 +4517,37 @@
                       "minimum": 0,
                       "maximum": 9007199254740991
                     },
+                    "achievements": {
+                      "type": "array",
+                      "items": {
+                        "type": "object",
+                        "properties": {
+                          "key": {
+                            "type": "string"
+                          },
+                          "label": {
+                            "type": "string"
+                          },
+                          "description": {
+                            "type": "string"
+                          },
+                          "icon": {
+                            "type": "string"
+                          },
+                          "unlocked": {
+                            "type": "boolean"
+                          }
+                        },
+                        "required": [
+                          "key",
+                          "label",
+                          "description",
+                          "icon",
+                          "unlocked"
+                        ],
+                        "additionalProperties": false
+                      }
+                    },
                     "updatedAt": {
                       "nullable": true,
                       "type": "string"
@@ -4538,6 +4569,7 @@
                     "mvpCount",
                     "currentStreak",
                     "bestStreak",
+                    "achievements",
                     "updatedAt"
                   ],
                   "additionalProperties": false
@@ -5446,6 +5478,37 @@
                       "type": "integer",
                       "minimum": 0,
                       "maximum": 9007199254740991
+                    },
+                    "achievements": {
+                      "type": "array",
+                      "items": {
+                        "type": "object",
+                        "properties": {
+                          "key": {
+                            "type": "string"
+                          },
+                          "label": {
+                            "type": "string"
+                          },
+                          "description": {
+                            "type": "string"
+                          },
+                          "icon": {
+                            "type": "string"
+                          },
+                          "unlocked": {
+                            "type": "boolean"
+                          }
+                        },
+                        "required": [
+                          "key",
+                          "label",
+                          "description",
+                          "icon",
+                          "unlocked"
+                        ],
+                        "additionalProperties": false
+                      }
                     }
                   },
                   "required": [
@@ -5465,7 +5528,8 @@
                     "cleanSheets",
                     "mvpCount",
                     "currentStreak",
-                    "bestStreak"
+                    "bestStreak",
+                    "achievements"
                   ],
                   "additionalProperties": false
                 }
