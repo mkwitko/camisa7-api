@@ -1,5 +1,6 @@
 import type { FastifyPluginAsync } from "fastify";
 import { membersRoutes } from "./children/members";
+import { groupRankingRoute } from "./children/ranking/ranking.controller";
 import { createGroupRoute } from "./create-group/create-group.controller";
 import { getGroupRoute } from "./get-group/get-group.controller";
 import { listMyGroupsRoute } from "./list-my-groups/list-my-groups.controller";
@@ -12,4 +13,5 @@ export const groupsRoutes: FastifyPluginAsync = async (app) => {
   await app.register(getGroupRoute);
   await app.register(updateGroupRoute);
   await app.register(membersRoutes);
+  await app.register(groupRankingRoute);
 };
