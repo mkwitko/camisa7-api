@@ -52,6 +52,8 @@ describe("attendanceRepository (integration)", () => {
         name: row.name,
         phone: row.phone,
         affinity: (row.affinity ?? {}) as Record<string, number>,
+        attributes: (row.attributes ?? {}) as Player["attributes"],
+        skills: (row.skills ?? []) as Player["skills"],
       });
     }
     return players;

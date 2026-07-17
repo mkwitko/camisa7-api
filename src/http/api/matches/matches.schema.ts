@@ -4,6 +4,8 @@ import { z } from "zod/v4";
 // skill's ARCHITECTURE.md §3.5 ("compartilhados do recurso").
 export const MatchStatusSchema = z.enum(["open", "full", "closed", "finished", "cancelled"]);
 
+export const ModalitySchema = z.enum(["futsal", "society", "campo"]);
+
 export const MatchResponse = z.object({
   id: z.uuid(),
   groupId: z.uuid(),
@@ -15,6 +17,7 @@ export const MatchResponse = z.object({
   slots: z.number().int(),
   pixKey: z.string().nullable(),
   status: MatchStatusSchema,
+  modality: ModalitySchema,
   createdAt: z.string(),
 });
 export type MatchResponse = z.infer<typeof MatchResponse>;

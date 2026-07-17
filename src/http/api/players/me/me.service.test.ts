@@ -9,6 +9,19 @@ const aPlayer = (overrides: Partial<Player> = {}): Player => ({
   name: "Real Rafa",
   phone: null,
   affinity: {},
+  attributes: {
+    chute: 50,
+    passe: 50,
+    drible: 50,
+    velocidade: 50,
+    forca: 50,
+    cabeceio: 50,
+    marcacao: 50,
+    desarme: 50,
+    visao: 50,
+    lideranca: 50,
+  },
+  skills: [],
   ...overrides,
 });
 
@@ -17,7 +30,7 @@ function makeFakeRepo(overrides: Partial<PlayersRepository> = {}): PlayersReposi
     findById: vi.fn(),
     createGuest: vi.fn(),
     findOrCreateForUser: vi.fn(),
-    updateAffinity: vi.fn(),
+    updateProfile: vi.fn(),
     ...overrides,
   };
 }
@@ -36,17 +49,18 @@ describe("createMyPlayerService", () => {
 });
 
 describe("createUpdateMyPlayerService", () => {
-  it("resolves the caller's player then overwrites its affinity", async () => {
+  it("resolves the caller's player then overwrites the given profile fields", async () => {
     const player = aPlayer();
-    const updated = aPlayer({ affinity: { atacante: 80 } });
+    const updated = aPlayer({ affinity: { atacante: 80 }, skills: ["goleador"] });
     const playersRepo = makeFakeRepo({
       findOrCreateForUser: vi.fn().mockResolvedValue(player),
-      updateAffinity: vi.fn().mockResolvedValue(updated),
+      updateProfile: vi.fn().mockResolvedValue(updated),
     });
     const service = createUpdateMyPlayerService({ playersRepo });
 
-    await expect(service("u1", { atacante: 80 })).resolves.toEqual(updated);
+    const patch = { affinity: { atacante: 80 }, skills: ["goleador"] };
+    await expect(service("u1", patch)).resolves.toEqual(updated);
     expect(playersRepo.findOrCreateForUser).toHaveBeenCalledWith("u1");
-    expect(playersRepo.updateAffinity).toHaveBeenCalledWith("p1", { atacante: 80 });
+    expect(playersRepo.updateProfile).toHaveBeenCalledWith("p1", patch);
   });
 });

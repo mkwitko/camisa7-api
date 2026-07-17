@@ -1,4 +1,4 @@
-import type { PlayersRepository } from "@/http/api/players/players.repository";
+import type { PlayersRepository, ProfilePatch } from "@/http/api/players/players.repository";
 import type { Player } from "@/http/api/players/players.types";
 
 export type MyPlayerDeps = { playersRepo: PlayersRepository };
@@ -17,13 +17,13 @@ export function createMyPlayerService(deps: MyPlayerDeps) {
 }
 
 /**
- * `PATCH /players/me` — the caller edits their OWN self-declared `affinity`.
- * Resolves (or lazily provisions) the caller's `Player` first, then
- * overwrites its affinity map.
+ * `PATCH /players/me` — the caller edits their OWN descriptive profile
+ * (`affinity`/`attributes`/`skills`, all optional). Resolves (or lazily
+ * provisions) the caller's `Player` first, then overwrites the given fields.
  */
 export function createUpdateMyPlayerService(deps: MyPlayerDeps) {
-  return async (userId: string, affinity: Record<string, number>): Promise<Player> => {
+  return async (userId: string, patch: ProfilePatch): Promise<Player> => {
     const player = await deps.playersRepo.findOrCreateForUser(userId);
-    return deps.playersRepo.updateAffinity(player.id, affinity);
+    return deps.playersRepo.updateProfile(player.id, patch);
   };
 }

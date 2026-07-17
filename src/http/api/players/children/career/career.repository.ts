@@ -1,6 +1,6 @@
 import type { Prisma } from "@/generated/prisma/client";
 import { createMembersRepository } from "@/http/api/groups/children/members/members.repository";
-import type { GroupMember, Position } from "@/http/api/groups/children/members/members.types";
+import type { GroupMember, FieldPosition } from "@/http/api/groups/children/members/members.types";
 import { createAttendanceRepository } from "@/http/api/matches/children/attendance/attendance.repository";
 import { createMatchResultRepository } from "@/http/api/matches/children/result/result.repository";
 import { createMatchStatsRepository } from "@/http/api/matches/children/stats/stats.repository";
@@ -42,8 +42,8 @@ function toDomainCareer(row: PlayerCareerRow): PlayerCareer {
   return {
     id: row.id,
     playerId: row.playerId,
-    overall: (row.overall ?? {}) as Partial<Record<Position, number>>,
-    affinity: (row.affinity ?? {}) as Partial<Record<Position, number>>,
+    overall: (row.overall ?? {}) as Partial<Record<FieldPosition, number>>,
+    affinity: (row.affinity ?? {}) as Partial<Record<FieldPosition, number>>,
     level: row.level as PlayerLevel,
     matchesPlayed: row.matchesPlayed,
     wins: row.wins,
@@ -93,9 +93,9 @@ function deriveOutcome(
 function resolveAffinity(
   player: Player | null,
   member: GroupMember | null,
-): Partial<Record<Position, number>> {
-  if (player?.userId != null) return player.affinity as Partial<Record<Position, number>>;
-  return (member?.affinity ?? {}) as Partial<Record<Position, number>>;
+): Partial<Record<FieldPosition, number>> {
+  if (player?.userId != null) return player.affinity as Partial<Record<FieldPosition, number>>;
+  return (member?.affinity ?? {}) as Partial<Record<FieldPosition, number>>;
 }
 
 export interface PlayerCareerRepository {

@@ -1,3 +1,4 @@
+import { type SkillKey, withAttributeDefaults } from "@/http/api/players/players.catalog";
 import type { Player } from "@/http/api/players/players.types";
 import type { PrismaLike } from "@/infra/db/client";
 import { ERRORS } from "@/shared/errors/catalog";
@@ -17,6 +18,8 @@ type AttendanceRow = {
     name: string;
     phone: string | null;
     affinity: unknown;
+    attributes: unknown;
+    skills: string[];
   };
 };
 
@@ -30,6 +33,8 @@ function toDomainAttendance(row: AttendanceRow): Attendance {
       name: row.player.name,
       phone: row.player.phone,
       affinity: (row.player.affinity ?? {}) as Record<string, number>,
+      attributes: withAttributeDefaults((row.player.attributes ?? {}) as Record<string, number>),
+      skills: (row.player.skills ?? []) as SkillKey[],
     },
     status: row.status as AttendanceStatus,
     waitlistPos: row.waitlistPos,

@@ -1,3 +1,4 @@
+import { MODALITY_POSITIONS } from "@/http/api/groups/children/members/members.types";
 import type { MembersRepository } from "@/http/api/groups/children/members/members.repository";
 import type { GroupsRepository } from "@/http/api/groups/groups.repository";
 import { assertMatchOwner } from "@/http/api/matches/matches.authz";
@@ -77,7 +78,11 @@ export function createUpdateTeamsService(deps: UpdateTeamsDeps) {
         const affinity = affinityFor(a.player.affinity, member?.affinity);
         return [
           a.player.id,
-          resolveOverall(affinity, careerOverallByPlayerId.get(a.player.id)).overall,
+          resolveOverall(
+            affinity,
+            careerOverallByPlayerId.get(a.player.id),
+            MODALITY_POSITIONS[asserted.modality],
+          ).overall,
         ];
       }),
     );

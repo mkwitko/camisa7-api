@@ -1,7 +1,7 @@
 import { z } from "zod/v4";
 import {
   AffinityValueSchema,
-  PositionSchema,
+  FieldPositionSchema,
 } from "@/http/api/groups/children/members/members.schema";
 
 // Shared response shape for `get-career` (and any future career-mutating
@@ -18,8 +18,8 @@ export const PlayerCareerResponse = z.object({
   // `get-career.service.ts`.
   id: z.uuid().nullable(),
   playerId: z.uuid(),
-  overall: z.partialRecord(PositionSchema, OverallValueSchema),
-  affinity: z.partialRecord(PositionSchema, AffinityValueSchema),
+  overall: z.partialRecord(FieldPositionSchema, OverallValueSchema),
+  affinity: z.partialRecord(FieldPositionSchema, AffinityValueSchema),
   level: PlayerLevelSchema,
   matchesPlayed: z.number().int().min(0),
   wins: z.number().int().min(0),

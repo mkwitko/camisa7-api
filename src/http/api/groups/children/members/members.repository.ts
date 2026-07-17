@@ -1,4 +1,5 @@
 import type { BillingMode } from "@/http/api/dues/dues.types";
+import { type SkillKey, withAttributeDefaults } from "@/http/api/players/players.catalog";
 import { createPlayersRepository } from "@/http/api/players/players.repository";
 import type { PrismaLike } from "@/infra/db/client";
 import type { GroupMember, MemberRole, Position } from "./members.types";
@@ -19,6 +20,8 @@ type MemberRow = {
     name: string;
     phone: string | null;
     affinity: unknown;
+    attributes: unknown;
+    skills: string[];
   };
 };
 
@@ -32,6 +35,8 @@ function toDomainMember(row: MemberRow): GroupMember {
       name: row.player.name,
       phone: row.player.phone,
       affinity: (row.player.affinity ?? {}) as Record<string, number>,
+      attributes: withAttributeDefaults((row.player.attributes ?? {}) as Record<string, number>),
+      skills: (row.player.skills ?? []) as SkillKey[],
     },
     role: row.role as MemberRole,
     primaryPos: row.primaryPos as Position | null,

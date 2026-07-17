@@ -1,4 +1,4 @@
-import type { Position } from "@/http/api/groups/children/members/members.types";
+import type { FieldPosition } from "@/http/api/groups/children/members/members.types";
 import type { PlayerCareer } from "../children/career/career.types";
 import type { Player } from "../players.types";
 import type { PublicProfileResponse } from "./public-profile.schema";
@@ -17,8 +17,8 @@ export function presentPublicProfile(
   const overallByPosition = career?.overall ?? {};
 
   let bestOverall = 0;
-  let bestPosition: Position | null = null;
-  for (const [position, value] of Object.entries(overallByPosition) as [Position, number][]) {
+  let bestPosition: FieldPosition | null = null;
+  for (const [position, value] of Object.entries(overallByPosition) as [FieldPosition, number][]) {
     if (value > bestOverall) {
       bestOverall = value;
       bestPosition = position;

@@ -1,4 +1,8 @@
-import { POSITIONS, type Position } from "@/http/api/groups/children/members/members.types";
+import {
+  FIELD_POSITIONS,
+  type FieldPosition,
+  isGoalkeeper,
+} from "@/http/api/groups/children/members/members.types";
 import type { ComputedCareer, MatchOutcome, MatchPerformance, PlayerLevel } from "./career.types";
 import { CAREER_CONFIG } from "./career-config";
 
@@ -15,7 +19,7 @@ function clamp(value: number, min: number, max: number): number {
  * never appear here (§6 of the design doc: reputation-only, not technical
  * overall — see `career-config.ts`'s comment on `weights`).
  */
-function computeSignal(position: Position, perf: MatchPerformance): number {
+function computeSignal(position: FieldPosition, perf: MatchPerformance): number {
   const w = CAREER_CONFIG.weights;
   const outcomeWeight: Record<MatchOutcome, number> = { win: w.win, draw: w.draw, loss: w.loss };
 
@@ -29,7 +33,7 @@ function computeSignal(position: Position, perf: MatchPerformance): number {
   // Goalkeeper-specific recognition only counts toward the goleiro position
   // — a clean sheet or a "melhor goleiro" vote says nothing about how well
   // someone played as, say, atacante in a different group.
-  if (position === "goleiro") {
+  if (isGoalkeeper(position)) {
     if (perf.cleanSheet) signal += w.cleanSheet;
     signal += perf.melhorGoleiroVotes * w.melhorGoleiroVote;
   }
@@ -58,9 +62,9 @@ function stepToward(current: number, signal: number): number {
  * `?? 0` just keeps this total for the type.
  */
 function bootstrap(
-  overall: Partial<Record<Position, number>>,
-  position: Position,
-  affinity: Partial<Record<Position, number>>,
+  overall: Partial<Record<FieldPosition, number>>,
+  position: FieldPosition,
+  affinity: Partial<Record<FieldPosition, number>>,
 ): number {
   const current = overall[position];
   if (current !== undefined) return current;
@@ -68,13 +72,13 @@ function bootstrap(
 }
 
 /** The player's best per-position `overall`, or `undefined` if no position has been touched yet. */
-function bestOverall(overall: Partial<Record<Position, number>>): number | undefined {
+function bestOverall(overall: Partial<Record<FieldPosition, number>>): number | undefined {
   const values = Object.values(overall).filter((v): v is number => v !== undefined);
   return values.length > 0 ? Math.max(...values) : undefined;
 }
 
 /** Derives `PlayerLevel` from the player's best `overall` via `CAREER_CONFIG.levelThresholds`. `bronze` when no position has been touched (brand-new career). */
-function deriveLevel(overall: Partial<Record<Position, number>>): PlayerLevel {
+function deriveLevel(overall: Partial<Record<FieldPosition, number>>): PlayerLevel {
   const best = bestOverall(overall);
   if (best === undefined) return "bronze";
   if (best >= CAREER_CONFIG.levelThresholds.ouro) return "ouro";
@@ -114,7 +118,7 @@ export function computeCareer(performances: MatchPerformance[]): ComputedCareer 
       a.matchId.localeCompare(b.matchId),
   );
 
-  const overall: Partial<Record<Position, number>> = {};
+  const overall: Partial<Record<FieldPosition, number>> = {};
 
   let wins = 0;
   let draws = 0;
@@ -127,7 +131,7 @@ export function computeCareer(performances: MatchPerformance[]): ComputedCareer 
   let bestStreak = 0;
 
   for (const perf of sorted) {
-    for (const position of POSITIONS) {
+    for (const position of FIELD_POSITIONS) {
       const affinityValue = perf.affinity[position];
       if (!affinityValue || affinityValue <= 0) continue; // undeclared (or 0) — never touched
 

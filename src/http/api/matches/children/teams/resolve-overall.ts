@@ -1,12 +1,10 @@
-import type { Position } from "@/http/api/groups/children/members/members.types";
-
 /**
  * A confirmed attendee with no declared affinity at all (e.g. a guest who
  * joined via the public invite flow and never self-rated) gets a neutral
  * default — shared by `generate-teams` and `update-teams` so both land on
  * the same effective overall for the same player.
  */
-export const DEFAULT_PRIMARY_POS: Position = "meia";
+export const DEFAULT_PRIMARY_POS = "campo_meia";
 export const DEFAULT_OVERALL = 50;
 
 function clamp(value: number, min: number, max: number): number {
@@ -28,15 +26,18 @@ function clamp(value: number, min: number, max: number): number {
  */
 export function resolveOverall(
   affinity: Record<string, number>,
-  careerOverall?: Partial<Record<Position, number>>,
-): { primaryPos: Position; overall: number } {
-  let best: { primaryPos: Position; overall: number; score: number } | null = null;
+  careerOverall?: Partial<Record<string, number>>,
+  allowed?: readonly string[],
+): { primaryPos: string; overall: number } {
+  const allow = allowed ? new Set(allowed) : null;
+  let best: { primaryPos: string; overall: number; score: number } | null = null;
   for (const [pos, aff] of Object.entries(affinity)) {
     if (!(aff > 0)) continue;
-    const effOverall = careerOverall?.[pos as Position] ?? clamp(aff, 0, 99);
+    if (allow && !allow.has(pos)) continue; // outside this match's modality
+    const effOverall = careerOverall?.[pos] ?? clamp(aff, 0, 99);
     const score = (aff / 100) * effOverall;
     if (!best || score > best.score) {
-      best = { primaryPos: pos as Position, overall: effOverall, score };
+      best = { primaryPos: pos, overall: effOverall, score };
     }
   }
   return best

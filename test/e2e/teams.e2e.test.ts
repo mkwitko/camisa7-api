@@ -246,6 +246,8 @@ describe("teams e2e", () => {
         name: unratedMember.player.name,
         phone: unratedMember.player.phone,
         affinity: unratedMember.player.affinity,
+        attributes: unratedMember.player.attributes,
+        skills: unratedMember.player.skills,
       });
 
       const res = await generateTeams(h, owner.token, matchId, 2);

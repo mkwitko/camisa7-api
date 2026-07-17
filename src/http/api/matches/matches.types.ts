@@ -8,6 +8,9 @@
  */
 export type MatchStatus = "open" | "full" | "closed" | "finished" | "cancelled";
 
+/** Domain `Modality` — mirrors the Prisma `Modality` enum. */
+export type Modality = "futsal" | "society" | "campo";
+
 /**
  * Domain `Match` — not the Prisma row. A scheduled pelada inside a `Group`;
  * only the group's owner manages it (`assertMatchOwner` in
@@ -29,5 +32,6 @@ export type Match = {
   slots: number;
   pixKey: string | null;
   status: MatchStatus;
+  modality: Modality;
   createdAt: string;
 };

@@ -1,6 +1,6 @@
 /**
  * Export the OpenAPI 3 document to a static JSON file so the frontends
- * (futebol-app / futebol-web) can generate their typed clients via Kubb
+ * (Camisa7 / futebol-web) can generate their typed clients via Kubb
  * without a running server. Uses dummy env — no DB connection is opened.
  *
  * Usage: pnpm tsx scripts/export-openapi.ts [outFile]

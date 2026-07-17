@@ -1,4 +1,5 @@
 import { z } from "zod/v4";
+import { ModalitySchema } from "@/http/api/matches/matches.schema";
 
 export const CreateMatchParams = z.object({
   id: z.uuid(),
@@ -11,5 +12,6 @@ export const CreateMatchBody = z.object({
   priceCents: z.number().int().min(0).optional(),
   slots: z.number().int().min(2).max(64),
   pixKey: z.string().optional(),
+  modality: ModalitySchema,
 });
 export type CreateMatchBody = z.infer<typeof CreateMatchBody>;

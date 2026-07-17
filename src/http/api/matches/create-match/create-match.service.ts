@@ -21,6 +21,7 @@ export function createCreateMatchService(deps: CreateMatchDeps) {
       priceCents: input.priceCents ?? 0,
       slots: input.slots,
       pixKey: input.pixKey ?? null,
+      modality: input.modality,
     });
   };
 }

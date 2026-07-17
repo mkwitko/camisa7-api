@@ -1,3 +1,7 @@
+import {
+  isGoalkeeper,
+  MODALITY_POSITIONS,
+} from "@/http/api/groups/children/members/members.types";
 import type { MembersRepository } from "@/http/api/groups/children/members/members.repository";
 import type { GroupsRepository } from "@/http/api/groups/groups.repository";
 import { assertMatchOwner } from "@/http/api/matches/matches.authz";
@@ -62,13 +66,14 @@ export function createGenerateTeamsService(deps: GenerateTeamsDeps) {
       const { primaryPos, overall } = resolveOverall(
         affinity,
         careerOverallByPlayerId.get(attendance.player.id),
+        MODALITY_POSITIONS[asserted.modality],
       );
       return {
         playerId: attendance.player.id,
         name: attendance.player.name,
         primaryPos,
         overall,
-        isGoalkeeper: primaryPos === "goleiro",
+        isGoalkeeper: isGoalkeeper(primaryPos),
       };
     });
     const infoById = new Map(balancerPlayers.map((p) => [p.playerId, p]));

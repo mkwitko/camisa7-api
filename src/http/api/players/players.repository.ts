@@ -1,5 +1,6 @@
 import { Prisma } from "@/generated/prisma/client";
 import type { PrismaLike } from "@/infra/db/client";
+import { type SkillKey, withAttributeDefaults } from "./players.catalog";
 import type { Player } from "./players.types";
 
 type PlayerRow = {
@@ -8,6 +9,8 @@ type PlayerRow = {
   name: string;
   phone: string | null;
   affinity: unknown;
+  attributes: unknown;
+  skills: string[];
 };
 
 function toDomainPlayer(row: PlayerRow): Player {
@@ -17,8 +20,20 @@ function toDomainPlayer(row: PlayerRow): Player {
     name: row.name,
     phone: row.phone,
     affinity: (row.affinity ?? {}) as Record<string, number>,
+    // Always the full catalog — a never-onboarded player stores `{}`, so fill
+    // the 50 baseline here (the balancer never reads this; it's card flair).
+    attributes: withAttributeDefaults((row.attributes ?? {}) as Record<string, number>),
+    // Trusted: only ever written through the validated `PATCH /players/me` body.
+    skills: (row.skills ?? []) as SkillKey[],
   };
 }
+
+/** Partial edit of the caller's own descriptive profile (all fields optional). */
+export type ProfilePatch = {
+  affinity?: Partial<Record<string, number>> | undefined;
+  attributes?: Record<string, number> | undefined;
+  skills?: string[] | undefined;
+};
 
 export interface PlayersRepository {
   /** Looks up a `Player` by id — backs `GET /players/:playerId/career` (F1-4). `null` for an unknown id. */
@@ -38,8 +53,11 @@ export interface PlayersRepository {
    * rather than surfacing a 500.
    */
   findOrCreateForUser(userId: string): Promise<Player>;
-  /** Overwrites a player's self-declared `affinity` map (`{position: 0-100}`). */
-  updateAffinity(playerId: string, affinity: Record<string, number>): Promise<Player>;
+  /**
+   * Overwrites the provided fields of a player's own descriptive profile
+   * (`affinity`/`attributes`/`skills`). Fields left `undefined` are untouched.
+   */
+  updateProfile(playerId: string, patch: ProfilePatch): Promise<Player>;
 }
 
 /** Factory `createPlayersRepository(db: PrismaLike)` — composes inside a tx or standalone. */
@@ -69,10 +87,18 @@ export function createPlayersRepository(db: PrismaLike): PlayersRepository {
       return createLinkedPlayer(db, userId, userForCreate.name);
     },
 
-    async updateAffinity(playerId, affinity) {
+    async updateProfile(playerId, patch) {
       const row = await db.player.update({
         where: { id: playerId },
-        data: { affinity: affinity as unknown as Prisma.InputJsonValue },
+        data: {
+          ...(patch.affinity !== undefined
+            ? { affinity: patch.affinity as unknown as Prisma.InputJsonValue }
+            : {}),
+          ...(patch.attributes !== undefined
+            ? { attributes: patch.attributes as unknown as Prisma.InputJsonValue }
+            : {}),
+          ...(patch.skills !== undefined ? { skills: patch.skills } : {}),
+        },
       });
       return toDomainPlayer(row);
     },

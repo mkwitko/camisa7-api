@@ -1,5 +1,5 @@
 import type { PrismaLike } from "@/infra/db/client";
-import type { Match, MatchStatus } from "./matches.types";
+import type { Match, MatchStatus, Modality } from "./matches.types";
 
 type MatchRow = {
   id: string;
@@ -12,6 +12,7 @@ type MatchRow = {
   slots: number;
   pixKey: string | null;
   status: string;
+  modality: string;
   createdAt: Date;
 };
 
@@ -27,6 +28,7 @@ function toDomainMatch(row: MatchRow): Match {
     slots: row.slots,
     pixKey: row.pixKey,
     status: row.status as MatchStatus,
+    modality: row.modality as Modality,
     createdAt: row.createdAt.toISOString(),
   };
 }
@@ -50,6 +52,8 @@ export type InsertMatchInput = {
   priceCents: number;
   slots: number;
   pixKey?: string | null | undefined;
+  /** Defaults to `campo` when omitted (e.g. series-spawned occurrences). */
+  modality?: Modality | undefined;
 };
 
 export type UpdateMatchPatch = {
@@ -117,6 +121,7 @@ export function createMatchesRepository(db: PrismaLike): MatchesRepository {
           priceCents: input.priceCents,
           slots: input.slots,
           pixKey: input.pixKey ?? null,
+          modality: input.modality ?? "campo",
         },
       });
       return toDomainMatch(row);

@@ -1,4 +1,4 @@
-import type { Position } from "@/http/api/groups/children/members/members.types";
+import type { FieldPosition } from "@/http/api/groups/children/members/members.types";
 
 /**
  * Domain `PlayerLevel` — mirrors the Prisma `PlayerLevel` enum values as a
@@ -23,8 +23,8 @@ export type PlayerLevel = "bronze" | "prata" | "ouro";
 export type PlayerCareer = {
   id: string;
   playerId: string;
-  overall: Partial<Record<Position, number>>;
-  affinity: Partial<Record<Position, number>>;
+  overall: Partial<Record<FieldPosition, number>>;
+  affinity: Partial<Record<FieldPosition, number>>;
   level: PlayerLevel;
   matchesPlayed: number;
   wins: number;
@@ -67,7 +67,7 @@ export type MatchPerformance = {
    * record, so a re-finalize replays with whatever the player has declared
    * NOW, for every match in their history alike.
    */
-  affinity: Partial<Record<Position, number>>;
+  affinity: Partial<Record<FieldPosition, number>>;
   /** The player's own team's result — `"draw"` when it can't be resolved (no `MatchResult`, or the stat row carries no `team`). */
   outcome: MatchOutcome;
   goals: number;
@@ -85,7 +85,7 @@ export type MatchPerformance = {
  * untouched by the engine — see `PlayerCareer`'s doc comment).
  */
 export type ComputedCareer = {
-  overall: Partial<Record<Position, number>>;
+  overall: Partial<Record<FieldPosition, number>>;
   level: PlayerLevel;
   matchesPlayed: number;
   wins: number;

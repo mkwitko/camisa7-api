@@ -1,5 +1,5 @@
 import { z } from "zod/v4";
-import { PositionSchema } from "@/http/api/groups/children/members/members.schema";
+import { FieldPositionSchema } from "@/http/api/groups/children/members/members.schema";
 import { OverallValueSchema, PlayerLevelSchema } from "../children/career/career.schema";
 
 export const PublicProfileParams = z.object({
@@ -15,11 +15,11 @@ export const PublicProfileResponse = z.object({
   playerId: z.uuid(),
   name: z.string(),
   level: PlayerLevelSchema,
-  overallByPosition: z.partialRecord(PositionSchema, OverallValueSchema),
+  overallByPosition: z.partialRecord(FieldPositionSchema, OverallValueSchema),
   bestOverall: OverallValueSchema,
   // `null` only for the zeroed/bootstrap profile (no `overallByPosition`
   // entries yet) — see `public-profile.presenter.ts`.
-  bestPosition: PositionSchema.nullable(),
+  bestPosition: FieldPositionSchema.nullable(),
   matchesPlayed: z.number().int().min(0),
   wins: z.number().int().min(0),
   draws: z.number().int().min(0),

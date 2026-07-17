@@ -88,6 +88,13 @@ enum Position {
   atacante
 }
 
+/// Match modality (Task: modalidade) — determines which field positions apply.
+enum Modality {
+  futsal
+  society
+  campo
+}
+
 /// Task 5: a member's role inside one specific group (not a global role).
 enum MemberRole {
   organizador
@@ -122,6 +129,19 @@ model Player {
   /// good they judge themselves at each, filled in by the player, never set
   /// by an organizer. Empty (`{}`) until the player declares it.
   affinity Json @default("{}")
+
+  /// Onboarding (descriptive only, never feeds the balancer): the player's
+  /// self-declared attribute budget — a `{attribute: 0-100}` map over the
+  /// fixed catalog (`players.catalog.ts`), all starting at 50 with a fixed
+  /// total budget the player redistributes. Empty (`{}`) until declared; the
+  /// presenter fills the 50-baseline defaults so responses always carry the
+  /// full map.
+  attributes Json @default("{}")
+
+  /// Onboarding (descriptive only): up to N self-declared skill tags from a
+  /// fixed catalog (`players.catalog.ts`), e.g. `["driblador","goleador"]`.
+  /// Rendered as badges on the profile/card, never consumed by the balancer.
+  skills String[] @default([])
 
   createdAt DateTime @default(now()) @db.Timestamptz(3)
   updatedAt DateTime @updatedAt @db.Timestamptz(3)
@@ -304,6 +324,7 @@ model Match {
   slots      Int
   pixKey     String?
   status     MatchStatus @default(open)
+  modality   Modality    @default(campo)
 
   seriesId String?      @db.Uuid
   series   MatchSeries? @relation(fields: [seriesId], references: [id])

@@ -20,6 +20,40 @@ export const POSITIONS: readonly Position[] = [
   "atacante",
 ];
 
+/** Match modality — mirrors the Prisma `Modality` enum. */
+export type Modality = "futsal" | "society" | "campo";
+
+export const MODALITIES: readonly Modality[] = ["futsal", "society", "campo"];
+
+/**
+ * Modality-scoped on-field position (Task: modalidade). The player's OWN
+ * self-declared `affinity` and derived `PlayerCareer.overall` are keyed by
+ * these — a SEPARATE vocabulary from `Position` (which still serves the
+ * organizer's per-group `primaryPos`/`secondaryPos`/`seedOverall`). Slugs are
+ * flat `<modality>_<role>`; keys never cross modalities.
+ */
+export type FieldPosition =
+  | "futsal_goleiro" | "futsal_fixo" | "futsal_ala" | "futsal_pivo"
+  | "society_goleiro" | "society_lateral" | "society_volante" | "society_meia" | "society_ala" | "society_atacante"
+  | "campo_goleiro" | "campo_lateral" | "campo_ala_volante" | "campo_meia_esq" | "campo_meia" | "campo_meia_dir" | "campo_camisa10" | "campo_ponta_esq" | "campo_atacante" | "campo_ponta_dir";
+
+export const MODALITY_POSITIONS: Record<Modality, readonly FieldPosition[]> = {
+  futsal: ["futsal_goleiro", "futsal_fixo", "futsal_ala", "futsal_pivo"],
+  society: ["society_goleiro", "society_lateral", "society_volante", "society_meia", "society_ala", "society_atacante"],
+  campo: ["campo_goleiro", "campo_lateral", "campo_ala_volante", "campo_meia_esq", "campo_meia", "campo_meia_dir", "campo_camisa10", "campo_ponta_esq", "campo_atacante", "campo_ponta_dir"],
+};
+
+export const FIELD_POSITIONS: readonly FieldPosition[] = [
+  ...MODALITY_POSITIONS.futsal,
+  ...MODALITY_POSITIONS.society,
+  ...MODALITY_POSITIONS.campo,
+];
+
+/** A field position is a goalkeeper iff its slug ends in `_goleiro`. */
+export function isGoalkeeper(position: string): boolean {
+  return position.endsWith("_goleiro");
+}
+
 /** A member's role inside one specific group (not a global role). */
 export type MemberRole = "organizador" | "jogador";
 

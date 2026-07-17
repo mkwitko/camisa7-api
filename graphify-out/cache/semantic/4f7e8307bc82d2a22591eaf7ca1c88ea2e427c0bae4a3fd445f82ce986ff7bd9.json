@@ -1,0 +1,1 @@
+{"nodes": [{"id": "get_teams_get_teams_schema_getteamsparams", "label": "GetTeamsParams", "file_type": "code", "source_file": "src/http/api/matches/children/teams/get-teams/get-teams.schema.ts", "source_location": null, "source_url": null, "captured_at": null, "author": null, "contributor": null}], "edges": [], "hyperedges": []}

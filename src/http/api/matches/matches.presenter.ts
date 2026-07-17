@@ -14,6 +14,7 @@ export function presentMatch(match: Match): MatchResponse {
     slots: match.slots,
     pixKey: match.pixKey,
     status: match.status,
+    modality: match.modality,
     createdAt: match.createdAt,
   };
 }

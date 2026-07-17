@@ -1,0 +1,1 @@
+{"nodes": [{"id": "create_invite_create_invite_schema", "label": "CreateInviteResponse", "file_type": "code", "source_file": "src/http/api/invites/create-invite/create-invite.schema.ts", "source_location": null, "source_url": null, "captured_at": null, "author": null, "contributor": null}], "edges": [], "hyperedges": []}

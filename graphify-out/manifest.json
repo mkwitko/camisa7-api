@@ -1,0 +1,1822 @@
+{
+  "/home/mauricio.oliveira/Documentos/Coding/futuro/futebol/futebol-back/package.json": {
+    "mtime": 1784146154.8933265,
+    "ast_hash": "805470112954359fc45e71f9af956e2d",
+    "semantic_hash": "805470112954359fc45e71f9af956e2d"
+  },
+  "/home/mauricio.oliveira/Documentos/Coding/futuro/futebol/futebol-back/biome.json": {
+    "mtime": 1784037556.2546933,
+    "ast_hash": "f0b74e7f92403479755cc513e025d658",
+    "semantic_hash": "f0b74e7f92403479755cc513e025d658"
+  },
+  "/home/mauricio.oliveira/Documentos/Coding/futuro/futebol/futebol-back/prisma.config.ts": {
+    "mtime": 1784220158.3358662,
+    "ast_hash": "4294e1c286ce30d9d9b31f1fc73f7613",
+    "semantic_hash": "4294e1c286ce30d9d9b31f1fc73f7613"
+  },
+  "/home/mauricio.oliveira/Documentos/Coding/futuro/futebol/futebol-back/tsup.config.ts": {
+    "mtime": 1784136172.1066167,
+    "ast_hash": "00cce9eed20d7cc156900af63208b0c2",
+    "semantic_hash": "00cce9eed20d7cc156900af63208b0c2"
+  },
+  "/home/mauricio.oliveira/Documentos/Coding/futuro/futebol/futebol-back/vitest.config.ts": {
+    "mtime": 1784037596.3192816,
+    "ast_hash": "4d443ac6aadb7e22a6ae6650a0b886d1",
+    "semantic_hash": "4d443ac6aadb7e22a6ae6650a0b886d1"
+  },
+  "/home/mauricio.oliveira/Documentos/Coding/futuro/futebol/futebol-back/tsconfig.json": {
+    "mtime": 1784039180.468826,
+    "ast_hash": "a1d75e88ed905da35513d0b70911c511",
+    "semantic_hash": "a1d75e88ed905da35513d0b70911c511"
+  },
+  "/home/mauricio.oliveira/Documentos/Coding/futuro/futebol/futebol-back/openapi.json": {
+    "mtime": 1784228893.6040971,
+    "ast_hash": "f714229ec688431a1ecf19c0c9f9ef10",
+    "semantic_hash": "f714229ec688431a1ecf19c0c9f9ef10"
+  },
+  "/home/mauricio.oliveira/Documentos/Coding/futuro/futebol/futebol-back/.claude/hooks/check-docs-sync.sh": {
+    "mtime": 1780423443.9269729,
+    "ast_hash": "068729d7fb78f00c3002a6ba7594d048",
+    "semantic_hash": "068729d7fb78f00c3002a6ba7594d048"
+  },
+  "/home/mauricio.oliveira/Documentos/Coding/futuro/futebol/futebol-back/test/setup-integration.ts": {
+    "mtime": 1784037505.794549,
+    "ast_hash": "01878623c0fd0a9e6f9d7897da43dc3c",
+    "semantic_hash": "01878623c0fd0a9e6f9d7897da43dc3c"
+  },
+  "/home/mauricio.oliveira/Documentos/Coding/futuro/futebol/futebol-back/test/setup-e2e.ts": {
+    "mtime": 1784037503.1384313,
+    "ast_hash": "01878623c0fd0a9e6f9d7897da43dc3c",
+    "semantic_hash": "01878623c0fd0a9e6f9d7897da43dc3c"
+  },
+  "/home/mauricio.oliveira/Documentos/Coding/futuro/futebol/futebol-back/test/e2e/voting.e2e.test.ts": {
+    "mtime": 1784127966.363403,
+    "ast_hash": "b9fd6b31b743869039f9bb565d1b9cc0",
+    "semantic_hash": "b9fd6b31b743869039f9bb565d1b9cc0"
+  },
+  "/home/mauricio.oliveira/Documentos/Coding/futuro/futebol/futebol-back/test/e2e/members.e2e.test.ts": {
+    "mtime": 1784228893.6090972,
+    "ast_hash": "5f6f92a3fcaa8bb54cca8c55d3d773f3",
+    "semantic_hash": "5f6f92a3fcaa8bb54cca8c55d3d773f3"
+  },
+  "/home/mauricio.oliveira/Documentos/Coding/futuro/futebol/futebol-back/test/e2e/finalize-match.e2e.test.ts": {
+    "mtime": 1784228893.608097,
+    "ast_hash": "f40c8726deef807d8c52655b54d704f9",
+    "semantic_hash": "f40c8726deef807d8c52655b54d704f9"
+  },
+  "/home/mauricio.oliveira/Documentos/Coding/futuro/futebol/futebol-back/test/e2e/series.e2e.test.ts": {
+    "mtime": 1784207672.867383,
+    "ast_hash": "27bbd4654f6964bb365315c6b7823834",
+    "semantic_hash": "27bbd4654f6964bb365315c6b7823834"
+  },
+  "/home/mauricio.oliveira/Documentos/Coding/futuro/futebol/futebol-back/test/e2e/groups.e2e.test.ts": {
+    "mtime": 1784216822.403679,
+    "ast_hash": "007f0feae36f97246137b6d3b9f52658",
+    "semantic_hash": "007f0feae36f97246137b6d3b9f52658"
+  },
+  "/home/mauricio.oliveira/Documentos/Coding/futuro/futebol/futebol-back/test/e2e/auth-google.e2e.test.ts": {
+    "mtime": 1784041925.498461,
+    "ast_hash": "62d0da69c871d34c61738c42a439abbd",
+    "semantic_hash": "62d0da69c871d34c61738c42a439abbd"
+  },
+  "/home/mauricio.oliveira/Documentos/Coding/futuro/futebol/futebol-back/test/e2e/invites.e2e.test.ts": {
+    "mtime": 1784054628.8046217,
+    "ast_hash": "5777541b88901013fa82304161a1a9b5",
+    "semantic_hash": "5777541b88901013fa82304161a1a9b5"
+  },
+  "/home/mauricio.oliveira/Documentos/Coding/futuro/futebol/futebol-back/test/e2e/link-member-user.e2e.test.ts": {
+    "mtime": 1784228893.6090972,
+    "ast_hash": "95ed36f7d98ff038ecfd83637c2bdca2",
+    "semantic_hash": "95ed36f7d98ff038ecfd83637c2bdca2"
+  },
+  "/home/mauricio.oliveira/Documentos/Coding/futuro/futebol/futebol-back/test/e2e/smoke.e2e.test.ts": {
+    "mtime": 1784057757.8076227,
+    "ast_hash": "6516a9d84c27e25d6a6a42b6bb2e74dc",
+    "semantic_hash": "6516a9d84c27e25d6a6a42b6bb2e74dc"
+  },
+  "/home/mauricio.oliveira/Documentos/Coding/futuro/futebol/futebol-back/test/e2e/attendance.e2e.test.ts": {
+    "mtime": 1784216822.402679,
+    "ast_hash": "f6d7730baaf59d995b3f957386cde900",
+    "semantic_hash": "f6d7730baaf59d995b3f957386cde900"
+  },
+  "/home/mauricio.oliveira/Documentos/Coding/futuro/futebol/futebol-back/test/e2e/players-me.e2e.test.ts": {
+    "mtime": 1784228893.6090972,
+    "ast_hash": "cf595ed485e084c264eab2e03f3f8cc3",
+    "semantic_hash": "cf595ed485e084c264eab2e03f3f8cc3"
+  },
+  "/home/mauricio.oliveira/Documentos/Coding/futuro/futebol/futebol-back/test/e2e/openapi.e2e.test.ts": {
+    "mtime": 1784057726.248305,
+    "ast_hash": "6385ef266fd6a5aed258499aa5b9f2fc",
+    "semantic_hash": "6385ef266fd6a5aed258499aa5b9f2fc"
+  },
+  "/home/mauricio.oliveira/Documentos/Coding/futuro/futebol/futebol-back/test/e2e/public-profile.e2e.test.ts": {
+    "mtime": 1784130765.6093636,
+    "ast_hash": "0003cbf7f58f5756b4ad2f257eed7f3e",
+    "semantic_hash": "0003cbf7f58f5756b4ad2f257eed7f3e"
+  },
+  "/home/mauricio.oliveira/Documentos/Coding/futuro/futebol/futebol-back/test/e2e/match-result.e2e.test.ts": {
+    "mtime": 1784126302.0035129,
+    "ast_hash": "4016f305defce68cb2b9e9a3d64ea533",
+    "semantic_hash": "4016f305defce68cb2b9e9a3d64ea533"
+  },
+  "/home/mauricio.oliveira/Documentos/Coding/futuro/futebol/futebol-back/test/e2e/teams.e2e.test.ts": {
+    "mtime": 1784228893.6090972,
+    "ast_hash": "576e7816984bac716506ee54eea2df41",
+    "semantic_hash": "576e7816984bac716506ee54eea2df41"
+  },
+  "/home/mauricio.oliveira/Documentos/Coding/futuro/futebol/futebol-back/test/e2e/career.e2e.test.ts": {
+    "mtime": 1784129259.218599,
+    "ast_hash": "a4f07a53f056e28839c8247d1c385cb4",
+    "semantic_hash": "a4f07a53f056e28839c8247d1c385cb4"
+  },
+  "/home/mauricio.oliveira/Documentos/Coding/futuro/futebol/futebol-back/test/e2e/auth.e2e.test.ts": {
+    "mtime": 1784220049.138738,
+    "ast_hash": "bf53ad99c20a8c847e3157fc54c6e416",
+    "semantic_hash": "bf53ad99c20a8c847e3157fc54c6e416"
+  },
+  "/home/mauricio.oliveira/Documentos/Coding/futuro/futebol/futebol-back/test/e2e/matches.e2e.test.ts": {
+    "mtime": 1784207672.867383,
+    "ast_hash": "8f1b622d3493444a027a7d438dffc5b5",
+    "semantic_hash": "8f1b622d3493444a027a7d438dffc5b5"
+  },
+  "/home/mauricio.oliveira/Documentos/Coding/futuro/futebol/futebol-back/test/e2e/match-stats.e2e.test.ts": {
+    "mtime": 1784126981.9709754,
+    "ast_hash": "41418b89da09efd9ff75aeae227e994e",
+    "semantic_hash": "41418b89da09efd9ff75aeae227e994e"
+  },
+  "/home/mauricio.oliveira/Documentos/Coding/futuro/futebol/futebol-back/test/e2e/dues.e2e.test.ts": {
+    "mtime": 1784216822.403679,
+    "ast_hash": "f3725e736c8e3ee724c66e29a6e238d4",
+    "semantic_hash": "f3725e736c8e3ee724c66e29a6e238d4"
+  },
+  "/home/mauricio.oliveira/Documentos/Coding/futuro/futebol/futebol-back/test/e2e/health.e2e.test.ts": {
+    "mtime": 1784040772.576116,
+    "ast_hash": "e790554146d2d552735556551733d21f",
+    "semantic_hash": "e790554146d2d552735556551733d21f"
+  },
+  "/home/mauricio.oliveira/Documentos/Coding/futuro/futebol/futebol-back/test/e2e/finish-match.e2e.test.ts": {
+    "mtime": 1784056524.5612507,
+    "ast_hash": "8dd120f985544f7d59adf80a3df8f187",
+    "semantic_hash": "8dd120f985544f7d59adf80a3df8f187"
+  },
+  "/home/mauricio.oliveira/Documentos/Coding/futuro/futebol/futebol-back/test/e2e/helpers/app.ts": {
+    "mtime": 1784057338.6054072,
+    "ast_hash": "e56d25936e25d2e425c6417dba5ccdb4",
+    "semantic_hash": "e56d25936e25d2e425c6417dba5ccdb4"
+  },
+  "/home/mauricio.oliveira/Documentos/Coding/futuro/futebol/futebol-back/test/builders/group.builder.ts": {
+    "mtime": 1784043614.093059,
+    "ast_hash": "a3b532f8f5184b2c9df0daf2173bd79c",
+    "semantic_hash": "a3b532f8f5184b2c9df0daf2173bd79c"
+  },
+  "/home/mauricio.oliveira/Documentos/Coding/futuro/futebol/futebol-back/test/helpers/dummy-env.ts": {
+    "mtime": 1784037499.9582899,
+    "ast_hash": "d8746645dba2aa3ec0124751f5d1c229",
+    "semantic_hash": "d8746645dba2aa3ec0124751f5d1c229"
+  },
+  "/home/mauricio.oliveira/Documentos/Coding/futuro/futebol/futebol-back/test/integration/votes.repository.test.ts": {
+    "mtime": 1784127720.868829,
+    "ast_hash": "ea1d0cec48df6554a54de406580d6bdf",
+    "semantic_hash": "ea1d0cec48df6554a54de406580d6bdf"
+  },
+  "/home/mauricio.oliveira/Documentos/Coding/futuro/futebol/futebol-back/test/integration/career.repository.test.ts": {
+    "mtime": 1784228893.6100972,
+    "ast_hash": "0f03566bfb5493005a47f137e79f5d60",
+    "semantic_hash": "0f03566bfb5493005a47f137e79f5d60"
+  },
+  "/home/mauricio.oliveira/Documentos/Coding/futuro/futebol/futebol-back/test/integration/matches.repository.test.ts": {
+    "mtime": 1784207672.867383,
+    "ast_hash": "72514b1420d97ec472c2979cd34bc3d6",
+    "semantic_hash": "72514b1420d97ec472c2979cd34bc3d6"
+  },
+  "/home/mauricio.oliveira/Documentos/Coding/futuro/futebol/futebol-back/test/integration/finalize-matches.job.test.ts": {
+    "mtime": 1784129411.2926962,
+    "ast_hash": "f80a96093e7215547890d1e47670c043",
+    "semantic_hash": "f80a96093e7215547890d1e47670c043"
+  },
+  "/home/mauricio.oliveira/Documentos/Coding/futuro/futebol/futebol-back/test/integration/players.repository.test.ts": {
+    "mtime": 1784228893.6100972,
+    "ast_hash": "031cbf78546420ce77251210a183a967",
+    "semantic_hash": "031cbf78546420ce77251210a183a967"
+  },
+  "/home/mauricio.oliveira/Documentos/Coding/futuro/futebol/futebol-back/test/integration/attendance.repository.test.ts": {
+    "mtime": 1784228893.6090972,
+    "ast_hash": "845bb2233d87cfcb6f6f8ef9547a5f35",
+    "semantic_hash": "845bb2233d87cfcb6f6f8ef9547a5f35"
+  },
+  "/home/mauricio.oliveira/Documentos/Coding/futuro/futebol/futebol-back/test/integration/match-result.repository.test.ts": {
+    "mtime": 1784126213.4686596,
+    "ast_hash": "edab9b9a331949c43feeb5ede28428bf",
+    "semantic_hash": "edab9b9a331949c43feeb5ede28428bf"
+  },
+  "/home/mauricio.oliveira/Documentos/Coding/futuro/futebol/futebol-back/test/integration/auth.repository.test.ts": {
+    "mtime": 1784042140.2420132,
+    "ast_hash": "db60cc50db30e60d5ba5afe9e32954ad",
+    "semantic_hash": "db60cc50db30e60d5ba5afe9e32954ad"
+  },
+  "/home/mauricio.oliveira/Documentos/Coding/futuro/futebol/futebol-back/test/integration/groups.repository.test.ts": {
+    "mtime": 1784043584.2026274,
+    "ast_hash": "d851585332ebd250ff04bea2da230dbe",
+    "semantic_hash": "d851585332ebd250ff04bea2da230dbe"
+  },
+  "/home/mauricio.oliveira/Documentos/Coding/futuro/futebol/futebol-back/test/integration/recurrence.job.test.ts": {
+    "mtime": 1784207672.867383,
+    "ast_hash": "f635d875c9bd35f429ef620d029882b1",
+    "semantic_hash": "f635d875c9bd35f429ef620d029882b1"
+  },
+  "/home/mauricio.oliveira/Documentos/Coding/futuro/futebol/futebol-back/test/integration/match-stats.repository.test.ts": {
+    "mtime": 1784126981.9459755,
+    "ast_hash": "ff0d82af6fbbf96948789d3d9f0531c8",
+    "semantic_hash": "ff0d82af6fbbf96948789d3d9f0531c8"
+  },
+  "/home/mauricio.oliveira/Documentos/Coding/futuro/futebol/futebol-back/test/integration/members.repository.test.ts": {
+    "mtime": 1784228893.6100972,
+    "ast_hash": "fddb6b87e5f93372566e34b661fd6bea",
+    "semantic_hash": "fddb6b87e5f93372566e34b661fd6bea"
+  },
+  "/home/mauricio.oliveira/Documentos/Coding/futuro/futebol/futebol-back/test/integration/membership-dues.job.test.ts": {
+    "mtime": 1784228893.6100972,
+    "ast_hash": "8cee5bf53583ab0a4187c02cbc3cb37c",
+    "semantic_hash": "8cee5bf53583ab0a4187c02cbc3cb37c"
+  },
+  "/home/mauricio.oliveira/Documentos/Coding/futuro/futebol/futebol-back/test/integration/prisma-client.test.ts": {
+    "mtime": 1784039247.2255042,
+    "ast_hash": "e4b3456666587457460999875eb623a8",
+    "semantic_hash": "e4b3456666587457460999875eb623a8"
+  },
+  "/home/mauricio.oliveira/Documentos/Coding/futuro/futebol/futebol-back/test/integration/helpers/db.ts": {
+    "mtime": 1784039678.7825072,
+    "ast_hash": "5406e4c3128ca23619d9407166901f6f",
+    "semantic_hash": "5406e4c3128ca23619d9407166901f6f"
+  },
+  "/home/mauricio.oliveira/Documentos/Coding/futuro/futebol/futebol-back/test/mocks/gateways.fake.ts": {
+    "mtime": 1784160433.2026248,
+    "ast_hash": "8d0ba6b6f73cec6f2282bfb8733a428b",
+    "semantic_hash": "8d0ba6b6f73cec6f2282bfb8733a428b"
+  },
+  "/home/mauricio.oliveira/Documentos/Coding/futuro/futebol/futebol-back/src/server.ts": {
+    "mtime": 1784216822.402679,
+    "ast_hash": "327b5b0b2c37bef09e9ab0ac713be146",
+    "semantic_hash": "327b5b0b2c37bef09e9ab0ac713be146"
+  },
+  "/home/mauricio.oliveira/Documentos/Coding/futuro/futebol/futebol-back/src/app.ts": {
+    "mtime": 1784055546.5006042,
+    "ast_hash": "76836b6115053f63693c9b3827fae364",
+    "semantic_hash": "76836b6115053f63693c9b3827fae364"
+  },
+  "/home/mauricio.oliveira/Documentos/Coding/futuro/futebol/futebol-back/src/config/env.ts": {
+    "mtime": 1784146115.1812758,
+    "ast_hash": "e2b427d091b392080b9610efadf1cfc1",
+    "semantic_hash": "e2b427d091b392080b9610efadf1cfc1"
+  },
+  "/home/mauricio.oliveira/Documentos/Coding/futuro/futebol/futebol-back/src/infra/db/client.ts": {
+    "mtime": 1784039306.4540865,
+    "ast_hash": "f6c9466ce680a0813d4f569c561619d6",
+    "semantic_hash": "f6c9466ce680a0813d4f569c561619d6"
+  },
+  "/home/mauricio.oliveira/Documentos/Coding/futuro/futebol/futebol-back/src/infra/observability/logger.ts": {
+    "mtime": 1784037333.9478145,
+    "ast_hash": "c758383bd6df11315a011ed456633587",
+    "semantic_hash": "c758383bd6df11315a011ed456633587"
+  },
+  "/home/mauricio.oliveira/Documentos/Coding/futuro/futebol/futebol-back/src/gateways/jwt/jwt.gateway.ts": {
+    "mtime": 1784040562.7473922,
+    "ast_hash": "66307029de0489906a171a479fa959f2",
+    "semantic_hash": "66307029de0489906a171a479fa959f2"
+  },
+  "/home/mauricio.oliveira/Documentos/Coding/futuro/futebol/futebol-back/src/gateways/jwt/jwt.gateway.test.ts": {
+    "mtime": 1784041137.6381445,
+    "ast_hash": "e3b3930f973cc2185c5885c3ffde0107",
+    "semantic_hash": "e3b3930f973cc2185c5885c3ffde0107"
+  },
+  "/home/mauricio.oliveira/Documentos/Coding/futuro/futebol/futebol-back/src/gateways/google/google.gateway.ts": {
+    "mtime": 1784042568.9856467,
+    "ast_hash": "d4183f8d837af012042432c9e6a0df19",
+    "semantic_hash": "d4183f8d837af012042432c9e6a0df19"
+  },
+  "/home/mauricio.oliveira/Documentos/Coding/futuro/futebol/futebol-back/src/gateways/google/google.gateway.test.ts": {
+    "mtime": 1784042706.8950586,
+    "ast_hash": "18bd46d7841cae3e0cd5967e4a7afa0e",
+    "semantic_hash": "18bd46d7841cae3e0cd5967e4a7afa0e"
+  },
+  "/home/mauricio.oliveira/Documentos/Coding/futuro/futebol/futebol-back/src/gateways/push/push.gateway.ts": {
+    "mtime": 1784160427.2855945,
+    "ast_hash": "37a0588e095b2ec4ef3ad03d8b4b05d7",
+    "semantic_hash": "37a0588e095b2ec4ef3ad03d8b4b05d7"
+  },
+  "/home/mauricio.oliveira/Documentos/Coding/futuro/futebol/futebol-back/src/jobs/finalize-matches.job.ts": {
+    "mtime": 1784129058.0030222,
+    "ast_hash": "af39a27650248b3115d8b500ea1b666d",
+    "semantic_hash": "af39a27650248b3115d8b500ea1b666d"
+  },
+  "/home/mauricio.oliveira/Documentos/Coding/futuro/futebol/futebol-back/src/jobs/membership-dues.job.ts": {
+    "mtime": 1784216822.402679,
+    "ast_hash": "5363768252c22efee6d3970ed127f7f3",
+    "semantic_hash": "5363768252c22efee6d3970ed127f7f3"
+  },
+  "/home/mauricio.oliveira/Documentos/Coding/futuro/futebol/futebol-back/src/jobs/recurrence.job.ts": {
+    "mtime": 1784207672.866383,
+    "ast_hash": "a323ca0af3225063bcaff77bb88cd8b2",
+    "semantic_hash": "a323ca0af3225063bcaff77bb88cd8b2"
+  },
+  "/home/mauricio.oliveira/Documentos/Coding/futuro/futebol/futebol-back/src/shared/errors/app-error.ts": {
+    "mtime": 1784037385.4156895,
+    "ast_hash": "01c4cdfbe0daaae81a55500bd0767f77",
+    "semantic_hash": "01c4cdfbe0daaae81a55500bd0767f77"
+  },
+  "/home/mauricio.oliveira/Documentos/Coding/futuro/futebol/futebol-back/src/shared/errors/catalog.ts": {
+    "mtime": 1784216822.402679,
+    "ast_hash": "b78c45f47f793512487735ffa7c5301e",
+    "semantic_hash": "b78c45f47f793512487735ffa7c5301e"
+  },
+  "/home/mauricio.oliveira/Documentos/Coding/futuro/futebol/futebol-back/src/shared/errors/i18n.ts": {
+    "mtime": 1784037420.356508,
+    "ast_hash": "d1935dab0c9131cf4b03fc791e214093",
+    "semantic_hash": "d1935dab0c9131cf4b03fc791e214093"
+  },
+  "/home/mauricio.oliveira/Documentos/Coding/futuro/futebol/futebol-back/src/shared/errors/i18n/es-ES.json": {
+    "mtime": 1784216822.402679,
+    "ast_hash": "6db2f97604e8ffb34184f630e15af2d3",
+    "semantic_hash": "6db2f97604e8ffb34184f630e15af2d3"
+  },
+  "/home/mauricio.oliveira/Documentos/Coding/futuro/futebol/futebol-back/src/shared/errors/i18n/en-US.json": {
+    "mtime": 1784216822.402679,
+    "ast_hash": "1f9c1a5b62460720b4f45d9cd95ba2dd",
+    "semantic_hash": "1f9c1a5b62460720b4f45d9cd95ba2dd"
+  },
+  "/home/mauricio.oliveira/Documentos/Coding/futuro/futebol/futebol-back/src/shared/errors/i18n/pt-BR.json": {
+    "mtime": 1784216822.402679,
+    "ast_hash": "df89a7925e609f521809e4d51b016616",
+    "semantic_hash": "df89a7925e609f521809e4d51b016616"
+  },
+  "/home/mauricio.oliveira/Documentos/Coding/futuro/futebol/futebol-back/src/types/fastify.ts": {
+    "mtime": 1784146141.6743095,
+    "ast_hash": "c382ff99d587c1b4c90a976bc6d52c54",
+    "semantic_hash": "c382ff99d587c1b4c90a976bc6d52c54"
+  },
+  "/home/mauricio.oliveira/Documentos/Coding/futuro/futebol/futebol-back/src/types/fastify-augment.d.ts": {
+    "mtime": 1784040575.453496,
+    "ast_hash": "50a9f99dbef34b7ace6ccc44dd9936f9",
+    "semantic_hash": "50a9f99dbef34b7ace6ccc44dd9936f9"
+  },
+  "/home/mauricio.oliveira/Documentos/Coding/futuro/futebol/futebol-back/src/http/index.ts": {
+    "mtime": 1784216822.402679,
+    "ast_hash": "3259b2c6d8ce7ba46aee775d01f546c6",
+    "semantic_hash": "3259b2c6d8ce7ba46aee775d01f546c6"
+  },
+  "/home/mauricio.oliveira/Documentos/Coding/futuro/futebol/futebol-back/src/http/plugins/error-handler/error-handler.ts": {
+    "mtime": 1784037562.0299282,
+    "ast_hash": "b092de948cf1d82660911c220a6021d3",
+    "semantic_hash": "b092de948cf1d82660911c220a6021d3"
+  },
+  "/home/mauricio.oliveira/Documentos/Coding/futuro/futebol/futebol-back/src/http/plugins/gateways-plugin/gateways-plugin.ts": {
+    "mtime": 1784146125.3522887,
+    "ast_hash": "a619b471dc902bd7a9986cf33176ef2e",
+    "semantic_hash": "a619b471dc902bd7a9986cf33176ef2e"
+  },
+  "/home/mauricio.oliveira/Documentos/Coding/futuro/futebol/futebol-back/src/http/plugins/swagger/swagger.ts": {
+    "mtime": 1784037473.3750796,
+    "ast_hash": "e523d2d350c89124b71c13433d2f4fff",
+    "semantic_hash": "e523d2d350c89124b71c13433d2f4fff"
+  },
+  "/home/mauricio.oliveira/Documentos/Coding/futuro/futebol/futebol-back/src/http/hooks/auth.ts": {
+    "mtime": 1784040595.1576574,
+    "ast_hash": "9e660b6a384d539b4e0ae2dee1e587a5",
+    "semantic_hash": "9e660b6a384d539b4e0ae2dee1e587a5"
+  },
+  "/home/mauricio.oliveira/Documentos/Coding/futuro/futebol/futebol-back/src/http/api/invites/index.ts": {
+    "mtime": 1784054447.8689485,
+    "ast_hash": "ef24aea77710eef47d262301910f6a03",
+    "semantic_hash": "ef24aea77710eef47d262301910f6a03"
+  },
+  "/home/mauricio.oliveira/Documentos/Coding/futuro/futebol/futebol-back/src/http/api/invites/invites.repository.ts": {
+    "mtime": 1784054377.089311,
+    "ast_hash": "5d673bee92feaf7511f5a43d66e50f3d",
+    "semantic_hash": "5d673bee92feaf7511f5a43d66e50f3d"
+  },
+  "/home/mauricio.oliveira/Documentos/Coding/futuro/futebol/futebol-back/src/http/api/invites/invites.types.ts": {
+    "mtime": 1784054367.2952237,
+    "ast_hash": "6d6608c9809fa1ff7c876e90ee1f927a",
+    "semantic_hash": "6d6608c9809fa1ff7c876e90ee1f927a"
+  },
+  "/home/mauricio.oliveira/Documentos/Coding/futuro/futebol/futebol-back/src/http/api/invites/create-invite/create-invite.schema.ts": {
+    "mtime": 1784054382.013355,
+    "ast_hash": "445760479bf214e8c72d1f11b47d2954",
+    "semantic_hash": "445760479bf214e8c72d1f11b47d2954"
+  },
+  "/home/mauricio.oliveira/Documentos/Coding/futuro/futebol/futebol-back/src/http/api/invites/create-invite/create-invite.service.ts": {
+    "mtime": 1784054389.1154184,
+    "ast_hash": "e8c707b9182d2e33548e0217081b9d83",
+    "semantic_hash": "e8c707b9182d2e33548e0217081b9d83"
+  },
+  "/home/mauricio.oliveira/Documentos/Coding/futuro/futebol/futebol-back/src/http/api/invites/create-invite/create-invite.controller.ts": {
+    "mtime": 1784054396.3434832,
+    "ast_hash": "f7f97b9b3533a91061733c550055c853",
+    "semantic_hash": "f7f97b9b3533a91061733c550055c853"
+  },
+  "/home/mauricio.oliveira/Documentos/Coding/futuro/futebol/futebol-back/src/http/api/invites/public-confirm/public-confirm.controller.ts": {
+    "mtime": 1784054442.5609002,
+    "ast_hash": "576c4389fce88ad0e554595cdff79d1f",
+    "semantic_hash": "576c4389fce88ad0e554595cdff79d1f"
+  },
+  "/home/mauricio.oliveira/Documentos/Coding/futuro/futebol/futebol-back/src/http/api/invites/public-confirm/public-confirm.schema.ts": {
+    "mtime": 1784054427.0357597,
+    "ast_hash": "1660eb64b5f76bc2276b3478e4c997a8",
+    "semantic_hash": "1660eb64b5f76bc2276b3478e4c997a8"
+  },
+  "/home/mauricio.oliveira/Documentos/Coding/futuro/futebol/futebol-back/src/http/api/invites/public-confirm/public-confirm.service.ts": {
+    "mtime": 1784054462.7330837,
+    "ast_hash": "3b5017175ecb760a7ab7f4b959f1da4a",
+    "semantic_hash": "3b5017175ecb760a7ab7f4b959f1da4a"
+  },
+  "/home/mauricio.oliveira/Documentos/Coding/futuro/futebol/futebol-back/src/http/api/invites/resolve-invite/resolve-invite.controller.ts": {
+    "mtime": 1784054419.6946933,
+    "ast_hash": "38846e4ea8576d5571e6102dccbd059b",
+    "semantic_hash": "38846e4ea8576d5571e6102dccbd059b"
+  },
+  "/home/mauricio.oliveira/Documentos/Coding/futuro/futebol/futebol-back/src/http/api/invites/resolve-invite/resolve-invite.schema.ts": {
+    "mtime": 1784054403.888551,
+    "ast_hash": "e6f8f78a4cf329435b8512c95eb3ac83",
+    "semantic_hash": "e6f8f78a4cf329435b8512c95eb3ac83"
+  },
+  "/home/mauricio.oliveira/Documentos/Coding/futuro/futebol/futebol-back/src/http/api/invites/resolve-invite/resolve-invite.service.ts": {
+    "mtime": 1784054412.1556253,
+    "ast_hash": "c47a68b99cd282045da647be236cef5e",
+    "semantic_hash": "c47a68b99cd282045da647be236cef5e"
+  },
+  "/home/mauricio.oliveira/Documentos/Coding/futuro/futebol/futebol-back/src/http/api/series/series.schema.ts": {
+    "mtime": 1784207672.8653831,
+    "ast_hash": "9c770fd028023705e8d390e36e84cb8a",
+    "semantic_hash": "9c770fd028023705e8d390e36e84cb8a"
+  },
+  "/home/mauricio.oliveira/Documentos/Coding/futuro/futebol/futebol-back/src/http/api/series/series.presenter.ts": {
+    "mtime": 1784207672.8653831,
+    "ast_hash": "3bce2b0da2d53785f7dda7e52196d934",
+    "semantic_hash": "3bce2b0da2d53785f7dda7e52196d934"
+  },
+  "/home/mauricio.oliveira/Documentos/Coding/futuro/futebol/futebol-back/src/http/api/series/index.ts": {
+    "mtime": 1784207672.864383,
+    "ast_hash": "c8eccfb8ee03154e9711d849f2e50cc0",
+    "semantic_hash": "c8eccfb8ee03154e9711d849f2e50cc0"
+  },
+  "/home/mauricio.oliveira/Documentos/Coding/futuro/futebol/futebol-back/src/http/api/series/series.types.ts": {
+    "mtime": 1784207672.8653831,
+    "ast_hash": "a9922cd281d030754a42bc3a9aa04614",
+    "semantic_hash": "a9922cd281d030754a42bc3a9aa04614"
+  },
+  "/home/mauricio.oliveira/Documentos/Coding/futuro/futebol/futebol-back/src/http/api/series/series.repository.ts": {
+    "mtime": 1784207672.8653831,
+    "ast_hash": "05ce797dda71c793356130c6952c88f5",
+    "semantic_hash": "05ce797dda71c793356130c6952c88f5"
+  },
+  "/home/mauricio.oliveira/Documentos/Coding/futuro/futebol/futebol-back/src/http/api/series/recurrence.ts": {
+    "mtime": 1784207672.864383,
+    "ast_hash": "5b3e5ecc946b78b595c1b3b142648d37",
+    "semantic_hash": "5b3e5ecc946b78b595c1b3b142648d37"
+  },
+  "/home/mauricio.oliveira/Documentos/Coding/futuro/futebol/futebol-back/src/http/api/series/series.authz.ts": {
+    "mtime": 1784207672.864383,
+    "ast_hash": "ee6ee290ae0ce88026a0d13a16053918",
+    "semantic_hash": "ee6ee290ae0ce88026a0d13a16053918"
+  },
+  "/home/mauricio.oliveira/Documentos/Coding/futuro/futebol/futebol-back/src/http/api/series/recurrence.test.ts": {
+    "mtime": 1784207672.864383,
+    "ast_hash": "5dd26f9b22be44e62ba38067d8c7b602",
+    "semantic_hash": "5dd26f9b22be44e62ba38067d8c7b602"
+  },
+  "/home/mauricio.oliveira/Documentos/Coding/futuro/futebol/futebol-back/src/http/api/series/end-series/end-series.service.ts": {
+    "mtime": 1784207672.863383,
+    "ast_hash": "63912a94d864f9b5c93ae0039991b249",
+    "semantic_hash": "63912a94d864f9b5c93ae0039991b249"
+  },
+  "/home/mauricio.oliveira/Documentos/Coding/futuro/futebol/futebol-back/src/http/api/series/end-series/end-series.controller.ts": {
+    "mtime": 1784207672.863383,
+    "ast_hash": "0648b2148bba736091e081beea95701b",
+    "semantic_hash": "0648b2148bba736091e081beea95701b"
+  },
+  "/home/mauricio.oliveira/Documentos/Coding/futuro/futebol/futebol-back/src/http/api/series/end-series/end-series.schema.ts": {
+    "mtime": 1784207672.863383,
+    "ast_hash": "05aa4392428366af00d9cce195eb1fb5",
+    "semantic_hash": "05aa4392428366af00d9cce195eb1fb5"
+  },
+  "/home/mauricio.oliveira/Documentos/Coding/futuro/futebol/futebol-back/src/http/api/series/get-series/get-series.controller.ts": {
+    "mtime": 1784207672.863383,
+    "ast_hash": "e7734979b183f4a4ceee3641ab806154",
+    "semantic_hash": "e7734979b183f4a4ceee3641ab806154"
+  },
+  "/home/mauricio.oliveira/Documentos/Coding/futuro/futebol/futebol-back/src/http/api/series/get-series/get-series.schema.ts": {
+    "mtime": 1784207672.863383,
+    "ast_hash": "a389149f2c70b8c1142cfe0e7192f1be",
+    "semantic_hash": "a389149f2c70b8c1142cfe0e7192f1be"
+  },
+  "/home/mauricio.oliveira/Documentos/Coding/futuro/futebol/futebol-back/src/http/api/series/get-series/get-series.service.ts": {
+    "mtime": 1784207672.864383,
+    "ast_hash": "23c9d18cce8564ccc8225e6c4893fef2",
+    "semantic_hash": "23c9d18cce8564ccc8225e6c4893fef2"
+  },
+  "/home/mauricio.oliveira/Documentos/Coding/futuro/futebol/futebol-back/src/http/api/series/list-series/list-series.controller.ts": {
+    "mtime": 1784207672.864383,
+    "ast_hash": "919021ec087943b358b794e13f41f49f",
+    "semantic_hash": "919021ec087943b358b794e13f41f49f"
+  },
+  "/home/mauricio.oliveira/Documentos/Coding/futuro/futebol/futebol-back/src/http/api/series/list-series/list-series.service.ts": {
+    "mtime": 1784207672.864383,
+    "ast_hash": "7cacfad1d5c284b8c5453fdb25218b01",
+    "semantic_hash": "7cacfad1d5c284b8c5453fdb25218b01"
+  },
+  "/home/mauricio.oliveira/Documentos/Coding/futuro/futebol/futebol-back/src/http/api/series/list-series/list-series.schema.ts": {
+    "mtime": 1784207672.864383,
+    "ast_hash": "e537093b1ff7e7c08375976f5d5d8a99",
+    "semantic_hash": "e537093b1ff7e7c08375976f5d5d8a99"
+  },
+  "/home/mauricio.oliveira/Documentos/Coding/futuro/futebol/futebol-back/src/http/api/series/update-series/update-series.service.ts": {
+    "mtime": 1784207672.8653831,
+    "ast_hash": "768596d2bd9fb359a898ed35cbc9535c",
+    "semantic_hash": "768596d2bd9fb359a898ed35cbc9535c"
+  },
+  "/home/mauricio.oliveira/Documentos/Coding/futuro/futebol/futebol-back/src/http/api/series/update-series/update-series.controller.ts": {
+    "mtime": 1784207672.8653831,
+    "ast_hash": "daae0534c52a4125ae9ebd340e36bb2a",
+    "semantic_hash": "daae0534c52a4125ae9ebd340e36bb2a"
+  },
+  "/home/mauricio.oliveira/Documentos/Coding/futuro/futebol/futebol-back/src/http/api/series/update-series/update-series.schema.ts": {
+    "mtime": 1784207672.8653831,
+    "ast_hash": "78ddb243cae026338f76613218febdc2",
+    "semantic_hash": "78ddb243cae026338f76613218febdc2"
+  },
+  "/home/mauricio.oliveira/Documentos/Coding/futuro/futebol/futebol-back/src/http/api/series/add-series-dates/add-series-dates.schema.ts": {
+    "mtime": 1784207672.8623831,
+    "ast_hash": "d298085b9e269f4387e334a348564227",
+    "semantic_hash": "d298085b9e269f4387e334a348564227"
+  },
+  "/home/mauricio.oliveira/Documentos/Coding/futuro/futebol/futebol-back/src/http/api/series/add-series-dates/add-series-dates.service.ts": {
+    "mtime": 1784207672.8623831,
+    "ast_hash": "517241db74aedcca1e6427ccce39282f",
+    "semantic_hash": "517241db74aedcca1e6427ccce39282f"
+  },
+  "/home/mauricio.oliveira/Documentos/Coding/futuro/futebol/futebol-back/src/http/api/series/add-series-dates/add-series-dates.controller.ts": {
+    "mtime": 1784207672.8623831,
+    "ast_hash": "e450292a2068ddfe2b22d0bd98463a1a",
+    "semantic_hash": "e450292a2068ddfe2b22d0bd98463a1a"
+  },
+  "/home/mauricio.oliveira/Documentos/Coding/futuro/futebol/futebol-back/src/http/api/series/create-series/create-series.service.ts": {
+    "mtime": 1784207672.863383,
+    "ast_hash": "5da8447df99960e26229c1a0fc036423",
+    "semantic_hash": "5da8447df99960e26229c1a0fc036423"
+  },
+  "/home/mauricio.oliveira/Documentos/Coding/futuro/futebol/futebol-back/src/http/api/series/create-series/create-series.controller.ts": {
+    "mtime": 1784207672.863383,
+    "ast_hash": "b95b257a1b61465ed1cf5da77d57bcd9",
+    "semantic_hash": "b95b257a1b61465ed1cf5da77d57bcd9"
+  },
+  "/home/mauricio.oliveira/Documentos/Coding/futuro/futebol/futebol-back/src/http/api/series/create-series/create-series.schema.ts": {
+    "mtime": 1784207672.863383,
+    "ast_hash": "2cb8758075527015bed8aba5ac2bc7e2",
+    "semantic_hash": "2cb8758075527015bed8aba5ac2bc7e2"
+  },
+  "/home/mauricio.oliveira/Documentos/Coding/futuro/futebol/futebol-back/src/http/api/dues/competency.test.ts": {
+    "mtime": 1784216822.401679,
+    "ast_hash": "03e05f18187ac007ad5c96913010885f",
+    "semantic_hash": "03e05f18187ac007ad5c96913010885f"
+  },
+  "/home/mauricio.oliveira/Documentos/Coding/futuro/futebol/futebol-back/src/http/api/dues/dues.repository.ts": {
+    "mtime": 1784216822.401679,
+    "ast_hash": "9e06163e56ea2df53180ea3663d92ee3",
+    "semantic_hash": "9e06163e56ea2df53180ea3663d92ee3"
+  },
+  "/home/mauricio.oliveira/Documentos/Coding/futuro/futebol/futebol-back/src/http/api/dues/competency.ts": {
+    "mtime": 1784216822.401679,
+    "ast_hash": "7bee7d0638490a028904e06918481ce8",
+    "semantic_hash": "7bee7d0638490a028904e06918481ce8"
+  },
+  "/home/mauricio.oliveira/Documentos/Coding/futuro/futebol/futebol-back/src/http/api/dues/index.ts": {
+    "mtime": 1784216822.401679,
+    "ast_hash": "b01d3cfac8ff72d470a4f46f3809fece",
+    "semantic_hash": "b01d3cfac8ff72d470a4f46f3809fece"
+  },
+  "/home/mauricio.oliveira/Documentos/Coding/futuro/futebol/futebol-back/src/http/api/dues/dues.schema.ts": {
+    "mtime": 1784216822.401679,
+    "ast_hash": "6674ae0598ae3d6a8fc6c1a9000d17b1",
+    "semantic_hash": "6674ae0598ae3d6a8fc6c1a9000d17b1"
+  },
+  "/home/mauricio.oliveira/Documentos/Coding/futuro/futebol/futebol-back/src/http/api/dues/dues.authz.ts": {
+    "mtime": 1784216822.401679,
+    "ast_hash": "bc4f68d019e4ae18f98af046292b12c4",
+    "semantic_hash": "bc4f68d019e4ae18f98af046292b12c4"
+  },
+  "/home/mauricio.oliveira/Documentos/Coding/futuro/futebol/futebol-back/src/http/api/dues/dues.types.ts": {
+    "mtime": 1784216822.401679,
+    "ast_hash": "119930ce173769bb2a3697c38101299c",
+    "semantic_hash": "119930ce173769bb2a3697c38101299c"
+  },
+  "/home/mauricio.oliveira/Documentos/Coding/futuro/futebol/futebol-back/src/http/api/dues/dues.presenter.ts": {
+    "mtime": 1784216822.401679,
+    "ast_hash": "6995619eb1abd740cd15edbb1d931956",
+    "semantic_hash": "6995619eb1abd740cd15edbb1d931956"
+  },
+  "/home/mauricio.oliveira/Documentos/Coding/futuro/futebol/futebol-back/src/http/api/dues/list-dues/list-dues.service.ts": {
+    "mtime": 1784216822.401679,
+    "ast_hash": "e3b2611ac2c23e1901e36151003c8902",
+    "semantic_hash": "e3b2611ac2c23e1901e36151003c8902"
+  },
+  "/home/mauricio.oliveira/Documentos/Coding/futuro/futebol/futebol-back/src/http/api/dues/list-dues/list-dues.controller.ts": {
+    "mtime": 1784216822.401679,
+    "ast_hash": "dd9fc4a635af9b623f80a9e67e37fb12",
+    "semantic_hash": "dd9fc4a635af9b623f80a9e67e37fb12"
+  },
+  "/home/mauricio.oliveira/Documentos/Coding/futuro/futebol/futebol-back/src/http/api/dues/list-dues/list-dues.schema.ts": {
+    "mtime": 1784216822.401679,
+    "ast_hash": "fe995b77383fec796dc0bda967f87c9c",
+    "semantic_hash": "fe995b77383fec796dc0bda967f87c9c"
+  },
+  "/home/mauricio.oliveira/Documentos/Coding/futuro/futebol/futebol-back/src/http/api/dues/confirm-due/confirm-due.schema.ts": {
+    "mtime": 1784216822.401679,
+    "ast_hash": "fc50b2848fa391c7ca274e2fec0acbdd",
+    "semantic_hash": "fc50b2848fa391c7ca274e2fec0acbdd"
+  },
+  "/home/mauricio.oliveira/Documentos/Coding/futuro/futebol/futebol-back/src/http/api/dues/confirm-due/confirm-due.service.ts": {
+    "mtime": 1784216822.401679,
+    "ast_hash": "6f7d361007f36df291162172a3367ae8",
+    "semantic_hash": "6f7d361007f36df291162172a3367ae8"
+  },
+  "/home/mauricio.oliveira/Documentos/Coding/futuro/futebol/futebol-back/src/http/api/dues/confirm-due/confirm-due.controller.ts": {
+    "mtime": 1784216822.401679,
+    "ast_hash": "8fe6dbdfb1ce8487b1d9e28e0a0dd65b",
+    "semantic_hash": "8fe6dbdfb1ce8487b1d9e28e0a0dd65b"
+  },
+  "/home/mauricio.oliveira/Documentos/Coding/futuro/futebol/futebol-back/src/http/api/dues/mark-paid-due/mark-paid-due.schema.ts": {
+    "mtime": 1784216822.401679,
+    "ast_hash": "2fe360efa221ce38070557f35c441ca0",
+    "semantic_hash": "2fe360efa221ce38070557f35c441ca0"
+  },
+  "/home/mauricio.oliveira/Documentos/Coding/futuro/futebol/futebol-back/src/http/api/dues/mark-paid-due/mark-paid-due.controller.ts": {
+    "mtime": 1784216822.401679,
+    "ast_hash": "b0efc3922e387e9eefe250ae4a759d78",
+    "semantic_hash": "b0efc3922e387e9eefe250ae4a759d78"
+  },
+  "/home/mauricio.oliveira/Documentos/Coding/futuro/futebol/futebol-back/src/http/api/dues/mark-paid-due/mark-paid-due.service.ts": {
+    "mtime": 1784216822.401679,
+    "ast_hash": "eb01d89853c9a06c33635fb00eb12f97",
+    "semantic_hash": "eb01d89853c9a06c33635fb00eb12f97"
+  },
+  "/home/mauricio.oliveira/Documentos/Coding/futuro/futebol/futebol-back/src/http/api/players/index.ts": {
+    "mtime": 1784228893.608097,
+    "ast_hash": "a91925e029b0bb130bb39eb9353de334",
+    "semantic_hash": "a91925e029b0bb130bb39eb9353de334"
+  },
+  "/home/mauricio.oliveira/Documentos/Coding/futuro/futebol/futebol-back/src/http/api/players/merge-guest-player.repository.ts": {
+    "mtime": 1784134791.980872,
+    "ast_hash": "a6f92e88c22fa302faf00c1886d11816",
+    "semantic_hash": "a6f92e88c22fa302faf00c1886d11816"
+  },
+  "/home/mauricio.oliveira/Documentos/Coding/futuro/futebol/futebol-back/src/http/api/players/players.types.ts": {
+    "mtime": 1784228893.608097,
+    "ast_hash": "61b166f094bb5b3f2252ca8a784ee55b",
+    "semantic_hash": "61b166f094bb5b3f2252ca8a784ee55b"
+  },
+  "/home/mauricio.oliveira/Documentos/Coding/futuro/futebol/futebol-back/src/http/api/players/players.repository.ts": {
+    "mtime": 1784228893.608097,
+    "ast_hash": "34eafac9b0471cf5763827dfd0eaded7",
+    "semantic_hash": "34eafac9b0471cf5763827dfd0eaded7"
+  },
+  "/home/mauricio.oliveira/Documentos/Coding/futuro/futebol/futebol-back/src/http/api/players/public-profile/public-profile.service.ts": {
+    "mtime": 1784130811.1806965,
+    "ast_hash": "4ac1c8b121ce093d77769b9fedf50ce9",
+    "semantic_hash": "4ac1c8b121ce093d77769b9fedf50ce9"
+  },
+  "/home/mauricio.oliveira/Documentos/Coding/futuro/futebol/futebol-back/src/http/api/players/public-profile/public-profile.presenter.ts": {
+    "mtime": 1784130816.6027367,
+    "ast_hash": "aa8327bb5846af32cd9a0b469fc4159b",
+    "semantic_hash": "aa8327bb5846af32cd9a0b469fc4159b"
+  },
+  "/home/mauricio.oliveira/Documentos/Coding/futuro/futebol/futebol-back/src/http/api/players/public-profile/public-profile.controller.ts": {
+    "mtime": 1784130821.7407746,
+    "ast_hash": "2e18681bdee003d1545dc7d4b55eab0a",
+    "semantic_hash": "2e18681bdee003d1545dc7d4b55eab0a"
+  },
+  "/home/mauricio.oliveira/Documentos/Coding/futuro/futebol/futebol-back/src/http/api/players/public-profile/public-profile.schema.ts": {
+    "mtime": 1784130800.9406211,
+    "ast_hash": "21eb7e8b9500556ae62ca77c3458d1ed",
+    "semantic_hash": "21eb7e8b9500556ae62ca77c3458d1ed"
+  },
+  "/home/mauricio.oliveira/Documentos/Coding/futuro/futebol/futebol-back/src/http/api/players/children/career/career-engine.ts": {
+    "mtime": 1784228893.6070971,
+    "ast_hash": "e860fa15e7a50cdd6ef893cc19418d6c",
+    "semantic_hash": "e860fa15e7a50cdd6ef893cc19418d6c"
+  },
+  "/home/mauricio.oliveira/Documentos/Coding/futuro/futebol/futebol-back/src/http/api/players/children/career/career.repository.ts": {
+    "mtime": 1784228893.6070971,
+    "ast_hash": "ce420e5ab7711d19f51a2eb0a8000119",
+    "semantic_hash": "ce420e5ab7711d19f51a2eb0a8000119"
+  },
+  "/home/mauricio.oliveira/Documentos/Coding/futuro/futebol/futebol-back/src/http/api/players/children/career/index.ts": {
+    "mtime": 1784128928.1569097,
+    "ast_hash": "3031731aafc852cf37a454507e6120e5",
+    "semantic_hash": "3031731aafc852cf37a454507e6120e5"
+  },
+  "/home/mauricio.oliveira/Documentos/Coding/futuro/futebol/futebol-back/src/http/api/players/children/career/career-config.ts": {
+    "mtime": 1784228893.6070971,
+    "ast_hash": "782c3bdccf5cff8a517f4f127deed6fa",
+    "semantic_hash": "782c3bdccf5cff8a517f4f127deed6fa"
+  },
+  "/home/mauricio.oliveira/Documentos/Coding/futuro/futebol/futebol-back/src/http/api/players/children/career/career.presenter.ts": {
+    "mtime": 1784129104.6730635,
+    "ast_hash": "d61fc40f1e53a8bcb5bc20590363b7ed",
+    "semantic_hash": "d61fc40f1e53a8bcb5bc20590363b7ed"
+  },
+  "/home/mauricio.oliveira/Documentos/Coding/futuro/futebol/futebol-back/src/http/api/players/children/career/career.types.ts": {
+    "mtime": 1784228893.6070971,
+    "ast_hash": "0fbd5727f5350d451be2c1d021b5ff8c",
+    "semantic_hash": "0fbd5727f5350d451be2c1d021b5ff8c"
+  },
+  "/home/mauricio.oliveira/Documentos/Coding/futuro/futebol/futebol-back/src/http/api/players/children/career/career-engine.test.ts": {
+    "mtime": 1784228893.6070971,
+    "ast_hash": "89f9c58dee9e8657fdab331ab83c821c",
+    "semantic_hash": "89f9c58dee9e8657fdab331ab83c821c"
+  },
+  "/home/mauricio.oliveira/Documentos/Coding/futuro/futebol/futebol-back/src/http/api/players/children/career/career.schema.ts": {
+    "mtime": 1784129104.6750634,
+    "ast_hash": "7c755e475a0435b9af48ede624dc9728",
+    "semantic_hash": "7c755e475a0435b9af48ede624dc9728"
+  },
+  "/home/mauricio.oliveira/Documentos/Coding/futuro/futebol/futebol-back/src/http/api/players/children/career/get-career/get-career.schema.ts": {
+    "mtime": 1784128909.3435986,
+    "ast_hash": "bc33743d6b23d86d297e1ca53c3ccf2a",
+    "semantic_hash": "bc33743d6b23d86d297e1ca53c3ccf2a"
+  },
+  "/home/mauricio.oliveira/Documentos/Coding/futuro/futebol/futebol-back/src/http/api/players/children/career/get-career/get-career.service.ts": {
+    "mtime": 1784128917.2447293,
+    "ast_hash": "874a86268b82ac3b5b59dd542267cc43",
+    "semantic_hash": "874a86268b82ac3b5b59dd542267cc43"
+  },
+  "/home/mauricio.oliveira/Documentos/Coding/futuro/futebol/futebol-back/src/http/api/players/children/career/get-career/get-career.controller.ts": {
+    "mtime": 1784129104.6780634,
+    "ast_hash": "49f9b9d6486fb29eaa5bef6ae2f8d1b0",
+    "semantic_hash": "49f9b9d6486fb29eaa5bef6ae2f8d1b0"
+  },
+  "/home/mauricio.oliveira/Documentos/Coding/futuro/futebol/futebol-back/src/http/api/players/me/me.service.test.ts": {
+    "mtime": 1784228893.608097,
+    "ast_hash": "cc0f418bb9a55ac077f230c30f1bbbb0",
+    "semantic_hash": "cc0f418bb9a55ac077f230c30f1bbbb0"
+  },
+  "/home/mauricio.oliveira/Documentos/Coding/futuro/futebol/futebol-back/src/http/api/players/me/me.service.ts": {
+    "mtime": 1784228893.608097,
+    "ast_hash": "adde3cc668c55d289eb21d984b11cdae",
+    "semantic_hash": "adde3cc668c55d289eb21d984b11cdae"
+  },
+  "/home/mauricio.oliveira/Documentos/Coding/futuro/futebol/futebol-back/src/http/api/players/me/me.controller.ts": {
+    "mtime": 1784228893.608097,
+    "ast_hash": "fd8cbd59032505b1df8e00e6dbc2d134",
+    "semantic_hash": "fd8cbd59032505b1df8e00e6dbc2d134"
+  },
+  "/home/mauricio.oliveira/Documentos/Coding/futuro/futebol/futebol-back/src/http/api/players/me/me.schema.ts": {
+    "mtime": 1784228893.608097,
+    "ast_hash": "cd0cd94aab7f71afe3627c655d4e54d6",
+    "semantic_hash": "cd0cd94aab7f71afe3627c655d4e54d6"
+  },
+  "/home/mauricio.oliveira/Documentos/Coding/futuro/futebol/futebol-back/src/http/api/matches/matches.authz.ts": {
+    "mtime": 1784046399.00329,
+    "ast_hash": "8bf8bffc384c331778c3cb28a4b88659",
+    "semantic_hash": "8bf8bffc384c331778c3cb28a4b88659"
+  },
+  "/home/mauricio.oliveira/Documentos/Coding/futuro/futebol/futebol-back/src/http/api/matches/matches.types.ts": {
+    "mtime": 1784207672.8623831,
+    "ast_hash": "501956cd33de408d89febe8fe5132b43",
+    "semantic_hash": "501956cd33de408d89febe8fe5132b43"
+  },
+  "/home/mauricio.oliveira/Documentos/Coding/futuro/futebol/futebol-back/src/http/api/matches/matches.presenter.ts": {
+    "mtime": 1784207672.8613832,
+    "ast_hash": "37e37aa0cc54d063668195e4765b90bc",
+    "semantic_hash": "37e37aa0cc54d063668195e4765b90bc"
+  },
+  "/home/mauricio.oliveira/Documentos/Coding/futuro/futebol/futebol-back/src/http/api/matches/index.ts": {
+    "mtime": 1784129034.7726483,
+    "ast_hash": "a2dcde14e2bb21afc79e7a2172823683",
+    "semantic_hash": "a2dcde14e2bb21afc79e7a2172823683"
+  },
+  "/home/mauricio.oliveira/Documentos/Coding/futuro/futebol/futebol-back/src/http/api/matches/matches.repository.ts": {
+    "mtime": 1784207672.8613832,
+    "ast_hash": "4a9080395204744996243743bdce82e2",
+    "semantic_hash": "4a9080395204744996243743bdce82e2"
+  },
+  "/home/mauricio.oliveira/Documentos/Coding/futuro/futebol/futebol-back/src/http/api/matches/matches.schema.ts": {
+    "mtime": 1784207672.8613832,
+    "ast_hash": "4602aee13e4f1e68cd6537f4044706dd",
+    "semantic_hash": "4602aee13e4f1e68cd6537f4044706dd"
+  },
+  "/home/mauricio.oliveira/Documentos/Coding/futuro/futebol/futebol-back/src/http/api/matches/create-match/create-match.schema.ts": {
+    "mtime": 1784207672.860383,
+    "ast_hash": "e5cdf1ee3c9e2fd7704f74396a23018c",
+    "semantic_hash": "e5cdf1ee3c9e2fd7704f74396a23018c"
+  },
+  "/home/mauricio.oliveira/Documentos/Coding/futuro/futebol/futebol-back/src/http/api/matches/create-match/create-match.controller.ts": {
+    "mtime": 1784046669.1962519,
+    "ast_hash": "bc2ca3e02452e53f3eb4549fe510e827",
+    "semantic_hash": "bc2ca3e02452e53f3eb4549fe510e827"
+  },
+  "/home/mauricio.oliveira/Documentos/Coding/futuro/futebol/futebol-back/src/http/api/matches/create-match/create-match.service.ts": {
+    "mtime": 1784207672.8613832,
+    "ast_hash": "336bdb1011e5a1d7797fae62eea45cf2",
+    "semantic_hash": "336bdb1011e5a1d7797fae62eea45cf2"
+  },
+  "/home/mauricio.oliveira/Documentos/Coding/futuro/futebol/futebol-back/src/http/api/matches/get-match/get-match.schema.ts": {
+    "mtime": 1784046452.9081001,
+    "ast_hash": "c1ace22c8456110089814bd51bc612bb",
+    "semantic_hash": "c1ace22c8456110089814bd51bc612bb"
+  },
+  "/home/mauricio.oliveira/Documentos/Coding/futuro/futebol/futebol-back/src/http/api/matches/get-match/get-match.service.ts": {
+    "mtime": 1784046458.5481842,
+    "ast_hash": "87e14dc059b0b81f19cfc86464f8cdbf",
+    "semantic_hash": "87e14dc059b0b81f19cfc86464f8cdbf"
+  },
+  "/home/mauricio.oliveira/Documentos/Coding/futuro/futebol/futebol-back/src/http/api/matches/get-match/get-match.controller.ts": {
+    "mtime": 1784046669.1972518,
+    "ast_hash": "56e797f9e68c2b6805c7c96c3e66c188",
+    "semantic_hash": "56e797f9e68c2b6805c7c96c3e66c188"
+  },
+  "/home/mauricio.oliveira/Documentos/Coding/futuro/futebol/futebol-back/src/http/api/matches/list-matches/list-matches.controller.ts": {
+    "mtime": 1784046669.200252,
+    "ast_hash": "cd3ba236256587f83bafef82216d8873",
+    "semantic_hash": "cd3ba236256587f83bafef82216d8873"
+  },
+  "/home/mauricio.oliveira/Documentos/Coding/futuro/futebol/futebol-back/src/http/api/matches/list-matches/list-matches.service.ts": {
+    "mtime": 1784046442.2169404,
+    "ast_hash": "a37dfb578ab0dd095423c5a837b8c56c",
+    "semantic_hash": "a37dfb578ab0dd095423c5a837b8c56c"
+  },
+  "/home/mauricio.oliveira/Documentos/Coding/futuro/futebol/futebol-back/src/http/api/matches/list-matches/list-matches.schema.ts": {
+    "mtime": 1784046437.5748708,
+    "ast_hash": "a8a50d733e7402b18cb064d3537a9bfe",
+    "semantic_hash": "a8a50d733e7402b18cb064d3537a9bfe"
+  },
+  "/home/mauricio.oliveira/Documentos/Coding/futuro/futebol/futebol-back/src/http/api/matches/update-match/update-match.controller.ts": {
+    "mtime": 1784046669.203252,
+    "ast_hash": "8d8974dcf28846d0bc7131313654dfab",
+    "semantic_hash": "8d8974dcf28846d0bc7131313654dfab"
+  },
+  "/home/mauricio.oliveira/Documentos/Coding/futuro/futebol/futebol-back/src/http/api/matches/update-match/update-match.service.ts": {
+    "mtime": 1784207672.8623831,
+    "ast_hash": "12427cd85d3223a74d6a52cf7db098b5",
+    "semantic_hash": "12427cd85d3223a74d6a52cf7db098b5"
+  },
+  "/home/mauricio.oliveira/Documentos/Coding/futuro/futebol/futebol-back/src/http/api/matches/update-match/update-match.schema.ts": {
+    "mtime": 1784207672.8623831,
+    "ast_hash": "ddf942e9522a97a4bd7aca73399e7e1e",
+    "semantic_hash": "ddf942e9522a97a4bd7aca73399e7e1e"
+  },
+  "/home/mauricio.oliveira/Documentos/Coding/futuro/futebol/futebol-back/src/http/api/matches/finalize-match/finalize-match.schema.ts": {
+    "mtime": 1784128976.7707071,
+    "ast_hash": "7d41aa1ba11d92fffdf7ad54c0ae9ac3",
+    "semantic_hash": "7d41aa1ba11d92fffdf7ad54c0ae9ac3"
+  },
+  "/home/mauricio.oliveira/Documentos/Coding/futuro/futebol/futebol-back/src/http/api/matches/finalize-match/finalize-match.controller.ts": {
+    "mtime": 1784129025.9305055,
+    "ast_hash": "49300572401061994b16dafcfe63e909",
+    "semantic_hash": "49300572401061994b16dafcfe63e909"
+  },
+  "/home/mauricio.oliveira/Documentos/Coding/futuro/futebol/futebol-back/src/http/api/matches/finalize-match/finalize-match.core.ts": {
+    "mtime": 1784129104.6680636,
+    "ast_hash": "42f9cc7383d7755fb7ebf0dff5f4500a",
+    "semantic_hash": "42f9cc7383d7755fb7ebf0dff5f4500a"
+  },
+  "/home/mauricio.oliveira/Documentos/Coding/futuro/futebol/futebol-back/src/http/api/matches/finalize-match/finalize-match.service.ts": {
+    "mtime": 1784129017.8443747,
+    "ast_hash": "6f60c25f5b2c1a881dff9401441a4795",
+    "semantic_hash": "6f60c25f5b2c1a881dff9401441a4795"
+  },
+  "/home/mauricio.oliveira/Documentos/Coding/futuro/futebol/futebol-back/src/http/api/matches/children/result/index.ts": {
+    "mtime": 1784126159.5167632,
+    "ast_hash": "f93cbed7a1e4151cf51f249f8234d05a",
+    "semantic_hash": "f93cbed7a1e4151cf51f249f8234d05a"
+  },
+  "/home/mauricio.oliveira/Documentos/Coding/futuro/futebol/futebol-back/src/http/api/matches/children/result/result.schema.ts": {
+    "mtime": 1784126079.7179391,
+    "ast_hash": "e86f87c4bd7f89258d326d0cf9b0d670",
+    "semantic_hash": "e86f87c4bd7f89258d326d0cf9b0d670"
+  },
+  "/home/mauricio.oliveira/Documentos/Coding/futuro/futebol/futebol-back/src/http/api/matches/children/result/result.presenter.ts": {
+    "mtime": 1784126083.4799302,
+    "ast_hash": "40a6ac4144d3d2ce8dc7758e5c1b9d92",
+    "semantic_hash": "40a6ac4144d3d2ce8dc7758e5c1b9d92"
+  },
+  "/home/mauricio.oliveira/Documentos/Coding/futuro/futebol/futebol-back/src/http/api/matches/children/result/result.repository.ts": {
+    "mtime": 1784126091.0999122,
+    "ast_hash": "0bba2b9ee6074d22132c2e59d4366d2f",
+    "semantic_hash": "0bba2b9ee6074d22132c2e59d4366d2f"
+  },
+  "/home/mauricio.oliveira/Documentos/Coding/futuro/futebol/futebol-back/src/http/api/matches/children/result/result.types.ts": {
+    "mtime": 1784126074.3449519,
+    "ast_hash": "58305cfa328b261d5fd87b0fe5bf8706",
+    "semantic_hash": "58305cfa328b261d5fd87b0fe5bf8706"
+  },
+  "/home/mauricio.oliveira/Documentos/Coding/futuro/futebol/futebol-back/src/http/api/matches/children/result/record-result/record-result.controller.ts": {
+    "mtime": 1784126142.273799,
+    "ast_hash": "0fdc74733931d1336acf4f0a144f0f7e",
+    "semantic_hash": "0fdc74733931d1336acf4f0a144f0f7e"
+  },
+  "/home/mauricio.oliveira/Documentos/Coding/futuro/futebol/futebol-back/src/http/api/matches/children/result/record-result/record-result.schema.ts": {
+    "mtime": 1784126117.8908515,
+    "ast_hash": "d3131428ce18ecec63c5f6f2f9aa24b8",
+    "semantic_hash": "d3131428ce18ecec63c5f6f2f9aa24b8"
+  },
+  "/home/mauricio.oliveira/Documentos/Coding/futuro/futebol/futebol-back/src/http/api/matches/children/result/record-result/record-result.service.ts": {
+    "mtime": 1784126134.3388157,
+    "ast_hash": "aa8d545f02a7927d30d503ae9b729966",
+    "semantic_hash": "aa8d545f02a7927d30d503ae9b729966"
+  },
+  "/home/mauricio.oliveira/Documentos/Coding/futuro/futebol/futebol-back/src/http/api/matches/children/result/get-result/get-result.schema.ts": {
+    "mtime": 1784126146.6377897,
+    "ast_hash": "6e84841bbe2b05634848d40aceaaf284",
+    "semantic_hash": "6e84841bbe2b05634848d40aceaaf284"
+  },
+  "/home/mauricio.oliveira/Documentos/Coding/futuro/futebol/futebol-back/src/http/api/matches/children/result/get-result/get-result.service.ts": {
+    "mtime": 1784126151.6467793,
+    "ast_hash": "35be68c0204015d2b11e154047449650",
+    "semantic_hash": "35be68c0204015d2b11e154047449650"
+  },
+  "/home/mauricio.oliveira/Documentos/Coding/futuro/futebol/futebol-back/src/http/api/matches/children/result/get-result/get-result.controller.ts": {
+    "mtime": 1784126155.3477716,
+    "ast_hash": "31c0e334b552a800116bb863ff930522",
+    "semantic_hash": "31c0e334b552a800116bb863ff930522"
+  },
+  "/home/mauricio.oliveira/Documentos/Coding/futuro/futebol/futebol-back/src/http/api/matches/children/votes/votes.schema.ts": {
+    "mtime": 1784127430.6005878,
+    "ast_hash": "71a71ae54a9772fc1a9407038db185e5",
+    "semantic_hash": "71a71ae54a9772fc1a9407038db185e5"
+  },
+  "/home/mauricio.oliveira/Documentos/Coding/futuro/futebol/futebol-back/src/http/api/matches/children/votes/votes.types.ts": {
+    "mtime": 1784127423.247213,
+    "ast_hash": "dc63f26caf37a727971328948926776e",
+    "semantic_hash": "dc63f26caf37a727971328948926776e"
+  },
+  "/home/mauricio.oliveira/Documentos/Coding/futuro/futebol/futebol-back/src/http/api/matches/children/votes/index.ts": {
+    "mtime": 1784127576.7713165,
+    "ast_hash": "3cbb5b0b1f70adfc9ebea7da09ade6cb",
+    "semantic_hash": "3cbb5b0b1f70adfc9ebea7da09ade6cb"
+  },
+  "/home/mauricio.oliveira/Documentos/Coding/futuro/futebol/futebol-back/src/http/api/matches/children/votes/votes.repository.ts": {
+    "mtime": 1784127748.1527712,
+    "ast_hash": "ba3baf2c62fba9799bdc567918272538",
+    "semantic_hash": "ba3baf2c62fba9799bdc567918272538"
+  },
+  "/home/mauricio.oliveira/Documentos/Coding/futuro/futebol/futebol-back/src/http/api/matches/children/votes/votes.presenter.ts": {
+    "mtime": 1784127455.0848095,
+    "ast_hash": "6472f16f80b4156a6b4f4b6093526491",
+    "semantic_hash": "6472f16f80b4156a6b4f4b6093526491"
+  },
+  "/home/mauricio.oliveira/Documentos/Coding/futuro/futebol/futebol-back/src/http/api/matches/children/votes/cast-vote/cast-vote.service.ts": {
+    "mtime": 1784127537.095617,
+    "ast_hash": "68b3ee6ab646439507939959d5e5f064",
+    "semantic_hash": "68b3ee6ab646439507939959d5e5f064"
+  },
+  "/home/mauricio.oliveira/Documentos/Coding/futuro/futebol/futebol-back/src/http/api/matches/children/votes/cast-vote/cast-vote.controller.ts": {
+    "mtime": 1784127545.6139894,
+    "ast_hash": "bdce68376223c75e0e2ad7ba38b16826",
+    "semantic_hash": "bdce68376223c75e0e2ad7ba38b16826"
+  },
+  "/home/mauricio.oliveira/Documentos/Coding/futuro/futebol/futebol-back/src/http/api/matches/children/votes/cast-vote/cast-vote.schema.ts": {
+    "mtime": 1784127523.810028,
+    "ast_hash": "d5a9618f8bf94f4aa54d4b9f72c31962",
+    "semantic_hash": "d5a9618f8bf94f4aa54d4b9f72c31962"
+  },
+  "/home/mauricio.oliveira/Documentos/Coding/futuro/futebol/futebol-back/src/http/api/matches/children/votes/list-vote-tally/list-vote-tally.controller.ts": {
+    "mtime": 1784127569.729021,
+    "ast_hash": "29fed204247ebbdcb4c91a9a79765423",
+    "semantic_hash": "29fed204247ebbdcb4c91a9a79765423"
+  },
+  "/home/mauricio.oliveira/Documentos/Coding/futuro/futebol/futebol-back/src/http/api/matches/children/votes/list-vote-tally/list-vote-tally.service.ts": {
+    "mtime": 1784127562.4567134,
+    "ast_hash": "44d3e9e519256e2f2edc218e9fcbae01",
+    "semantic_hash": "44d3e9e519256e2f2edc218e9fcbae01"
+  },
+  "/home/mauricio.oliveira/Documentos/Coding/futuro/futebol/futebol-back/src/http/api/matches/children/votes/list-vote-tally/list-vote-tally.schema.ts": {
+    "mtime": 1784127553.7983432,
+    "ast_hash": "deba61fd8b4ca5cc3d3e52146da10109",
+    "semantic_hash": "deba61fd8b4ca5cc3d3e52146da10109"
+  },
+  "/home/mauricio.oliveira/Documentos/Coding/futuro/futebol/futebol-back/src/http/api/matches/children/stats/index.ts": {
+    "mtime": 1784126981.9159756,
+    "ast_hash": "46528cae79b7a3fe74cb2b7c62fdcf67",
+    "semantic_hash": "46528cae79b7a3fe74cb2b7c62fdcf67"
+  },
+  "/home/mauricio.oliveira/Documentos/Coding/futuro/futebol/futebol-back/src/http/api/matches/children/stats/stats.presenter.ts": {
+    "mtime": 1784126755.3750741,
+    "ast_hash": "48a52606b1ec57d544a942352f962b1f",
+    "semantic_hash": "48a52606b1ec57d544a942352f962b1f"
+  },
+  "/home/mauricio.oliveira/Documentos/Coding/futuro/futebol/futebol-back/src/http/api/matches/children/stats/stats.types.ts": {
+    "mtime": 1784126692.4631124,
+    "ast_hash": "be399191d7d035684852ebf0cef0e47b",
+    "semantic_hash": "be399191d7d035684852ebf0cef0e47b"
+  },
+  "/home/mauricio.oliveira/Documentos/Coding/futuro/futebol/futebol-back/src/http/api/matches/children/stats/stats.schema.ts": {
+    "mtime": 1784126749.5150776,
+    "ast_hash": "55ad9cc747343dfc4c7b309fc7da4cfc",
+    "semantic_hash": "55ad9cc747343dfc4c7b309fc7da4cfc"
+  },
+  "/home/mauricio.oliveira/Documentos/Coding/futuro/futebol/futebol-back/src/http/api/matches/children/stats/stats.repository.ts": {
+    "mtime": 1784126731.0640883,
+    "ast_hash": "b2dec96f9e9ee7270fa26f8aa874e61a",
+    "semantic_hash": "b2dec96f9e9ee7270fa26f8aa874e61a"
+  },
+  "/home/mauricio.oliveira/Documentos/Coding/futuro/futebol/futebol-back/src/http/api/matches/children/stats/list-stats/list-stats.service.ts": {
+    "mtime": 1784126839.3920312,
+    "ast_hash": "7d29fda660a5fcf7b7331a5bbe7ba2c7",
+    "semantic_hash": "7d29fda660a5fcf7b7331a5bbe7ba2c7"
+  },
+  "/home/mauricio.oliveira/Documentos/Coding/futuro/futebol/futebol-back/src/http/api/matches/children/stats/list-stats/list-stats.schema.ts": {
+    "mtime": 1784126833.9690337,
+    "ast_hash": "abd63309ad08aaf4c335d33b6ecaa316",
+    "semantic_hash": "abd63309ad08aaf4c335d33b6ecaa316"
+  },
+  "/home/mauricio.oliveira/Documentos/Coding/futuro/futebol/futebol-back/src/http/api/matches/children/stats/list-stats/list-stats.controller.ts": {
+    "mtime": 1784126843.2700293,
+    "ast_hash": "31e5645c014f78cfed821a5bf11ac526",
+    "semantic_hash": "31e5645c014f78cfed821a5bf11ac526"
+  },
+  "/home/mauricio.oliveira/Documentos/Coding/futuro/futebol/futebol-back/src/http/api/matches/children/stats/log-stats/log-stats.service.ts": {
+    "mtime": 1784126821.3440397,
+    "ast_hash": "975980e1aa4108a308f7bea1c043614e",
+    "semantic_hash": "975980e1aa4108a308f7bea1c043614e"
+  },
+  "/home/mauricio.oliveira/Documentos/Coding/futuro/futebol/futebol-back/src/http/api/matches/children/stats/log-stats/log-stats.controller.ts": {
+    "mtime": 1784126829.322036,
+    "ast_hash": "cb51da9ed8e4c1ab894dc46797f6ebd3",
+    "semantic_hash": "cb51da9ed8e4c1ab894dc46797f6ebd3"
+  },
+  "/home/mauricio.oliveira/Documentos/Coding/futuro/futebol/futebol-back/src/http/api/matches/children/stats/log-stats/log-stats.schema.ts": {
+    "mtime": 1784126763.8090694,
+    "ast_hash": "63b4a6fba193fc4d5e86ebb0dd91ece9",
+    "semantic_hash": "63b4a6fba193fc4d5e86ebb0dd91ece9"
+  },
+  "/home/mauricio.oliveira/Documentos/Coding/futuro/futebol/futebol-back/src/http/api/matches/children/attendance/index.ts": {
+    "mtime": 1784053615.2503524,
+    "ast_hash": "a4f528cd131366c33dfbc61b4be7136a",
+    "semantic_hash": "a4f528cd131366c33dfbc61b4be7136a"
+  },
+  "/home/mauricio.oliveira/Documentos/Coding/futuro/futebol/futebol-back/src/http/api/matches/children/attendance/attendance.schema.ts": {
+    "mtime": 1784216822.402679,
+    "ast_hash": "2c408de39259bca4f0bf36d038698c87",
+    "semantic_hash": "2c408de39259bca4f0bf36d038698c87"
+  },
+  "/home/mauricio.oliveira/Documentos/Coding/futuro/futebol/futebol-back/src/http/api/matches/children/attendance/attendance.repository.ts": {
+    "mtime": 1784228893.6060972,
+    "ast_hash": "c7733c03a08f1d42e6199b48ce3f9a69",
+    "semantic_hash": "c7733c03a08f1d42e6199b48ce3f9a69"
+  },
+  "/home/mauricio.oliveira/Documentos/Coding/futuro/futebol/futebol-back/src/http/api/matches/children/attendance/attendance.types.ts": {
+    "mtime": 1784216822.402679,
+    "ast_hash": "a10bd952ddc8e36f07d70854e4956e30",
+    "semantic_hash": "a10bd952ddc8e36f07d70854e4956e30"
+  },
+  "/home/mauricio.oliveira/Documentos/Coding/futuro/futebol/futebol-back/src/http/api/matches/children/attendance/attendance.presenter.ts": {
+    "mtime": 1784216822.402679,
+    "ast_hash": "b96eaaac43e625dbc9d6559809e36315",
+    "semantic_hash": "b96eaaac43e625dbc9d6559809e36315"
+  },
+  "/home/mauricio.oliveira/Documentos/Coding/futuro/futebol/futebol-back/src/http/api/matches/children/attendance/list-attendance/list-attendance.service.ts": {
+    "mtime": 1784216822.402679,
+    "ast_hash": "d46366471ae7c32b4beb32a00639a419",
+    "semantic_hash": "d46366471ae7c32b4beb32a00639a419"
+  },
+  "/home/mauricio.oliveira/Documentos/Coding/futuro/futebol/futebol-back/src/http/api/matches/children/attendance/list-attendance/list-attendance.controller.ts": {
+    "mtime": 1784216822.402679,
+    "ast_hash": "ae9741419ea7cf67e397943b594b648d",
+    "semantic_hash": "ae9741419ea7cf67e397943b594b648d"
+  },
+  "/home/mauricio.oliveira/Documentos/Coding/futuro/futebol/futebol-back/src/http/api/matches/children/attendance/list-attendance/list-attendance.schema.ts": {
+    "mtime": 1784052121.0581715,
+    "ast_hash": "4df375b70ad62a72f993f4501c833811",
+    "semantic_hash": "4df375b70ad62a72f993f4501c833811"
+  },
+  "/home/mauricio.oliveira/Documentos/Coding/futuro/futebol/futebol-back/src/http/api/matches/children/attendance/confirm-presence/confirm-presence.service.ts": {
+    "mtime": 1784052258.5043623,
+    "ast_hash": "98071acc52d176e2add49c1e6bf333bc",
+    "semantic_hash": "98071acc52d176e2add49c1e6bf333bc"
+  },
+  "/home/mauricio.oliveira/Documentos/Coding/futuro/futebol/futebol-back/src/http/api/matches/children/attendance/confirm-presence/confirm-presence.controller.ts": {
+    "mtime": 1784052258.5043623,
+    "ast_hash": "221f137a2eb404d2b0207e232884efcb",
+    "semantic_hash": "221f137a2eb404d2b0207e232884efcb"
+  },
+  "/home/mauricio.oliveira/Documentos/Coding/futuro/futebol/futebol-back/src/http/api/matches/children/attendance/confirm-presence/confirm-presence.schema.ts": {
+    "mtime": 1784052078.9664617,
+    "ast_hash": "886385264cfad92003b15959cc6d99ae",
+    "semantic_hash": "886385264cfad92003b15959cc6d99ae"
+  },
+  "/home/mauricio.oliveira/Documentos/Coding/futuro/futebol/futebol-back/src/http/api/matches/children/attendance/cancel-presence/cancel-presence.service.ts": {
+    "mtime": 1784160443.054675,
+    "ast_hash": "dfd172529a1d5f5aef79bb91194cdba2",
+    "semantic_hash": "dfd172529a1d5f5aef79bb91194cdba2"
+  },
+  "/home/mauricio.oliveira/Documentos/Coding/futuro/futebol/futebol-back/src/http/api/matches/children/attendance/cancel-presence/cancel-presence.schema.ts": {
+    "mtime": 1784052099.3788085,
+    "ast_hash": "03a3d72d19c856609a2cb727c7138850",
+    "semantic_hash": "03a3d72d19c856609a2cb727c7138850"
+  },
+  "/home/mauricio.oliveira/Documentos/Coding/futuro/futebol/futebol-back/src/http/api/matches/children/attendance/cancel-presence/cancel-presence.controller.ts": {
+    "mtime": 1784057315.3601737,
+    "ast_hash": "961fc706cae07a254984c7c9ce65d114",
+    "semantic_hash": "961fc706cae07a254984c7c9ce65d114"
+  },
+  "/home/mauricio.oliveira/Documentos/Coding/futuro/futebol/futebol-back/src/http/api/matches/children/attendance/mark-paid/mark-paid.service.ts": {
+    "mtime": 1784053521.2292852,
+    "ast_hash": "5d351d9f0ae4d0956038a0351a517360",
+    "semantic_hash": "5d351d9f0ae4d0956038a0351a517360"
+  },
+  "/home/mauricio.oliveira/Documentos/Coding/futuro/futebol/futebol-back/src/http/api/matches/children/attendance/mark-paid/mark-paid.controller.ts": {
+    "mtime": 1784053528.1083634,
+    "ast_hash": "020a1bc8a8fb4507bff002812d1dd0b6",
+    "semantic_hash": "020a1bc8a8fb4507bff002812d1dd0b6"
+  },
+  "/home/mauricio.oliveira/Documentos/Coding/futuro/futebol/futebol-back/src/http/api/matches/children/attendance/mark-paid/mark-paid.schema.ts": {
+    "mtime": 1784053510.152159,
+    "ast_hash": "ffabe3f3fdb8c611aeeeef9c48e6f32e",
+    "semantic_hash": "ffabe3f3fdb8c611aeeeef9c48e6f32e"
+  },
+  "/home/mauricio.oliveira/Documentos/Coding/futuro/futebol/futebol-back/src/http/api/matches/children/attendance/confirm-payment/confirm-payment.service.ts": {
+    "mtime": 1784053747.9724264,
+    "ast_hash": "997bc46c4a5003c065d622c6c6406da9",
+    "semantic_hash": "997bc46c4a5003c065d622c6c6406da9"
+  },
+  "/home/mauricio.oliveira/Documentos/Coding/futuro/futebol/futebol-back/src/http/api/matches/children/attendance/confirm-payment/confirm-payment.schema.ts": {
+    "mtime": 1784053694.5471168,
+    "ast_hash": "2b1301e14e03fb5416d3ec1c8df0eab6",
+    "semantic_hash": "2b1301e14e03fb5416d3ec1c8df0eab6"
+  },
+  "/home/mauricio.oliveira/Documentos/Coding/futuro/futebol/futebol-back/src/http/api/matches/children/attendance/confirm-payment/confirm-payment.controller.ts": {
+    "mtime": 1784053608.929281,
+    "ast_hash": "c6e1be8bd4e87fbc9d4a9484fa1d34b4",
+    "semantic_hash": "c6e1be8bd4e87fbc9d4a9484fa1d34b4"
+  },
+  "/home/mauricio.oliveira/Documentos/Coding/futuro/futebol/futebol-back/src/http/api/matches/children/teams/resolve-overall.test.ts": {
+    "mtime": 1784228893.6060972,
+    "ast_hash": "5384fb0ab1761bfeec880a36d2640fa1",
+    "semantic_hash": "5384fb0ab1761bfeec880a36d2640fa1"
+  },
+  "/home/mauricio.oliveira/Documentos/Coding/futuro/futebol/futebol-back/src/http/api/matches/children/teams/teams.presenter.ts": {
+    "mtime": 1784122402.7196286,
+    "ast_hash": "fdfa10a4d36231fc92d6d0c65ce9b523",
+    "semantic_hash": "fdfa10a4d36231fc92d6d0c65ce9b523"
+  },
+  "/home/mauricio.oliveira/Documentos/Coding/futuro/futebol/futebol-back/src/http/api/matches/children/teams/balancer.test.ts": {
+    "mtime": 1784055882.0119083,
+    "ast_hash": "c5acbf25be9dabde6d9bea4588dfb3a0",
+    "semantic_hash": "c5acbf25be9dabde6d9bea4588dfb3a0"
+  },
+  "/home/mauricio.oliveira/Documentos/Coding/futuro/futebol/futebol-back/src/http/api/matches/children/teams/resolve-overall.ts": {
+    "mtime": 1784228893.6060972,
+    "ast_hash": "23e4125825805dfe836afca745462cf9",
+    "semantic_hash": "23e4125825805dfe836afca745462cf9"
+  },
+  "/home/mauricio.oliveira/Documentos/Coding/futuro/futebol/futebol-back/src/http/api/matches/children/teams/index.ts": {
+    "mtime": 1784122402.7196286,
+    "ast_hash": "51c34b5605309a18f7b16ade809787ad",
+    "semantic_hash": "51c34b5605309a18f7b16ade809787ad"
+  },
+  "/home/mauricio.oliveira/Documentos/Coding/futuro/futebol/futebol-back/src/http/api/matches/children/teams/teams.types.ts": {
+    "mtime": 1784122402.7196286,
+    "ast_hash": "c080f4b380d106948b9de5925dae9cb4",
+    "semantic_hash": "c080f4b380d106948b9de5925dae9cb4"
+  },
+  "/home/mauricio.oliveira/Documentos/Coding/futuro/futebol/futebol-back/src/http/api/matches/children/teams/balancer.ts": {
+    "mtime": 1784055860.0996957,
+    "ast_hash": "8c35f61eefdfd298d49a18cfb5574c60",
+    "semantic_hash": "8c35f61eefdfd298d49a18cfb5574c60"
+  },
+  "/home/mauricio.oliveira/Documentos/Coding/futuro/futebol/futebol-back/src/http/api/matches/children/teams/teams.repository.ts": {
+    "mtime": 1784055476.880908,
+    "ast_hash": "27429262460c6059baa9e53d07b372cc",
+    "semantic_hash": "27429262460c6059baa9e53d07b372cc"
+  },
+  "/home/mauricio.oliveira/Documentos/Coding/futuro/futebol/futebol-back/src/http/api/matches/children/teams/teams.schema.ts": {
+    "mtime": 1784122402.7196286,
+    "ast_hash": "7300b9abd012a962e66712d155a38a85",
+    "semantic_hash": "7300b9abd012a962e66712d155a38a85"
+  },
+  "/home/mauricio.oliveira/Documentos/Coding/futuro/futebol/futebol-back/src/http/api/matches/children/teams/get-teams/get-teams.schema.ts": {
+    "mtime": 1784122297.5859394,
+    "ast_hash": "df05dcfaf1309a9a7e2ee4ddb6495f12",
+    "semantic_hash": "df05dcfaf1309a9a7e2ee4ddb6495f12"
+  },
+  "/home/mauricio.oliveira/Documentos/Coding/futuro/futebol/futebol-back/src/http/api/matches/children/teams/get-teams/get-teams.service.ts": {
+    "mtime": 1784122303.2619722,
+    "ast_hash": "2a50936a545cc491a48a29e1063ffcf0",
+    "semantic_hash": "2a50936a545cc491a48a29e1063ffcf0"
+  },
+  "/home/mauricio.oliveira/Documentos/Coding/futuro/futebol/futebol-back/src/http/api/matches/children/teams/get-teams/get-teams.controller.ts": {
+    "mtime": 1784122307.8339992,
+    "ast_hash": "46271bf060bb291d217cafb8923ed2f5",
+    "semantic_hash": "46271bf060bb291d217cafb8923ed2f5"
+  },
+  "/home/mauricio.oliveira/Documentos/Coding/futuro/futebol/futebol-back/src/http/api/matches/children/teams/update-teams/update-teams.schema.ts": {
+    "mtime": 1784055523.7373765,
+    "ast_hash": "1b477922981d8422e719f3474f51e279",
+    "semantic_hash": "1b477922981d8422e719f3474f51e279"
+  },
+  "/home/mauricio.oliveira/Documentos/Coding/futuro/futebol/futebol-back/src/http/api/matches/children/teams/update-teams/update-teams.controller.ts": {
+    "mtime": 1784228893.6070971,
+    "ast_hash": "d17a6a0af5fd1312c4a751736b7de12d",
+    "semantic_hash": "d17a6a0af5fd1312c4a751736b7de12d"
+  },
+  "/home/mauricio.oliveira/Documentos/Coding/futuro/futebol/futebol-back/src/http/api/matches/children/teams/update-teams/update-teams.service.ts": {
+    "mtime": 1784228893.6070971,
+    "ast_hash": "bef0cd9fdc878be40ad34b10fee42eb2",
+    "semantic_hash": "bef0cd9fdc878be40ad34b10fee42eb2"
+  },
+  "/home/mauricio.oliveira/Documentos/Coding/futuro/futebol/futebol-back/src/http/api/matches/children/teams/generate-teams/generate-teams.controller.ts": {
+    "mtime": 1784228893.6060972,
+    "ast_hash": "022a79a9083a97bdcbb8d45ba28f0f0f",
+    "semantic_hash": "022a79a9083a97bdcbb8d45ba28f0f0f"
+  },
+  "/home/mauricio.oliveira/Documentos/Coding/futuro/futebol/futebol-back/src/http/api/matches/children/teams/generate-teams/generate-teams.schema.ts": {
+    "mtime": 1784055501.6451554,
+    "ast_hash": "6fda1ee34102deb81573e9344dbf25f5",
+    "semantic_hash": "6fda1ee34102deb81573e9344dbf25f5"
+  },
+  "/home/mauricio.oliveira/Documentos/Coding/futuro/futebol/futebol-back/src/http/api/matches/children/teams/generate-teams/generate-teams.service.ts": {
+    "mtime": 1784228893.6060972,
+    "ast_hash": "42581fe91bb593ad4cae83736b453215",
+    "semantic_hash": "42581fe91bb593ad4cae83736b453215"
+  },
+  "/home/mauricio.oliveira/Documentos/Coding/futuro/futebol/futebol-back/src/http/api/matches/cancel-match/cancel-match.service.ts": {
+    "mtime": 1784046492.8846939,
+    "ast_hash": "be74271493080cb5507b2a199fe9202e",
+    "semantic_hash": "be74271493080cb5507b2a199fe9202e"
+  },
+  "/home/mauricio.oliveira/Documentos/Coding/futuro/futebol/futebol-back/src/http/api/matches/cancel-match/cancel-match.controller.ts": {
+    "mtime": 1784046669.1962519,
+    "ast_hash": "31f85f4e13875bddeadc0d96d9c73466",
+    "semantic_hash": "31f85f4e13875bddeadc0d96d9c73466"
+  },
+  "/home/mauricio.oliveira/Documentos/Coding/futuro/futebol/futebol-back/src/http/api/matches/cancel-match/cancel-match.schema.ts": {
+    "mtime": 1784046487.22161,
+    "ast_hash": "2a2ac0d4cc0cc373c042162cd1b2b930",
+    "semantic_hash": "2a2ac0d4cc0cc373c042162cd1b2b930"
+  },
+  "/home/mauricio.oliveira/Documentos/Coding/futuro/futebol/futebol-back/src/http/api/matches/finish-match/finish-match.controller.ts": {
+    "mtime": 1784056589.8849025,
+    "ast_hash": "41ef283bbb12b5de5413d2b85ef61da4",
+    "semantic_hash": "41ef283bbb12b5de5413d2b85ef61da4"
+  },
+  "/home/mauricio.oliveira/Documentos/Coding/futuro/futebol/futebol-back/src/http/api/matches/finish-match/finish-match.schema.ts": {
+    "mtime": 1784056573.4947388,
+    "ast_hash": "4bbfb610292185d63cfcf0329cff329d",
+    "semantic_hash": "4bbfb610292185d63cfcf0329cff329d"
+  },
+  "/home/mauricio.oliveira/Documentos/Coding/futuro/futebol/futebol-back/src/http/api/matches/finish-match/finish-match.service.ts": {
+    "mtime": 1784207672.8613832,
+    "ast_hash": "daa547fa70b6054eaa8b5259aeae65af",
+    "semantic_hash": "daa547fa70b6054eaa8b5259aeae65af"
+  },
+  "/home/mauricio.oliveira/Documentos/Coding/futuro/futebol/futebol-back/src/http/api/auth/auth.schema.ts": {
+    "mtime": 1784040640.1610262,
+    "ast_hash": "3fd456a20f031195f5af6d62098070e2",
+    "semantic_hash": "3fd456a20f031195f5af6d62098070e2"
+  },
+  "/home/mauricio.oliveira/Documentos/Coding/futuro/futebol/futebol-back/src/http/api/auth/index.ts": {
+    "mtime": 1784057281.6918354,
+    "ast_hash": "14656c7d4c9f8e5afd65c1655eabce38",
+    "semantic_hash": "14656c7d4c9f8e5afd65c1655eabce38"
+  },
+  "/home/mauricio.oliveira/Documentos/Coding/futuro/futebol/futebol-back/src/http/api/auth/auth.types.ts": {
+    "mtime": 1784040625.8499088,
+    "ast_hash": "d5fcb8a3ac2e811d4248bc49afaaae82",
+    "semantic_hash": "d5fcb8a3ac2e811d4248bc49afaaae82"
+  },
+  "/home/mauricio.oliveira/Documentos/Coding/futuro/futebol/futebol-back/src/http/api/auth/auth.repository.ts": {
+    "mtime": 1784057244.1804585,
+    "ast_hash": "8bf6afc94d05e400da071a127c6d7105",
+    "semantic_hash": "8bf6afc94d05e400da071a127c6d7105"
+  },
+  "/home/mauricio.oliveira/Documentos/Coding/futuro/futebol/futebol-back/src/http/api/auth/refresh/refresh.schema.ts": {
+    "mtime": 1784042095.3264964,
+    "ast_hash": "c544c50ec9df48c87a2d6e547a0166cd",
+    "semantic_hash": "c544c50ec9df48c87a2d6e547a0166cd"
+  },
+  "/home/mauricio.oliveira/Documentos/Coding/futuro/futebol/futebol-back/src/http/api/auth/refresh/refresh.controller.ts": {
+    "mtime": 1784042102.5615802,
+    "ast_hash": "6581c89195bc888156910174243a0a99",
+    "semantic_hash": "6581c89195bc888156910174243a0a99"
+  },
+  "/home/mauricio.oliveira/Documentos/Coding/futuro/futebol/futebol-back/src/http/api/auth/refresh/refresh.service.ts": {
+    "mtime": 1784042617.3781452,
+    "ast_hash": "b696f9f84c8538fc9826bcb1f8e55f5b",
+    "semantic_hash": "b696f9f84c8538fc9826bcb1f8e55f5b"
+  },
+  "/home/mauricio.oliveira/Documentos/Coding/futuro/futebol/futebol-back/src/http/api/auth/refresh/refresh.test.ts": {
+    "mtime": 1784057458.3186107,
+    "ast_hash": "d7a160c2714c83f88ca4d7fe370bc41b",
+    "semantic_hash": "d7a160c2714c83f88ca4d7fe370bc41b"
+  },
+  "/home/mauricio.oliveira/Documentos/Coding/futuro/futebol/futebol-back/src/http/api/auth/login/login.test.ts": {
+    "mtime": 1784057458.3146105,
+    "ast_hash": "efd08eaf011c0afacce752c00b3ee017",
+    "semantic_hash": "efd08eaf011c0afacce752c00b3ee017"
+  },
+  "/home/mauricio.oliveira/Documentos/Coding/futuro/futebol/futebol-back/src/http/api/auth/login/login.controller.ts": {
+    "mtime": 1784040705.0645597,
+    "ast_hash": "15248d1d1f9cfc5c19a2a75c90a04640",
+    "semantic_hash": "15248d1d1f9cfc5c19a2a75c90a04640"
+  },
+  "/home/mauricio.oliveira/Documentos/Coding/futuro/futebol/futebol-back/src/http/api/auth/login/login.schema.ts": {
+    "mtime": 1784040684.3533893,
+    "ast_hash": "96a4530c2e778e98578e50e9463a81d8",
+    "semantic_hash": "96a4530c2e778e98578e50e9463a81d8"
+  },
+  "/home/mauricio.oliveira/Documentos/Coding/futuro/futebol/futebol-back/src/http/api/auth/login/login.service.ts": {
+    "mtime": 1784042609.6340656,
+    "ast_hash": "ad6cdbbb879dac291d1097ed958f991c",
+    "semantic_hash": "ad6cdbbb879dac291d1097ed958f991c"
+  },
+  "/home/mauricio.oliveira/Documentos/Coding/futuro/futebol/futebol-back/src/http/api/auth/login-google/login-google.schema.ts": {
+    "mtime": 1784042025.162672,
+    "ast_hash": "207663d34f6727197bfb7ebc80c7544e",
+    "semantic_hash": "207663d34f6727197bfb7ebc80c7544e"
+  },
+  "/home/mauricio.oliveira/Documentos/Coding/futuro/futebol/futebol-back/src/http/api/auth/login-google/login-google.service.ts": {
+    "mtime": 1784042613.8561091,
+    "ast_hash": "db620748ffd0f04cbac096a3b320b6f3",
+    "semantic_hash": "db620748ffd0f04cbac096a3b320b6f3"
+  },
+  "/home/mauricio.oliveira/Documentos/Coding/futuro/futebol/futebol-back/src/http/api/auth/login-google/login-google.controller.ts": {
+    "mtime": 1784042035.2907925,
+    "ast_hash": "a59ead485ab61129e96b9efba72ba3ed",
+    "semantic_hash": "a59ead485ab61129e96b9efba72ba3ed"
+  },
+  "/home/mauricio.oliveira/Documentos/Coding/futuro/futebol/futebol-back/src/http/api/auth/login-google/login-google.test.ts": {
+    "mtime": 1784057458.3236105,
+    "ast_hash": "fbd74a22fad353a7125ea4ca5f3ca919",
+    "semantic_hash": "fbd74a22fad353a7125ea4ca5f3ca919"
+  },
+  "/home/mauricio.oliveira/Documentos/Coding/futuro/futebol/futebol-back/src/http/api/auth/me/me.service.ts": {
+    "mtime": 1784040722.1807005,
+    "ast_hash": "e81b3b90d5019f30de397ef21f90485b",
+    "semantic_hash": "e81b3b90d5019f30de397ef21f90485b"
+  },
+  "/home/mauricio.oliveira/Documentos/Coding/futuro/futebol/futebol-back/src/http/api/auth/me/me.controller.ts": {
+    "mtime": 1784040728.0097487,
+    "ast_hash": "23723f07ffce3c34120926d96327d04f",
+    "semantic_hash": "23723f07ffce3c34120926d96327d04f"
+  },
+  "/home/mauricio.oliveira/Documentos/Coding/futuro/futebol/futebol-back/src/http/api/auth/me/me.test.ts": {
+    "mtime": 1784057458.3166106,
+    "ast_hash": "6067968992ddcb9aea54d81956f28f5f",
+    "semantic_hash": "6067968992ddcb9aea54d81956f28f5f"
+  },
+  "/home/mauricio.oliveira/Documentos/Coding/futuro/futebol/futebol-back/src/http/api/auth/register/register.controller.ts": {
+    "mtime": 1784220049.139738,
+    "ast_hash": "2bfc764a0743efe4726e86bfb3640962",
+    "semantic_hash": "2bfc764a0743efe4726e86bfb3640962"
+  },
+  "/home/mauricio.oliveira/Documentos/Coding/futuro/futebol/futebol-back/src/http/api/auth/register/register.test.ts": {
+    "mtime": 1784220049.139738,
+    "ast_hash": "ab0617e69edfcc543236d6b10eaa1059",
+    "semantic_hash": "ab0617e69edfcc543236d6b10eaa1059"
+  },
+  "/home/mauricio.oliveira/Documentos/Coding/futuro/futebol/futebol-back/src/http/api/auth/register/register.service.ts": {
+    "mtime": 1784220049.139738,
+    "ast_hash": "f43bd1909dd1835e8e3d9cc82f7ca4be",
+    "semantic_hash": "f43bd1909dd1835e8e3d9cc82f7ca4be"
+  },
+  "/home/mauricio.oliveira/Documentos/Coding/futuro/futebol/futebol-back/src/http/api/auth/register/register.schema.ts": {
+    "mtime": 1784220049.139738,
+    "ast_hash": "b9acfe034a02859f7e04aabdd8461055",
+    "semantic_hash": "b9acfe034a02859f7e04aabdd8461055"
+  },
+  "/home/mauricio.oliveira/Documentos/Coding/futuro/futebol/futebol-back/src/http/api/groups/groups.types.ts": {
+    "mtime": 1784216822.402679,
+    "ast_hash": "d64d77573875c06b81026bd8f4d51b97",
+    "semantic_hash": "d64d77573875c06b81026bd8f4d51b97"
+  },
+  "/home/mauricio.oliveira/Documentos/Coding/futuro/futebol/futebol-back/src/http/api/groups/index.ts": {
+    "mtime": 1784216822.402679,
+    "ast_hash": "7fdbc6792b90eba9e5d087427dc25e59",
+    "semantic_hash": "7fdbc6792b90eba9e5d087427dc25e59"
+  },
+  "/home/mauricio.oliveira/Documentos/Coding/futuro/futebol/futebol-back/src/http/api/groups/groups.authz.test.ts": {
+    "mtime": 1784216822.402679,
+    "ast_hash": "4c3cd1ea59a0e58370dd0ff04b1ce9d6",
+    "semantic_hash": "4c3cd1ea59a0e58370dd0ff04b1ce9d6"
+  },
+  "/home/mauricio.oliveira/Documentos/Coding/futuro/futebol/futebol-back/src/http/api/groups/groups.authz.ts": {
+    "mtime": 1784043360.3955097,
+    "ast_hash": "57a56505f1d459c7554a3d55ae1f944b",
+    "semantic_hash": "57a56505f1d459c7554a3d55ae1f944b"
+  },
+  "/home/mauricio.oliveira/Documentos/Coding/futuro/futebol/futebol-back/src/http/api/groups/groups.repository.ts": {
+    "mtime": 1784216822.402679,
+    "ast_hash": "da021157e24d4a8ce69d84eddeccec4f",
+    "semantic_hash": "da021157e24d4a8ce69d84eddeccec4f"
+  },
+  "/home/mauricio.oliveira/Documentos/Coding/futuro/futebol/futebol-back/src/http/api/groups/groups.schema.ts": {
+    "mtime": 1784216822.402679,
+    "ast_hash": "19cd1e140ef848fcb61d8f2ac25c99e7",
+    "semantic_hash": "19cd1e140ef848fcb61d8f2ac25c99e7"
+  },
+  "/home/mauricio.oliveira/Documentos/Coding/futuro/futebol/futebol-back/src/http/api/groups/create-group/create-group.schema.ts": {
+    "mtime": 1784043493.6232746,
+    "ast_hash": "dc0d66d49985183763d450ac2c68dd69",
+    "semantic_hash": "dc0d66d49985183763d450ac2c68dd69"
+  },
+  "/home/mauricio.oliveira/Documentos/Coding/futuro/futebol/futebol-back/src/http/api/groups/create-group/create-group.controller.ts": {
+    "mtime": 1784044915.8785806,
+    "ast_hash": "3a4ad5a6cc9eaa9be5868594c646c3f5",
+    "semantic_hash": "3a4ad5a6cc9eaa9be5868594c646c3f5"
+  },
+  "/home/mauricio.oliveira/Documentos/Coding/futuro/futebol/futebol-back/src/http/api/groups/create-group/create-group.service.ts": {
+    "mtime": 1784044906.799482,
+    "ast_hash": "9b6c6a45e38553bf01030100544ba7f2",
+    "semantic_hash": "9b6c6a45e38553bf01030100544ba7f2"
+  },
+  "/home/mauricio.oliveira/Documentos/Coding/futuro/futebol/futebol-back/src/http/api/groups/get-group/get-group.controller.ts": {
+    "mtime": 1784043541.1999938,
+    "ast_hash": "0115f224544b0c0aeb7449862737e775",
+    "semantic_hash": "0115f224544b0c0aeb7449862737e775"
+  },
+  "/home/mauricio.oliveira/Documentos/Coding/futuro/futebol/futebol-back/src/http/api/groups/get-group/get-group.schema.ts": {
+    "mtime": 1784043527.1677837,
+    "ast_hash": "2c07fcd1aa142140616724f26761a97e",
+    "semantic_hash": "2c07fcd1aa142140616724f26761a97e"
+  },
+  "/home/mauricio.oliveira/Documentos/Coding/futuro/futebol/futebol-back/src/http/api/groups/get-group/get-group.service.ts": {
+    "mtime": 1784043535.1649036,
+    "ast_hash": "ee9f182339685e4f15168cad0aabffbb",
+    "semantic_hash": "ee9f182339685e4f15168cad0aabffbb"
+  },
+  "/home/mauricio.oliveira/Documentos/Coding/futuro/futebol/futebol-back/src/http/api/groups/update-group/update-group.service.ts": {
+    "mtime": 1784216822.402679,
+    "ast_hash": "3f5c5f1a2b444a4116696563798d0bf9",
+    "semantic_hash": "3f5c5f1a2b444a4116696563798d0bf9"
+  },
+  "/home/mauricio.oliveira/Documentos/Coding/futuro/futebol/futebol-back/src/http/api/groups/update-group/update-group.schema.ts": {
+    "mtime": 1784216822.402679,
+    "ast_hash": "630b6361c6b76a481c842b2ce41a80d5",
+    "semantic_hash": "630b6361c6b76a481c842b2ce41a80d5"
+  },
+  "/home/mauricio.oliveira/Documentos/Coding/futuro/futebol/futebol-back/src/http/api/groups/update-group/update-group.controller.ts": {
+    "mtime": 1784216822.402679,
+    "ast_hash": "22e7e7d225688efd8bcf956ff871d168",
+    "semantic_hash": "22e7e7d225688efd8bcf956ff871d168"
+  },
+  "/home/mauricio.oliveira/Documentos/Coding/futuro/futebol/futebol-back/src/http/api/groups/children/members/members.presenter.ts": {
+    "mtime": 1784228893.605097,
+    "ast_hash": "189001bdd1d0acb9f22f7285ae999f22",
+    "semantic_hash": "189001bdd1d0acb9f22f7285ae999f22"
+  },
+  "/home/mauricio.oliveira/Documentos/Coding/futuro/futebol/futebol-back/src/http/api/groups/children/members/index.ts": {
+    "mtime": 1784134840.6926045,
+    "ast_hash": "e28f8341e626fa60b55746648ad9c39c",
+    "semantic_hash": "e28f8341e626fa60b55746648ad9c39c"
+  },
+  "/home/mauricio.oliveira/Documentos/Coding/futuro/futebol/futebol-back/src/http/api/groups/children/members/members.repository.ts": {
+    "mtime": 1784228893.6060972,
+    "ast_hash": "e76345b0609ab2e763a67995da8e9d92",
+    "semantic_hash": "e76345b0609ab2e763a67995da8e9d92"
+  },
+  "/home/mauricio.oliveira/Documentos/Coding/futuro/futebol/futebol-back/src/http/api/groups/children/members/members.schema.ts": {
+    "mtime": 1784228893.6060972,
+    "ast_hash": "c76f5e94ce1086d244bc1338273498b9",
+    "semantic_hash": "c76f5e94ce1086d244bc1338273498b9"
+  },
+  "/home/mauricio.oliveira/Documentos/Coding/futuro/futebol/futebol-back/src/http/api/groups/children/members/members.types.ts": {
+    "mtime": 1784228893.6060972,
+    "ast_hash": "8cc09219fcb98246ed031e23bb99c028",
+    "semantic_hash": "8cc09219fcb98246ed031e23bb99c028"
+  },
+  "/home/mauricio.oliveira/Documentos/Coding/futuro/futebol/futebol-back/src/http/api/groups/children/members/link-member-user/link-member-user.schema.ts": {
+    "mtime": 1784134800.174995,
+    "ast_hash": "08748c943ea9d4255e752a92b80373a4",
+    "semantic_hash": "08748c943ea9d4255e752a92b80373a4"
+  },
+  "/home/mauricio.oliveira/Documentos/Coding/futuro/futebol/futebol-back/src/http/api/groups/children/members/link-member-user/link-member-user.presenter.ts": {
+    "mtime": 1784134824.6903636,
+    "ast_hash": "be424aca4a2ecf99847d2e849eebf93c",
+    "semantic_hash": "be424aca4a2ecf99847d2e849eebf93c"
+  },
+  "/home/mauricio.oliveira/Documentos/Coding/futuro/futebol/futebol-back/src/http/api/groups/children/members/link-member-user/link-member-user.service.ts": {
+    "mtime": 1784134928.581928,
+    "ast_hash": "b5a4a11fab4c55e5c5741c5071bf26fd",
+    "semantic_hash": "b5a4a11fab4c55e5c5741c5071bf26fd"
+  },
+  "/home/mauricio.oliveira/Documentos/Coding/futuro/futebol/futebol-back/src/http/api/groups/children/members/link-member-user/link-member-user.controller.ts": {
+    "mtime": 1784134928.582928,
+    "ast_hash": "2bd46cb30bc37cbb9aff50b8b05dec65",
+    "semantic_hash": "2bd46cb30bc37cbb9aff50b8b05dec65"
+  },
+  "/home/mauricio.oliveira/Documentos/Coding/futuro/futebol/futebol-back/src/http/api/groups/children/members/add-member/add-member.controller.ts": {
+    "mtime": 1784045133.3739293,
+    "ast_hash": "bf05784e6b51cb0fd8acf2b8b03ea476",
+    "semantic_hash": "bf05784e6b51cb0fd8acf2b8b03ea476"
+  },
+  "/home/mauricio.oliveira/Documentos/Coding/futuro/futebol/futebol-back/src/http/api/groups/children/members/add-member/add-member.schema.ts": {
+    "mtime": 1784228893.605097,
+    "ast_hash": "d77aa47fc458e4dd87acfdeb31079c8e",
+    "semantic_hash": "d77aa47fc458e4dd87acfdeb31079c8e"
+  },
+  "/home/mauricio.oliveira/Documentos/Coding/futuro/futebol/futebol-back/src/http/api/groups/children/members/add-member/add-member.service.ts": {
+    "mtime": 1784228893.605097,
+    "ast_hash": "84e8f104f957b1ad1c151dd8b40256d1",
+    "semantic_hash": "84e8f104f957b1ad1c151dd8b40256d1"
+  },
+  "/home/mauricio.oliveira/Documentos/Coding/futuro/futebol/futebol-back/src/http/api/groups/children/members/update-member/update-member.controller.ts": {
+    "mtime": 1784044883.1132247,
+    "ast_hash": "cc6c937e673c5c68059371d02ce31900",
+    "semantic_hash": "cc6c937e673c5c68059371d02ce31900"
+  },
+  "/home/mauricio.oliveira/Documentos/Coding/futuro/futebol/futebol-back/src/http/api/groups/children/members/update-member/update-member.schema.ts": {
+    "mtime": 1784216822.402679,
+    "ast_hash": "f128348341a3415ac304b20b16b5cdde",
+    "semantic_hash": "f128348341a3415ac304b20b16b5cdde"
+  },
+  "/home/mauricio.oliveira/Documentos/Coding/futuro/futebol/futebol-back/src/http/api/groups/children/members/update-member/update-member.service.ts": {
+    "mtime": 1784044876.426152,
+    "ast_hash": "c835a1db9f602163bc7772d31e8f8a4e",
+    "semantic_hash": "c835a1db9f602163bc7772d31e8f8a4e"
+  },
+  "/home/mauricio.oliveira/Documentos/Coding/futuro/futebol/futebol-back/src/http/api/groups/children/members/list-members/list-members.controller.ts": {
+    "mtime": 1784044864.9140267,
+    "ast_hash": "51230b6749200f49358b4aee9fbd4531",
+    "semantic_hash": "51230b6749200f49358b4aee9fbd4531"
+  },
+  "/home/mauricio.oliveira/Documentos/Coding/futuro/futebol/futebol-back/src/http/api/groups/children/members/list-members/list-members.schema.ts": {
+    "mtime": 1784044853.814906,
+    "ast_hash": "9cac0632711b25f7262ab81edc62276c",
+    "semantic_hash": "9cac0632711b25f7262ab81edc62276c"
+  },
+  "/home/mauricio.oliveira/Documentos/Coding/futuro/futebol/futebol-back/src/http/api/groups/children/members/list-members/list-members.service.ts": {
+    "mtime": 1784044858.7259593,
+    "ast_hash": "8d462de4e62d9fb0ccfccf3608316da7",
+    "semantic_hash": "8d462de4e62d9fb0ccfccf3608316da7"
+  },
+  "/home/mauricio.oliveira/Documentos/Coding/futuro/futebol/futebol-back/src/http/api/groups/list-my-groups/list-my-groups.service.ts": {
+    "mtime": 1784122415.1217203,
+    "ast_hash": "076181ff6d4fa91148e2158afc5c291a",
+    "semantic_hash": "076181ff6d4fa91148e2158afc5c291a"
+  },
+  "/home/mauricio.oliveira/Documentos/Coding/futuro/futebol/futebol-back/src/http/api/groups/list-my-groups/list-my-groups.schema.ts": {
+    "mtime": 1784122402.7196286,
+    "ast_hash": "3c70b7c8af94a7274246c7a3bef2579b",
+    "semantic_hash": "3c70b7c8af94a7274246c7a3bef2579b"
+  },
+  "/home/mauricio.oliveira/Documentos/Coding/futuro/futebol/futebol-back/src/http/api/groups/list-my-groups/list-my-groups.controller.ts": {
+    "mtime": 1784043520.1826787,
+    "ast_hash": "b752c87800b9ad9d03e8574a99bb47e9",
+    "semantic_hash": "b752c87800b9ad9d03e8574a99bb47e9"
+  },
+  "/home/mauricio.oliveira/Documentos/Coding/futuro/futebol/futebol-back/prisma/migrations/20260714190000_team_assignment/migration.sql": {
+    "mtime": 1784055655.8757,
+    "ast_hash": "97ac90f49e53aec3f05279004105761b",
+    "semantic_hash": "97ac90f49e53aec3f05279004105761b"
+  },
+  "/home/mauricio.oliveira/Documentos/Coding/futuro/futebol/futebol-back/prisma/migrations/20260715120000_match_stat/migration.sql": {
+    "mtime": 1784126645.9551442,
+    "ast_hash": "df3a7048b9fd569fe155e8808fb5aeaa",
+    "semantic_hash": "df3a7048b9fd569fe155e8808fb5aeaa"
+  },
+  "/home/mauricio.oliveira/Documentos/Coding/futuro/futebol/futebol-back/prisma/migrations/20260715100000_match_result/migration.sql": {
+    "mtime": 1784125995.8051574,
+    "ast_hash": "81527e6293144f84a85146135632056f",
+    "semantic_hash": "81527e6293144f84a85146135632056f"
+  },
+  "/home/mauricio.oliveira/Documentos/Coding/futuro/futebol/futebol-back/prisma/migrations/20260715160000_match_series/migration.sql": {
+    "mtime": 1784207672.860383,
+    "ast_hash": "ba63212904fbb56f418299593d8e7a90",
+    "semantic_hash": "ba63212904fbb56f418299593d8e7a90"
+  },
+  "/home/mauricio.oliveira/Documentos/Coding/futuro/futebol/futebol-back/prisma/migrations/20260715140000_player_career/migration.sql": {
+    "mtime": 1784128586.1159868,
+    "ast_hash": "8b76395c1896b43ee56e7640aab66f31",
+    "semantic_hash": "8b76395c1896b43ee56e7640aab66f31"
+  },
+  "/home/mauricio.oliveira/Documentos/Coding/futuro/futebol/futebol-back/prisma/migrations/20260715130000_vote/migration.sql": {
+    "mtime": 1784127384.827189,
+    "ast_hash": "901fc64c472f1e5395cc1275c0d57aa6",
+    "semantic_hash": "901fc64c472f1e5395cc1275c0d57aa6"
+  },
+  "/home/mauricio.oliveira/Documentos/Coding/futuro/futebol/futebol-back/prisma/migrations/20260714170000_attendance/migration.sql": {
+    "mtime": 1784051678.2463417,
+    "ast_hash": "9e3fdef4134eb9a17beaaaa5cd28e149",
+    "semantic_hash": "9e3fdef4134eb9a17beaaaa5cd28e149"
+  },
+  "/home/mauricio.oliveira/Documentos/Coding/futuro/futebol/futebol-back/prisma/migrations/20260714144439_user_auth_fields/migration.sql": {
+    "mtime": 1784040286.1171515,
+    "ast_hash": "b47cb7bd5db1af728ca4b5aa46aa8d61",
+    "semantic_hash": "b47cb7bd5db1af728ca4b5aa46aa8d61"
+  },
+  "/home/mauricio.oliveira/Documentos/Coding/futuro/futebol/futebol-back/prisma/migrations/20260714150000_group/migration.sql": {
+    "mtime": 1784043212.4120715,
+    "ast_hash": "cd4d48a007a06bdf8a1c34a639e97d96",
+    "semantic_hash": "cd4d48a007a06bdf8a1c34a639e97d96"
+  },
+  "/home/mauricio.oliveira/Documentos/Coding/futuro/futebol/futebol-back/prisma/migrations/20260714155746_players_members/migration.sql": {
+    "mtime": 1784044619.0463278,
+    "ast_hash": "1fca26c95ddd8950f7e72b9d14794805",
+    "semantic_hash": "1fca26c95ddd8950f7e72b9d14794805"
+  },
+  "/home/mauricio.oliveira/Documentos/Coding/futuro/futebol/futebol-back/prisma/migrations/20260714142748_init_user/migration.sql": {
+    "mtime": 1784039268.4587178,
+    "ast_hash": "cc633a52f193a0cc9f901186435d602f",
+    "semantic_hash": "cc633a52f193a0cc9f901186435d602f"
+  },
+  "/home/mauricio.oliveira/Documentos/Coding/futuro/futebol/futebol-back/prisma/migrations/20260715150000_player_user_unique/migration.sql": {
+    "mtime": 1784130018.3125691,
+    "ast_hash": "4b017f9ca6c6e70ef33269fc7ee007f4",
+    "semantic_hash": "4b017f9ca6c6e70ef33269fc7ee007f4"
+  },
+  "/home/mauricio.oliveira/Documentos/Coding/futuro/futebol/futebol-back/prisma/migrations/20260714160000_match/migration.sql": {
+    "mtime": 1784046237.6727884,
+    "ast_hash": "f23cc909280e961cb8af820eed34e6d4",
+    "semantic_hash": "f23cc909280e961cb8af820eed34e6d4"
+  },
+  "/home/mauricio.oliveira/Documentos/Coding/futuro/futebol/futebol-back/prisma/migrations/20260714180000_invite_token/migration.sql": {
+    "mtime": 1784054265.5373309,
+    "ast_hash": "6308a4eb27c9921133f80af8e7077b57",
+    "semantic_hash": "6308a4eb27c9921133f80af8e7077b57"
+  },
+  "/home/mauricio.oliveira/Documentos/Coding/futuro/futebol/futebol-back/prisma/migrations/20260716120000_membership_dues/migration.sql": {
+    "mtime": 1784216822.401679,
+    "ast_hash": "6bb9b852d03db82b106122788eef033e",
+    "semantic_hash": "6bb9b852d03db82b106122788eef033e"
+  },
+  "/home/mauricio.oliveira/Documentos/Coding/futuro/futebol/futebol-back/prisma/migrations/20260716140000_player_affinity_member_optional/migration.sql": {
+    "mtime": 1784228893.605097,
+    "ast_hash": "fb602b9ea1eb420f2035e17bdc9fbc06",
+    "semantic_hash": "fb602b9ea1eb420f2035e17bdc9fbc06"
+  },
+  "/home/mauricio.oliveira/Documentos/Coding/futuro/futebol/futebol-back/scripts/export-openapi.ts": {
+    "mtime": 1784229364.030826,
+    "ast_hash": "fcfd2f54020a683237e359f7f01d28ec",
+    "semantic_hash": "fcfd2f54020a683237e359f7f01d28ec"
+  },
+  "/home/mauricio.oliveira/Documentos/Coding/futuro/futebol/futebol-back/.claude/skills/graphify/SKILL.md": {
+    "mtime": 1779821894.3377905,
+    "ast_hash": "5ae00786ea53e4d944ab70abe11eedd1",
+    "semantic_hash": "5ae00786ea53e4d944ab70abe11eedd1"
+  },
+  "/home/mauricio.oliveira/Documentos/Coding/futuro/futebol/futebol-back/.claude/skills/b2b-reservas-backend/SKILL.md": {
+    "mtime": 1783797359.3592746,
+    "ast_hash": "9b3a8223f636ffdc3f45cb9066d717fb",
+    "semantic_hash": "9b3a8223f636ffdc3f45cb9066d717fb"
+  },
+  "/home/mauricio.oliveira/Documentos/Coding/futuro/futebol/futebol-back/.claude/skills/b2b-reservas-backend/references/INTEGRATIONS.md": {
+    "mtime": 1783797671.5605636,
+    "ast_hash": "1f565b7db8cfa38b23623203ab79c8ea",
+    "semantic_hash": "1f565b7db8cfa38b23623203ab79c8ea"
+  },
+  "/home/mauricio.oliveira/Documentos/Coding/futuro/futebol/futebol-back/.claude/skills/b2b-reservas-backend/references/PERFORMANCE.md": {
+    "mtime": 1783797427.4849875,
+    "ast_hash": "11c493fd832f8b0fca9505eabf7be98c",
+    "semantic_hash": "11c493fd832f8b0fca9505eabf7be98c"
+  },
+  "/home/mauricio.oliveira/Documentos/Coding/futuro/futebol/futebol-back/.claude/skills/b2b-reservas-backend/references/OPERATIONS.md": {
+    "mtime": 1783797688.2487407,
+    "ast_hash": "97758bca0ed2e319248037a21fbf675c",
+    "semantic_hash": "97758bca0ed2e319248037a21fbf675c"
+  },
+  "/home/mauricio.oliveira/Documentos/Coding/futuro/futebol/futebol-back/.claude/skills/b2b-reservas-backend/references/ERRORS.md": {
+    "mtime": 1783797686.29872,
+    "ast_hash": "d1d85c4397d6b457a8bbfe3f18f6d474",
+    "semantic_hash": "d1d85c4397d6b457a8bbfe3f18f6d474"
+  },
+  "/home/mauricio.oliveira/Documentos/Coding/futuro/futebol/futebol-back/.claude/skills/b2b-reservas-backend/references/OBSERVABILITY.md": {
+    "mtime": 1782738215.677433,
+    "ast_hash": "6b48551e3b229fe7a10adf643cf400e7",
+    "semantic_hash": "6b48551e3b229fe7a10adf643cf400e7"
+  },
+  "/home/mauricio.oliveira/Documentos/Coding/futuro/futebol/futebol-back/.claude/skills/b2b-reservas-backend/references/DEPLOYMENT.md": {
+    "mtime": 1780319589.0,
+    "ast_hash": "7a260bd0fa95d00dbc9b7b070813cfc8",
+    "semantic_hash": "7a260bd0fa95d00dbc9b7b070813cfc8"
+  },
+  "/home/mauricio.oliveira/Documentos/Coding/futuro/futebol/futebol-back/.claude/skills/b2b-reservas-backend/references/TESTING.md": {
+    "mtime": 1780490591.4310086,
+    "ast_hash": "38923e6b2941ae403ac3840b95eb78c5",
+    "semantic_hash": "38923e6b2941ae403ac3840b95eb78c5"
+  },
+  "/home/mauricio.oliveira/Documentos/Coding/futuro/futebol/futebol-back/.claude/skills/b2b-reservas-backend/references/DOCKER.md": {
+    "mtime": 1782738215.6764328,
+    "ast_hash": "87cc9ad583afeaad1b65d10e7b6d8239",
+    "semantic_hash": "87cc9ad583afeaad1b65d10e7b6d8239"
+  },
+  "/home/mauricio.oliveira/Documentos/Coding/futuro/futebol/futebol-back/.claude/skills/b2b-reservas-backend/references/CODING_STANDARDS.md": {
+    "mtime": 1783797589.9666991,
+    "ast_hash": "3c28da476f5ef43df6f078d7eb10a973",
+    "semantic_hash": "3c28da476f5ef43df6f078d7eb10a973"
+  },
+  "/home/mauricio.oliveira/Documentos/Coding/futuro/futebol/futebol-back/.claude/skills/b2b-reservas-backend/references/README.md": {
+    "mtime": 1783797698.071845,
+    "ast_hash": "8f6b842476eb6b10cde2e39e2848146c",
+    "semantic_hash": "8f6b842476eb6b10cde2e39e2848146c"
+  },
+  "/home/mauricio.oliveira/Documentos/Coding/futuro/futebol/futebol-back/.claude/skills/b2b-reservas-backend/references/DATABASE.md": {
+    "mtime": 1780508567.42117,
+    "ast_hash": "bdd7f05c9571c34da0a0159db2c32fb8",
+    "semantic_hash": "bdd7f05c9571c34da0a0159db2c32fb8"
+  },
+  "/home/mauricio.oliveira/Documentos/Coding/futuro/futebol/futebol-back/.claude/skills/b2b-reservas-backend/references/DECISIONS.md": {
+    "mtime": 1783797393.922636,
+    "ast_hash": "ee2438302c319c18d736eea1e988fb2a",
+    "semantic_hash": "ee2438302c319c18d736eea1e988fb2a"
+  },
+  "/home/mauricio.oliveira/Documentos/Coding/futuro/futebol/futebol-back/.claude/skills/b2b-reservas-backend/references/ARCHITECTURE.md": {
+    "mtime": 1783797532.866096,
+    "ast_hash": "b4270d55120a62cc2878372444c9390a",
+    "semantic_hash": "b4270d55120a62cc2878372444c9390a"
+  },
+  "/home/mauricio.oliveira/Documentos/Coding/futuro/futebol/futebol-back/.claude/skills/b2b-reservas-backend/references/DATES.md": {
+    "mtime": 1783797713.8530128,
+    "ast_hash": "77b82c27ef7be47f54c8df43e78d3a79",
+    "semantic_hash": "77b82c27ef7be47f54c8df43e78d3a79"
+  },
+  "/home/mauricio.oliveira/Documentos/Coding/futuro/futebol/futebol-back/.claude/skills/b2b-reservas-backend/references/PROJECT.md": {
+    "mtime": 1783797726.6121483,
+    "ast_hash": "3377e64a24631099f6149dc83d5d7e2c",
+    "semantic_hash": "3377e64a24631099f6149dc83d5d7e2c"
+  },
+  "/home/mauricio.oliveira/Documentos/Coding/futuro/futebol/futebol-back/.claude/skills/sync-docs/SKILL.md": {
+    "mtime": 1780490307.152537,
+    "ast_hash": "862077e1e8e39582b13897a2defb8a8d",
+    "semantic_hash": "862077e1e8e39582b13897a2defb8a8d"
+  },
+  "/home/mauricio.oliveira/Documentos/Coding/futuro/futebol/futebol-back/.superpowers/sdd/task-7-brief.md": {
+    "mtime": 1784212219.5417156,
+    "ast_hash": "bab35978684f9d1b5a5e5b70e02efdb3",
+    "semantic_hash": "bab35978684f9d1b5a5e5b70e02efdb3"
+  },
+  "/home/mauricio.oliveira/Documentos/Coding/futuro/futebol/futebol-back/.superpowers/sdd/task-6-brief.md": {
+    "mtime": 1784211667.2575767,
+    "ast_hash": "38349b2a30bbcc7c4142c5f27949aaec",
+    "semantic_hash": "38349b2a30bbcc7c4142c5f27949aaec"
+  },
+  "/home/mauricio.oliveira/Documentos/Coding/futuro/futebol/futebol-back/.superpowers/sdd/task-7-report.md": {
+    "mtime": 1784212722.5931387,
+    "ast_hash": "033e7262cf25ac0678b5fb6ae4083cef",
+    "semantic_hash": "033e7262cf25ac0678b5fb6ae4083cef"
+  },
+  "/home/mauricio.oliveira/Documentos/Coding/futuro/futebol/futebol-back/.superpowers/sdd/task-8-report.md": {
+    "mtime": 1784168304.9553018,
+    "ast_hash": "6b1e511322f89d9b650c98df16f6e0b3",
+    "semantic_hash": "6b1e511322f89d9b650c98df16f6e0b3"
+  },
+  "/home/mauricio.oliveira/Documentos/Coding/futuro/futebol/futebol-back/.superpowers/sdd/task-4-brief.md": {
+    "mtime": 1784209944.077051,
+    "ast_hash": "00744bcf676bf9845907582c45b95275",
+    "semantic_hash": "00744bcf676bf9845907582c45b95275"
+  },
+  "/home/mauricio.oliveira/Documentos/Coding/futuro/futebol/futebol-back/.superpowers/sdd/task-5-report.md": {
+    "mtime": 1784211387.6000783,
+    "ast_hash": "5073aad0a9cdc5349863715cb1eae832",
+    "semantic_hash": "5073aad0a9cdc5349863715cb1eae832"
+  },
+  "/home/mauricio.oliveira/Documentos/Coding/futuro/futebol/futebol-back/.superpowers/sdd/task-1-report.md": {
+    "mtime": 1784221073.398254,
+    "ast_hash": "0356eea31c59edca569e74b2f028f5ee",
+    "semantic_hash": "0356eea31c59edca569e74b2f028f5ee"
+  },
+  "/home/mauricio.oliveira/Documentos/Coding/futuro/futebol/futebol-back/.superpowers/sdd/task-6-report.md": {
+    "mtime": 1784212003.0702684,
+    "ast_hash": "faac99b78664bf339422cb9aaea415ae",
+    "semantic_hash": "faac99b78664bf339422cb9aaea415ae"
+  },
+  "/home/mauricio.oliveira/Documentos/Coding/futuro/futebol/futebol-back/.superpowers/sdd/task-1-brief.md": {
+    "mtime": 1784219730.4204612,
+    "ast_hash": "fa97a5a6657f6840e38a0eb15157228f",
+    "semantic_hash": "fa97a5a6657f6840e38a0eb15157228f"
+  },
+  "/home/mauricio.oliveira/Documentos/Coding/futuro/futebol/futebol-back/.superpowers/sdd/task-2-brief.md": {
+    "mtime": 1784221443.7331593,
+    "ast_hash": "a38dabc46f9790188a1112ddbc895087",
+    "semantic_hash": "a38dabc46f9790188a1112ddbc895087"
+  },
+  "/home/mauricio.oliveira/Documentos/Coding/futuro/futebol/futebol-back/.superpowers/sdd/task-5-brief.md": {
+    "mtime": 1784210737.4239728,
+    "ast_hash": "785b85ec195d5f0f6a50268c8876f83d",
+    "semantic_hash": "785b85ec195d5f0f6a50268c8876f83d"
+  },
+  "/home/mauricio.oliveira/Documentos/Coding/futuro/futebol/futebol-back/.superpowers/sdd/task-4-report.md": {
+    "mtime": 1784210542.3205886,
+    "ast_hash": "bbd5530f7e01df09bfde36d8de2ac97f",
+    "semantic_hash": "bbd5530f7e01df09bfde36d8de2ac97f"
+  },
+  "/home/mauricio.oliveira/Documentos/Coding/futuro/futebol/futebol-back/.superpowers/sdd/task-3-report.md": {
+    "mtime": 1784209739.3712997,
+    "ast_hash": "8191c2dcc03beed97a672256af2691da",
+    "semantic_hash": "8191c2dcc03beed97a672256af2691da"
+  },
+  "/home/mauricio.oliveira/Documentos/Coding/futuro/futebol/futebol-back/.superpowers/sdd/task-2-report.md": {
+    "mtime": 1784209470.7941763,
+    "ast_hash": "af788cf280df6a6cda437ce4c84432ad",
+    "semantic_hash": "af788cf280df6a6cda437ce4c84432ad"
+  },
+  "/home/mauricio.oliveira/Documentos/Coding/futuro/futebol/futebol-back/.superpowers/sdd/task-8-brief.md": {
+    "mtime": 1784167453.9593818,
+    "ast_hash": "0513f0467392caf454bd918afab19a24",
+    "semantic_hash": "0513f0467392caf454bd918afab19a24"
+  },
+  "/home/mauricio.oliveira/Documentos/Coding/futuro/futebol/futebol-back/.superpowers/sdd/task-3-brief.md": {
+    "mtime": 1784209552.39523,
+    "ast_hash": "1706cd40a2cde90c660b2b2b4070f97f",
+    "semantic_hash": "1706cd40a2cde90c660b2b2b4070f97f"
+  }
+}

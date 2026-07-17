@@ -46,7 +46,11 @@ export const updateMyPlayerRoute: FastifyPluginAsync = async (app) => {
     async (req, reply) => {
       const service = createUpdateMyPlayerService({ playersRepo: createPlayersRepository(prisma) });
       const { userId } = requireUser(req);
-      const player = await service(userId, req.body.affinity);
+      const player = await service(userId, {
+        affinity: req.body.affinity,
+        attributes: req.body.attributes,
+        skills: req.body.skills,
+      });
       void reply.code(200).send(player);
     },
   );

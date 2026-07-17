@@ -12,10 +12,20 @@
  * owner still sets, consumed by the balancer). Empty (`{}`) until the
  * player declares it — never set by an organizer.
  */
+import type { AttributeKey, SkillKey } from "./players.catalog";
+
 export type Player = {
   id: string;
   userId: string | null;
   name: string;
   phone: string | null;
   affinity: Record<string, number>;
+  /**
+   * Onboarding profile (descriptive only, never feeds the balancer): the
+   * self-declared attribute budget (`{attribute: 0-100}`, always the full
+   * catalog — the repo fills the 50 baseline) and up to `MAX_SKILLS` skill
+   * tags. See `players.catalog.ts`.
+   */
+  attributes: Record<AttributeKey, number>;
+  skills: SkillKey[];
 };

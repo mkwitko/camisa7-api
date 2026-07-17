@@ -114,6 +114,8 @@ describe("playerCareerRepository (integration)", () => {
       name: row.name,
       phone: row.phone,
       affinity: (row.affinity ?? {}) as Record<string, number>,
+      attributes: (row.attributes ?? {}) as Player["attributes"],
+      skills: (row.skills ?? []) as Player["skills"],
     };
   }
 
@@ -130,6 +132,8 @@ describe("playerCareerRepository (integration)", () => {
       name: row.name,
       phone: row.phone,
       affinity: (row.affinity ?? {}) as Record<string, number>,
+      attributes: (row.attributes ?? {}) as Player["attributes"],
+      skills: (row.skills ?? []) as Player["skills"],
     };
   }
 
@@ -143,7 +147,7 @@ describe("playerCareerRepository (integration)", () => {
           groupId,
           playerId: player.id,
           role: "jogador",
-          affinity: { atacante: 60 },
+          affinity: { campo_atacante: 60 },
         },
       });
 
@@ -167,14 +171,14 @@ describe("playerCareerRepository (integration)", () => {
       expect(career.wins).toBe(1);
       expect(career.goals).toBe(2);
       // win(6) + 2 goals(3 each) = raw 12, * 60% affinity = 7.2, bounded to the +3 step cap: 60 -> 63.
-      expect(career.overall.atacante).toBe(63);
+      expect(career.overall.campo_atacante).toBe(63);
       expect(career.level).toBe("bronze");
     });
 
     it("bootstraps a registered player's overall from their OWN Player.affinity, ignoring the group's affinity", async () => {
       const groupId = await seedGroup();
       const ownerUserId = await createOwner(testDb.prisma);
-      const player = await seedRegisteredPlayer("Player", ownerUserId, { meia: 60 });
+      const player = await seedRegisteredPlayer("Player", ownerUserId, { campo_meia: 60 });
       const opponent = await seedPlayer("Opponent");
       // Group-level affinity is deliberately different (and would bootstrap
       // to a different position/value) to prove `resolveAffinity` prefers
@@ -184,7 +188,7 @@ describe("playerCareerRepository (integration)", () => {
           groupId,
           playerId: player.id,
           role: "jogador",
-          affinity: { atacante: 10 },
+          affinity: { campo_atacante: 10 },
         },
       });
 
@@ -203,10 +207,10 @@ describe("playerCareerRepository (integration)", () => {
 
       const career = await repo.recomputeForPlayer(player.id);
 
-      // win(6) + 2 goals(3 each) = raw 12, * 60% (Player.affinity.meia) = 7.2, bounded to +3: 60 -> 63.
-      expect(career.overall.meia).toBe(63);
-      // The group's `atacante` affinity never applied — it belongs to a guest-only fallback.
-      expect(career.overall.atacante).toBeUndefined();
+      // win(6) + 2 goals(3 each) = raw 12, * 60% (Player.affinity.campo_meia) = 7.2, bounded to +3: 60 -> 63.
+      expect(career.overall.campo_meia).toBe(63);
+      // The group's `campo_atacante` affinity never applied — it belongs to a guest-only fallback.
+      expect(career.overall.campo_atacante).toBeUndefined();
     });
 
     it("counts MVP votes toward mvpCount and nudges overall, without letting fair_play affect overall", async () => {
@@ -218,7 +222,7 @@ describe("playerCareerRepository (integration)", () => {
           groupId,
           playerId: player.id,
           role: "jogador",
-          affinity: { meia: 50 },
+          affinity: { campo_meia: 50 },
         },
       });
       const matchId = await seedFinalizedMatch({
@@ -241,7 +245,7 @@ describe("playerCareerRepository (integration)", () => {
       expect(career.mvpCount).toBe(1);
       expect(career.draws).toBe(1);
       // draw(1) + mvp vote(4) = 5, * 50% affinity = 2.5, rounds to +3: 50 -> 53. fair_play contributes nothing.
-      expect(career.overall.meia).toBe(53);
+      expect(career.overall.campo_meia).toBe(53);
     });
 
     it("only replays matches with a logged MatchStat row for this player", async () => {
@@ -304,7 +308,7 @@ describe("playerCareerRepository (integration)", () => {
       const player = await seedPlayer("Player");
       const opponent = await seedPlayer("Opponent");
       await testDb.prisma.playerCareer.create({
-        data: { playerId: player.id, affinity: { atacante: 80 } },
+        data: { playerId: player.id, affinity: { campo_atacante: 80 } },
       });
       await seedFinalizedMatch({
         groupId,
@@ -321,7 +325,7 @@ describe("playerCareerRepository (integration)", () => {
 
       const career = await repo.recomputeForPlayer(player.id);
 
-      expect(career.affinity).toEqual({ atacante: 80 });
+      expect(career.affinity).toEqual({ campo_atacante: 80 });
     });
   });
 

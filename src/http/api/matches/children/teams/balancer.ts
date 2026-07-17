@@ -1,18 +1,17 @@
-import type { Position } from "@/http/api/groups/children/members/members.types";
-
 /**
  * Input to the balancer — one confirmed attendee's rating snapshot. Built by
- * `generate-teams` from a `GroupMember`'s `primaryPos`/`seedOverall`
- * (falling back to `overall: 50`/`primaryPos: "meia"` for a guest with no
- * rating in this group — see `generate-teams.service.ts`). Kept structurally
- * independent of `GroupMember`/`Attendance` so this module has zero
- * DB/Prisma dependency, which is what keeps it pure and trivially unit
- * -testable.
+ * `generate-teams` from the player's affinity × career overall (falling back
+ * to `overall: 50`/`primaryPos: "campo_meia"` for a guest with no rating —
+ * see `generate-teams.service.ts`). `primaryPos` is a modality-scoped
+ * `FieldPosition` slug (kept as `string` here so this module stays free of the
+ * position vocabulary). Kept structurally independent of
+ * `GroupMember`/`Attendance` so this module has zero DB/Prisma dependency,
+ * which is what keeps it pure and trivially unit-testable.
  */
 export type BalancerPlayer = {
   playerId: string;
   name: string;
-  primaryPos: Position;
+  primaryPos: string;
   overall: number;
   isGoalkeeper: boolean;
 };
