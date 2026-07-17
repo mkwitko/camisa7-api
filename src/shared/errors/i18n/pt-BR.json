@@ -44,5 +44,9 @@
   "SYS-T0002": "Erro interno do servidor.",
   "PLR-T0006": "Upload de imagem indisponível no momento.",
   "PLR-T0007": "Tipo de imagem não suportado.",
-  "BIL-T0001": "Pagamentos indisponíveis no momento."
+  "BIL-T0001": "Pagamentos indisponíveis no momento.",
+  "JRQ-T0001": "Você já pediu para entrar nesta partida.",
+  "JRQ-T0002": "Esta partida permite entrada direta — confirme sua presença.",
+  "JRQ-T0003": "Pedido de entrada não encontrado.",
+  "JRQ-T0004": "Este pedido de entrada já foi decidido."
 }

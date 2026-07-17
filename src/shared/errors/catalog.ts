@@ -404,6 +404,40 @@ export const ERRORS = {
       internalMessage: "billing_disabled",
     }),
   },
+  // Geo G3 (Fase 2): `JoinRequest` (`children/join-requests`) — a stranger's
+  // request to join one match of a PUBLIC group whose `joinPolicy` is
+  // `request`. ALREADY_REQUESTED (409) is `requestJoin`'s idempotency guard
+  // (the caller already has a `pending` request for this match — same
+  // "already in this state" family as `ATT.ALREADY_IN`). NOT_REQUEST_POLICY
+  // (409) is thrown when the match's group ISN'T public+`request` — a
+  // public+`open` group is joined directly via `confirm-presence`, so opening
+  // a request is the wrong flow (the mirror image of A4's
+  // `ATT.JOIN_REQUEST_REQUIRED`). A PRIVATE group reuses `ATT.NOT_A_MEMBER`
+  // (403), same gate `confirm-presence` already applies. NOT_FOUND (404) backs
+  // `decide` when `reqId` doesn't belong to the match; NOT_PENDING (409) when
+  // it exists but was already approved/rejected (stale decision).
+  JRQ: {
+    ALREADY_REQUESTED: defineError({
+      code: "JRQ-T0001",
+      status: 409,
+      internalMessage: "join_request_already_requested",
+    }),
+    NOT_REQUEST_POLICY: defineError({
+      code: "JRQ-T0002",
+      status: 409,
+      internalMessage: "join_request_not_request_policy",
+    }),
+    NOT_FOUND: defineError({
+      code: "JRQ-T0003",
+      status: 404,
+      internalMessage: "join_request_not_found",
+    }),
+    NOT_PENDING: defineError({
+      code: "JRQ-T0004",
+      status: 409,
+      internalMessage: "join_request_not_pending",
+    }),
+  },
   SYS: {
     VALIDATION: defineError({
       code: "SYS-T0001",

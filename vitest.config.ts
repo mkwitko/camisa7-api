@@ -26,7 +26,11 @@ export default defineConfig({
     projects: [
       {
         resolve: { tsconfigPaths: true },
-        test: { name: "unit", include: ["src/**/*.test.ts"] },
+        test: {
+          name: "unit",
+          include: ["src/**/*.test.ts"],
+          setupFiles: ["test/setup-unit.ts"],
+        },
       },
       {
         resolve: { tsconfigPaths: true },

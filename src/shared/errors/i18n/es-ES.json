@@ -44,5 +44,9 @@
   "SYS-T0002": "Error interno del servidor.",
   "PLR-T0006": "La subida de imágenes no está disponible.",
   "PLR-T0007": "Tipo de imagen no admitido.",
-  "BIL-T0001": "Los pagos no están disponibles en este momento."
+  "BIL-T0001": "Los pagos no están disponibles en este momento.",
+  "JRQ-T0001": "Ya has solicitado unirte a este partido.",
+  "JRQ-T0002": "Este partido permite unirse directamente — solo confirma tu asistencia.",
+  "JRQ-T0003": "Solicitud de ingreso no encontrada.",
+  "JRQ-T0004": "Esta solicitud de ingreso ya fue decidida."
 }

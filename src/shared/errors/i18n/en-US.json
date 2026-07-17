@@ -44,5 +44,9 @@
   "SYS-T0002": "Internal server error.",
   "PLR-T0006": "Image upload is currently unavailable.",
   "PLR-T0007": "Unsupported image type.",
-  "BIL-T0001": "Payments are currently unavailable."
+  "BIL-T0001": "Payments are currently unavailable.",
+  "JRQ-T0001": "You have already requested to join this match.",
+  "JRQ-T0002": "This match allows joining directly — just confirm your attendance.",
+  "JRQ-T0003": "Join request not found.",
+  "JRQ-T0004": "This join request has already been decided."
 }
