@@ -91,8 +91,8 @@ export interface CourtRepository {
   listByVenue(venueId: string, opts?: { includeInactive?: boolean }): Promise<Court[]>;
   /**
    * Replaces all of a court's price rules atomically: `deleteMany` then
-   * `createMany` inside an interactive transaction when `db` is the top-level
-   * client (composes as a single step when `db` is already a `tx`).
+   * `createMany` inside a `$transaction` (nested transactions compose fine
+   * on Postgres if `db` is already a `tx`).
    */
   replacePriceRules(courtId: string, rules: PriceRuleInput[]): Promise<PriceRule[]>;
   listPriceRules(courtId: string): Promise<PriceRule[]>;
@@ -155,25 +155,22 @@ export function createCourtRepository(db: PrismaLike): CourtRepository {
     },
 
     async replacePriceRules(courtId, rules) {
-      const run = async (client: PrismaLike) => {
-        await client.courtPriceRule.deleteMany({ where: { courtId } });
+      // Atomic replace: delete + create inside a single `$transaction`.
+      // `Prisma.TransactionClient` does support `$transaction` (it's not in
+      // `ITXClientDenyList`), so this composes whether `db` is the top-level
+      // client or already a `tx` from an outer transaction.
+      const rows = await db.$transaction(async (tx) => {
+        await tx.courtPriceRule.deleteMany({ where: { courtId } });
         if (rules.length > 0) {
-          await client.courtPriceRule.createMany({
+          await tx.courtPriceRule.createMany({
             data: rules.map((rule) => ({ courtId, ...rule })),
           });
         }
-        return client.courtPriceRule.findMany({
+        return tx.courtPriceRule.findMany({
           where: { courtId },
           orderBy: [{ weekday: "asc" }, { startMinute: "asc" }],
         });
-      };
-
-      // `db` is either the top-level `PrismaClient` (has `$transaction`) or
-      // an interactive-tx `Prisma.TransactionClient` (doesn't, per
-      // `ITXClientDenyList` — nested transactions aren't a thing). Wrap in
-      // `$transaction` only in the former case; in the latter, the two
-      // writes are already atomic as part of the caller's tx.
-      const rows = "$transaction" in db ? await db.$transaction((tx) => run(tx)) : await run(db);
+      });
       return rows.map(toDomainPriceRule);
     },
 
