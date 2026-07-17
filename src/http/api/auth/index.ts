@@ -4,6 +4,7 @@ import { loginGoogleRoute } from "./login-google/login-google.controller";
 import { meRoute } from "./me/me.controller";
 import { meLocationRoute } from "./me-location/me-location.controller";
 import { mePushTokenRoute } from "./me-push-token/me-push-token.controller";
+import { meRolesRoute } from "./me-roles/me-roles.controller";
 import { refreshRoute } from "./refresh/refresh.controller";
 import { registerRoute } from "./register/register.controller";
 
@@ -16,4 +17,5 @@ export const authRoutes: FastifyPluginAsync = async (app) => {
   await app.register(meRoute);
   await app.register(mePushTokenRoute);
   await app.register(meLocationRoute);
+  await app.register(meRolesRoute);
 };

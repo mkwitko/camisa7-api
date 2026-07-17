@@ -21,6 +21,7 @@ export function createRegisterService(deps: RegisterDeps) {
       email: input.email,
       name: input.name,
       passwordHash,
+      roles: input.roles,
     });
 
     const { accessToken, refreshToken } = await signTokenPair(deps.jwt, user.id);

@@ -8,6 +8,7 @@ const aUser = (overrides: Partial<User> = {}): User => ({
   id: "u1",
   email: "a@b.com",
   name: "Alice",
+  roles: ["jogador"],
   hasPassword: true,
   googleSub: null,
   lastCity: null,
@@ -25,6 +26,7 @@ function makeFakeRepo(overrides: Partial<AuthRepository> = {}): AuthRepository {
     findByGoogleSub: vi.fn().mockResolvedValue(null),
     insert: vi.fn().mockResolvedValue(aUser()),
     linkGoogle: vi.fn(),
+    setRoles: vi.fn(),
     setPushToken: vi.fn(),
     getPushToken: vi.fn(),
     setLocation: vi.fn(),
@@ -48,7 +50,7 @@ describe("createRegisterService", () => {
     const jwt = makeFakeJwt();
     const service = createRegisterService({ repo, jwt });
 
-    const result = await service({ email: "a@b.com", password: "s3cret!!", name: "Alice" });
+    const result = await service({ email: "a@b.com", password: "s3cret!!", name: "Alice", roles: ["jogador"] });
 
     expect(result.user).toMatchObject({ email: "a@b.com", name: "Alice", hasPassword: true });
     expect(result.accessToken).toBe("access-token");
@@ -68,7 +70,7 @@ describe("createRegisterService", () => {
     const service = createRegisterService({ repo, jwt });
 
     await expect(
-      service({ email: "a@b.com", password: "s3cret!!", name: "Alice" }),
+      service({ email: "a@b.com", password: "s3cret!!", name: "Alice", roles: ["jogador"] }),
     ).rejects.toMatchObject({ code: "AUTH-T0002" });
     expect(repo.insert).not.toHaveBeenCalled();
   });

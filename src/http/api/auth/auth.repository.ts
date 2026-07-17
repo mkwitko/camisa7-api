@@ -1,12 +1,13 @@
 import { Prisma } from "@/generated/prisma/client";
 import type { PrismaLike } from "@/infra/db/client";
 import { ERRORS } from "@/shared/errors/catalog";
-import type { User } from "./auth.types";
+import type { Role, User } from "./auth.types";
 
 type UserRow = {
   id: string;
   email: string;
   name: string;
+  roles: Role[];
   passwordHash: string | null;
   googleSub: string | null;
   lastCity: string | null;
@@ -21,6 +22,7 @@ function toDomainUser(row: UserRow): User {
     id: row.id,
     email: row.email,
     name: row.name,
+    roles: row.roles,
     hasPassword: row.passwordHash !== null,
     googleSub: row.googleSub,
     lastCity: row.lastCity ?? null,
@@ -72,9 +74,13 @@ export interface AuthRepository {
     name: string;
     passwordHash?: string;
     googleSub?: string;
+    /** Marketplace V1: account types opted into at register. Defaults to `["jogador"]` when omitted. */
+    roles?: Role[];
   }): Promise<User>;
   /** Links a Google account to an existing (password) user — Google login on a known email. */
   linkGoogle(id: string, googleSub: string): Promise<void>;
+  /** Marketplace V1: replaces the caller's account types, from `PATCH /auth/me/roles`. Returns the updated `User`. */
+  setRoles(id: string, roles: Role[]): Promise<User>;
   /** Task 12: sets (or clears, via `null`) the caller's Expo push token, from `PATCH /auth/me/push-token`. */
   setPushToken(id: string, token: string | null): Promise<void>;
   /**
@@ -125,6 +131,11 @@ export function createAuthRepository(db: PrismaLike): AuthRepository {
       await db.user.update({ where: { id }, data: { googleSub } });
     },
 
+    async setRoles(id, roles) {
+      const row = await db.user.update({ where: { id }, data: { roles } });
+      return toDomainUser(row);
+    },
+
     async setPushToken(id, token) {
       await db.user.update({ where: { id }, data: { expoPushToken: token } });
     },
@@ -161,6 +172,7 @@ export function createAuthRepository(db: PrismaLike): AuthRepository {
             name: input.name,
             passwordHash: input.passwordHash ?? null,
             googleSub: input.googleSub ?? null,
+            ...(input.roles ? { roles: input.roles } : {}),
           },
         });
         return toDomainUser(row);
