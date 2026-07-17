@@ -31,6 +31,10 @@ model User {
   googleSub      String? @unique
   expoPushToken  String?
 
+  lastCity String?
+  lastLat  Float?
+  lastLng  Float?
+
   createdAt DateTime @default(now()) @db.Timestamptz(3)
   updatedAt DateTime @updatedAt @db.Timestamptz(3)
 
@@ -346,6 +350,11 @@ model Match {
   pixKey     String?
   status     MatchStatus @default(open)
   modality   Modality    @default(campo)
+
+  latitude  Float?
+  longitude Float?
+  city      String?
+  address   String?
 
   seriesId String?      @db.Uuid
   series   MatchSeries? @relation(fields: [seriesId], references: [id])
