@@ -35,26 +35,28 @@ function topBy(
     .slice(0, limit);
 }
 
-export function createRankingRepository(db: PrismaLike): RankingRepository {
-  return {
-    async computeRanking(groupId, limit) {
-      const empty: GroupRanking = {
-        goals: [],
-        assists: [],
-        cleanSheets: [],
-        mvp: [],
-        presence: [],
-        points: [],
-      };
+const EMPTY_RANKING: GroupRanking = {
+  goals: [],
+  assists: [],
+  cleanSheets: [],
+  mvp: [],
+  presence: [],
+  points: [],
+};
 
-      const matches = await db.match.findMany({
-        where: { groupId, status: { in: ["closed", "finished"] } },
-        select: { id: true },
-      });
-      const matchIds = matches.map((m) => m.id);
-      if (matchIds.length === 0) return empty;
+/**
+ * Agrega o ranking sobre um conjunto de partidas (matchIds). Reutilizado pelo
+ * ranking de grupo (partidas do grupo) e pelo ranking global (todas as partidas
+ * fechadas, ou de uma cidade). Vazio quando `matchIds` está vazio.
+ */
+export async function aggregateRanking(
+  db: PrismaLike,
+  matchIds: string[],
+  limit: number,
+): Promise<GroupRanking> {
+  if (matchIds.length === 0) return EMPTY_RANKING;
 
-      const [statSum, cleanSheets, mvpVotes, presence] = await Promise.all([
+  const [statSum, cleanSheets, mvpVotes, presence] = await Promise.all([
         db.matchStat.groupBy({
           by: ["playerId"],
           where: { matchId: { in: matchIds } },
@@ -121,14 +123,28 @@ export function createRankingRepository(db: PrismaLike): RankingRepository {
         cleanSheets: build((e) => e.cleanSheets),
         mvp: build((e) => e.mvp),
         presence: build((e) => e.presence),
-        points: build(
-          (e) =>
-            e.goals * POINTS.goal +
-            e.assists * POINTS.assist +
-            e.mvp * POINTS.mvp +
-            e.presence * POINTS.presence,
-        ),
-      };
+    points: build(
+      (e) =>
+        e.goals * POINTS.goal +
+        e.assists * POINTS.assist +
+        e.mvp * POINTS.mvp +
+        e.presence * POINTS.presence,
+    ),
+  };
+}
+
+export function createRankingRepository(db: PrismaLike): RankingRepository {
+  return {
+    async computeRanking(groupId, limit) {
+      const matches = await db.match.findMany({
+        where: { groupId, status: { in: ["closed", "finished"] } },
+        select: { id: true },
+      });
+      return aggregateRanking(
+        db,
+        matches.map((m) => m.id),
+        limit,
+      );
     },
   };
 }
