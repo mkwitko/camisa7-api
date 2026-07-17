@@ -55,6 +55,15 @@ enum GroupStatsMode {
   colaborativo
 }
 
+/// Geo G3 (descoberta pública): how strangers join a PUBLIC group's matches.
+/// `open` = confirm directly (any authenticated user); `request` = ask and
+/// the organizer approves (JoinRequest, Fase 2). Only meaningful when
+/// `Group.isPublic` is true — a private group always requires membership.
+enum JoinPolicy {
+  open
+  request
+}
+
 /// Task 4: Arena — an owner-scoped group of players. `id` is the public API
 /// identifier (uuid-only PK convention, see header). Ownership authorization
 /// (`assertGroupOwner` in `src/http/api/groups/groups.authz.ts`) is the
@@ -74,6 +83,14 @@ model Group {
   /// yet. A `GroupMember` can override it via
   /// `GroupMember.monthlyFeeCentsOverride`.
   monthlyFeeCents Int?
+
+  /// Geo G3 (descoberta pública): a public group's `open`/`upcoming` matches
+  /// surface in `GET /discover`. Setting `true` requires the `public_groups`
+  /// entitlement (`ERRORS.GRP.PUBLIC_REQUIRES_PLAN`, enforced in
+  /// `update-group.service`). `joinPolicy` governs how strangers join those
+  /// matches (see `JoinPolicy`); it only takes effect while `isPublic`.
+  isPublic   Boolean    @default(false)
+  joinPolicy JoinPolicy @default(open)
 
   createdAt DateTime @default(now()) @db.Timestamptz(3)
   updatedAt DateTime @updatedAt @db.Timestamptz(3)
