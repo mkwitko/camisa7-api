@@ -52,6 +52,13 @@ model User {
   /// Entitlements API (+ short in-memory cache), never persisted here.
   stripeCustomerId String?
 
+  /// Marketplace V2: correlation to the Stripe CONNECTED account (Express) of
+  /// a `quadra` owner — the only Connect state persisted in our DB.
+  /// `charges_enabled` is resolved LIVE (short cache), same convention as
+  /// `stripeCustomerId`'s entitlements. `null` = owner hasn't completed the
+  /// Stripe-hosted Account Link onboarding yet (booking gated on this).
+  stripeAccountId String?
+
   lastCity String?
   lastLat  Float?
   lastLng  Float?
@@ -62,6 +69,7 @@ model User {
   ownedGroups Group[]
   players     Player[]
   venues      Venue[]
+  bookings    Booking[]
 }
 
 /// Marketplace V1: uma quadra (arena física) gerida por um `User` com role
@@ -90,8 +98,122 @@ model Venue {
   updatedAt DateTime @updatedAt @db.Timestamptz(3)
 
   matches Match[]
+  courts  Court[]
 
   @@index([ownerId])
+}
+
+/// Marketplace V2: how a `Court`'s booking flow resolves payment. `instant` =
+/// pay in full up front and the slot is `confirmed` immediately;
+/// `request` = owner must approve before payment is collected
+/// (`requested` → owner approves → `pending_payment` → `confirmed`);
+/// `deposit` = pay only `Court.depositPercent`% up front, rest settled
+/// off-platform (still `confirmed` once the deposit clears).
+enum BookingMode {
+  instant
+  request
+  deposit
+}
+
+/// Marketplace V2: a `Booking`'s lifecycle. `requested` (mode=request,
+/// awaiting owner decision) → `pending_payment` (payment/PIX in flight,
+/// 30min TTL) → `confirmed` (paid, or deposit-paid) → `completed` (slot has
+/// passed). `cancelled`/`rejected`/`expired` are terminal — the double-
+/// booking unique index (`Booking_slot_active_uniq`, hand-SQL) only covers
+/// the active states (`requested`,`pending_payment`,`confirmed`,`completed`),
+/// so a cancelled/rejected/expired row frees the slot for a new booking.
+enum BookingStatus {
+  requested
+  pending_payment
+  confirmed
+  completed
+  cancelled
+  rejected
+  expired
+}
+
+/// Marketplace V2: a bookable court belonging to a `Venue`. `bookingMode`
+/// picks the payment flow (see `BookingMode`); `depositPercent` only applies
+/// when `bookingMode = deposit` (1..100, validated at the HTTP boundary, not
+/// a DB constraint). `slotMinutes` is the fixed grid size (default 60) that
+/// `Booking.startMinute`/`endMinute` snap to. `priceRules` resolves a slot's
+/// price by weekday + time-of-day; `active = false` hides the court from
+/// booking without deleting its history.
+model Court {
+  id      String @id @default(uuid()) @db.Uuid
+  venueId String @db.Uuid
+  venue   Venue  @relation(fields: [venueId], references: [id])
+
+  name           String
+  modality       Modality    @default(campo)
+  surface        String?
+  slotMinutes    Int         @default(60)
+  bookingMode    BookingMode @default(instant)
+  depositPercent Int? // usado só quando bookingMode = deposit (1..100)
+  active         Boolean     @default(true)
+
+  priceRules CourtPriceRule[]
+  bookings   Booking[]
+
+  createdAt DateTime @default(now()) @db.Timestamptz(3)
+  updatedAt DateTime @updatedAt @db.Timestamptz(3)
+
+  @@index([venueId])
+}
+
+/// Marketplace V2: one weekday+time-window price band for a `Court` — a
+/// court can have multiple rules (e.g. weekday daytime vs weekend night).
+/// Resolved at booking time by matching the slot's weekday + startMinute
+/// against these windows (service layer, not a DB constraint).
+model CourtPriceRule {
+  id      String @id @default(uuid()) @db.Uuid
+  courtId String @db.Uuid
+  court   Court  @relation(fields: [courtId], references: [id], onDelete: Cascade)
+
+  weekday     Int // 0=Dom .. 6=Sáb
+  startMinute Int // minutos desde 00:00
+  endMinute   Int
+  priceCents  Int
+
+  @@index([courtId, weekday])
+}
+
+/// Marketplace V2: one reserved slot on a `Court`, booked by a `User`. Price
+/// is captured at booking time (`priceCents`, resolved from
+/// `CourtPriceRule` — later rule changes don't retroactively alter an
+/// existing booking). `depositCents` only set when `mode = deposit`.
+/// `stripePaymentIntentId` correlates to the Stripe destination-charge
+/// PaymentIntent (PIX) once payment starts. Double-booking is prevented by
+/// a hand-SQL PARTIAL unique index (`Booking_slot_active_uniq`, covering
+/// only active `status` values) — Prisma's schema DSL can't express partial
+/// uniqueness, same convention as `Attendance`'s `attendance_active_unique`.
+/// `match` (reverse of `Match.bookingId`) links a confirmed booking to the
+/// pelada scheduled on it, once that flow exists.
+model Booking {
+  id      String @id @default(uuid()) @db.Uuid
+  courtId String @db.Uuid
+  court   Court  @relation(fields: [courtId], references: [id])
+
+  bookedById String @db.Uuid
+  bookedBy   User   @relation(fields: [bookedById], references: [id])
+
+  date         DateTime      @db.Date
+  startMinute  Int
+  endMinute    Int
+  priceCents   Int
+  mode         BookingMode
+  status       BookingStatus @default(pending_payment)
+  depositCents Int?
+
+  stripePaymentIntentId String?
+
+  createdAt DateTime @default(now()) @db.Timestamptz(3)
+  updatedAt DateTime @updatedAt @db.Timestamptz(3)
+
+  match Match?
+
+  @@index([courtId, date])
+  @@index([bookedById])
 }
 
 /// Fase 0 only issues `organizador` (single-owner stats). `colaborativo`
@@ -436,6 +558,12 @@ model Match {
   /// quadra vinculada.
   venueId String? @db.Uuid
   venue   Venue?  @relation(fields: [venueId], references: [id])
+
+  /// Marketplace V2: partida pode ter nascido de (ou estar amarrada a) uma
+  /// `Booking` confirmada na quadra. `null` = partida sem booking associado
+  /// (fluxo V1 continua funcionando sem quadra/booking).
+  bookingId String?  @unique @db.Uuid
+  booking   Booking? @relation(fields: [bookingId], references: [id])
 
   createdAt DateTime @default(now()) @db.Timestamptz(3)
   updatedAt DateTime @updatedAt @db.Timestamptz(3)
