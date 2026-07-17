@@ -1,9 +1,9 @@
 import type { FastifyPluginAsync } from "fastify";
 import type { ZodTypeProvider } from "fastify-type-provider-zod";
+import { env } from "@/config/env";
 import { createAuthRepository } from "@/http/api/auth/auth.repository";
 import { PLANS } from "@/http/api/billing/billing.catalog";
 import { requireUser } from "@/http/hooks/auth";
-import { env } from "@/config/env";
 import { prisma } from "@/infra/db/client";
 import { getOrCreateCustomer, isBillingConfigured, stripe } from "@/infra/stripe/client";
 import { ERRORS } from "@/shared/errors/catalog";

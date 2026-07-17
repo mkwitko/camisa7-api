@@ -90,7 +90,10 @@ export interface AuthRepository {
    * (`lastCity/lastLat/lastLng`), de `PUT /me/location`. `lat`/`lng` opcionais
    * (cidade manual = só `city`). Retorna o `User` atualizado.
    */
-  setLocation(id: string, input: { lat?: number | undefined; lng?: number | undefined; city: string }): Promise<User>;
+  setLocation(
+    id: string,
+    input: { lat?: number | undefined; lng?: number | undefined; city: string },
+  ): Promise<User>;
   /**
    * Billing: persists the Stripe customer id for a user (from
    * `getOrCreateCustomer`, on first checkout/portal). The only billing write

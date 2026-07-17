@@ -89,7 +89,9 @@ describe("createEntitlementsService", () => {
   });
 
   it("configured + no customer yet yields no features (no Stripe call, no customer creation)", async () => {
-    const svc = createEntitlementsService({ authRepo: makeAuthRepo(aUser({ stripeCustomerId: null })) });
+    const svc = createEntitlementsService({
+      authRepo: makeAuthRepo(aUser({ stripeCustomerId: null })),
+    });
     expect(await svc.activeFeatures("u1")).toEqual(new Set());
     expect(h.list).not.toHaveBeenCalled();
   });
