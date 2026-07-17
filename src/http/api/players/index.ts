@@ -1,5 +1,6 @@
 import type { FastifyPluginAsync } from "fastify";
 import { careerRoutes } from "./children/career/index";
+import { timelineRoute } from "./children/timeline/timeline.controller";
 import { avatarUploadUrlRoute } from "./me/avatar/avatar.controller";
 import { myPlayerRoute, updateMyPlayerRoute } from "./me/me.controller";
 import { upcomingMatchesRoute } from "./me/upcoming-matches/upcoming-matches.controller";
@@ -25,6 +26,7 @@ import { searchPlayersRoute } from "./search/search.controller";
  */
 export const playersRoutes: FastifyPluginAsync = async (app) => {
   await app.register(careerRoutes);
+  await app.register(timelineRoute);
   await app.register(myPlayerRoute);
   await app.register(updateMyPlayerRoute);
   await app.register(avatarUploadUrlRoute);
