@@ -3,7 +3,7 @@ import type { ZodTypeProvider } from "fastify-type-provider-zod";
 import { createAuthRepository } from "@/http/api/auth/auth.repository";
 import { requireUser } from "@/http/hooks/auth";
 import { prisma } from "@/infra/db/client";
-import { createEntitlementsService } from "../entitlements.service";
+import { getEntitlementsService } from "../entitlements.service";
 import { BillingMeResponse } from "./billing-me.schema";
 
 /**
@@ -23,7 +23,7 @@ export const billingMeRoute: FastifyPluginAsync = async (app) => {
       },
     },
     async (req, reply) => {
-      const service = createEntitlementsService({ authRepo: createAuthRepository(prisma) });
+      const service = getEntitlementsService(createAuthRepository(prisma));
       const { userId } = requireUser(req);
       const [features, paymentsEnabled] = await Promise.all([
         service.activeFeatures(userId),

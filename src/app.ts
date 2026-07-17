@@ -2,6 +2,7 @@ import cors from "@fastify/cors";
 import helmet from "@fastify/helmet";
 import sensible from "@fastify/sensible";
 import Fastify, { type FastifyBaseLogger, type FastifyInstance } from "fastify";
+import rawBody from "fastify-raw-body";
 import { serializerCompiler, validatorCompiler } from "fastify-type-provider-zod";
 import { env } from "@/config/env";
 import { httpRoutes } from "@/http/index";
@@ -41,6 +42,10 @@ export async function buildApp(opts: BuildAppOptions = {}): Promise<FastifyInsta
   // passar `gateways: undefined` explícito para um campo opcional).
   await app.register(gatewaysPlugin, opts.gateways ? { gateways: opts.gateways } : {}); // 4. gateways
   await app.register(swaggerPlugin); // 5. OpenAPI + Swagger UI (antes das rotas)
+  // 5.1 raw body (opt-in por rota via `config: { rawBody: true }`) — o webhook
+  // do Stripe precisa do corpo cru pra validar a assinatura. `global: false`
+  // mantém todas as outras rotas com o parsing normal (JSON via zod).
+  await app.register(rawBody, { global: false });
   await app.register(httpRoutes); // 6. rotas
 
   return app;

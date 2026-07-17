@@ -85,3 +85,17 @@ export function createEntitlementsService(deps: { authRepo: AuthRepository }): E
     },
   };
 }
+
+/**
+ * Process-wide singleton. The in-memory cache only pays off (and webhook
+ * invalidation only works) if every request AND the webhook share one service
+ * instance — a per-request `createEntitlementsService` would give each its own
+ * empty cache. The first-passed `authRepo` wins (they're all stateless wrappers
+ * over the shared Prisma client). Tests call `createEntitlementsService`
+ * directly for an isolated cache.
+ */
+let singleton: EntitlementsService | undefined;
+export function getEntitlementsService(authRepo: AuthRepository): EntitlementsService {
+  singleton ??= createEntitlementsService({ authRepo });
+  return singleton;
+}
