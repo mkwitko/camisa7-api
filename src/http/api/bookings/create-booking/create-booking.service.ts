@@ -1,10 +1,9 @@
 import type { AuthRepository } from "@/http/api/auth/auth.repository";
 import type { CourtRepository } from "@/http/api/courts/court.repository";
 import type { PrismaLike } from "@/infra/db/client";
-import { getOrCreateCustomer, isBillingConfigured } from "@/infra/stripe/client";
-import { createBookingPaymentIntent, retrieveAccountStatus } from "@/infra/stripe/connect";
 import { ERRORS } from "@/shared/errors/catalog";
 import { resolveSlotPrice } from "../availability.service";
+import { assertOwnerChargesEnabled, createPaymentIntentForBooking } from "../booking.payment";
 import { presentBooking } from "../booking.presenter";
 import { createBookingRepository } from "../booking.repository";
 import type { BookingResponse } from "../booking.schema";
@@ -74,13 +73,8 @@ export function createCreateBookingService(deps: CreateBookingDeps) {
     );
     if (priceCents === null) throw ERRORS.BKG.SLOT_NOT_BOOKABLE();
 
-    if (!isBillingConfigured) throw ERRORS.BIL.DISABLED();
-
     const owner = await deps.authRepo.findById(court.venue.ownerId);
-    const ownerStripeAccountId = owner?.stripeAccountId ?? null;
-    if (!ownerStripeAccountId) throw ERRORS.CON.NOT_READY();
-    const ownerStatus = await retrieveAccountStatus(ownerStripeAccountId);
-    if (!ownerStatus.chargesEnabled) throw ERRORS.CON.NOT_READY();
+    const ownerStripeAccountId = await assertOwnerChargesEnabled(owner?.stripeAccountId ?? null);
 
     const depositCents =
       court.bookingMode === "deposit"
@@ -110,24 +104,11 @@ export function createCreateBookingService(deps: CreateBookingDeps) {
       return { booking: presentBooking(booking) };
     }
 
-    const booker = await deps.authRepo.findById(input.userId);
-    if (!booker) throw ERRORS.AUTH.UNAUTHORIZED();
+    const { booking: updated, payment } = await createPaymentIntentForBooking(
+      { db: deps.db, authRepo: deps.authRepo },
+      { booking, ownerStripeAccountId },
+    );
 
-    const amountCents = depositCents ?? priceCents;
-    const customerId = await getOrCreateCustomer(deps.authRepo, booker);
-    const pi = await createBookingPaymentIntent({
-      amountCents,
-      destinationAccountId: ownerStripeAccountId,
-      bookingId: booking.id,
-      customerId,
-    });
-
-    const bookingRepo = createBookingRepository(deps.db);
-    const updated = await bookingRepo.setPaymentIntent(booking.id, pi.id);
-
-    return {
-      booking: presentBooking(updated),
-      payment: { paymentIntentId: pi.id, clientSecret: pi.clientSecret },
-    };
+    return { booking: presentBooking(updated), payment };
   };
 }

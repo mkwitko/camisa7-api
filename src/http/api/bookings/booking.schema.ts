@@ -68,6 +68,38 @@ export const AvailabilityQuery = z.object({
 });
 export type AvailabilityQuery = z.infer<typeof AvailabilityQuery>;
 
+/** `:id` param shared by every `/bookings/:id/*` lifecycle route. */
+export const BookingParams = z.object({
+  id: z.uuid(),
+});
+export type BookingParams = z.infer<typeof BookingParams>;
+
+/** `GET /bookings/mine` and `GET /venues/:id/bookings` response — a plain array, newest/soonest first per the repo method. */
+export const BookingListResponse = z.array(BookingResponse);
+export type BookingListResponse = z.infer<typeof BookingListResponse>;
+
+/** `GET /venues/:id/bookings` querystring — the owner's agenda range, both bounds inclusive `YYYY-MM-DD`. */
+export const VenueBookingsQuery = z
+  .object({
+    from: z.iso.date(),
+    to: z.iso.date(),
+  })
+  .refine((query) => query.to >= query.from, {
+    message: "to deve ser maior ou igual a from",
+    path: ["to"],
+  });
+export type VenueBookingsQuery = z.infer<typeof VenueBookingsQuery>;
+
+/**
+ * `POST /bookings/:id/approve` response — same shape as `CreateBookingResponse`
+ * but `payment` is always present (approving always creates a PaymentIntent).
+ */
+export const ApproveBookingResponse = z.object({
+  booking: BookingResponse,
+  payment: PaymentInfoResponse,
+});
+export type ApproveBookingResponse = z.infer<typeof ApproveBookingResponse>;
+
 export const AvailabilitySlotResponse = z.object({
   startMinute: z.number().int(),
   endMinute: z.number().int(),
