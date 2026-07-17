@@ -290,6 +290,43 @@ describe("groups e2e", () => {
       expect(res.json()).toMatchObject({ id, monthlyFeeCents: null });
     });
 
+    it("rejects setting isPublic=true without the public_groups feature with 403 GRP-T0003", async () => {
+      // Stripe is not configured in tests, so the entitlements service grants
+      // no features — turning a group public is a hard 403 (the real
+      // `public_groups` gate). The success-with-feature path is covered by the
+      // service unit test (`update-group.service.test.ts`).
+      const { token } = await registerAndGetToken(h, "patchpublic@x.com");
+      const created = await createGroup(h, token, { name: "Public Group" });
+      const { id } = created.json();
+
+      const res = await h.app.inject({
+        method: "PATCH",
+        url: `/groups/${id}`,
+        headers: { authorization: `Bearer ${token}` },
+        payload: { isPublic: true },
+      });
+
+      expect(res.statusCode).toBe(403);
+      expect(res.json().code).toBe("GRP-T0003");
+    });
+
+    it("lets the owner set joinPolicy without gating (does not require the feature)", async () => {
+      const { token } = await registerAndGetToken(h, "patchpolicy@x.com");
+      const created = await createGroup(h, token, { name: "Policy Group" });
+      const { id } = created.json();
+      expect(created.json()).toMatchObject({ isPublic: false, joinPolicy: "open" });
+
+      const res = await h.app.inject({
+        method: "PATCH",
+        url: `/groups/${id}`,
+        headers: { authorization: `Bearer ${token}` },
+        payload: { joinPolicy: "request" },
+      });
+
+      expect(res.statusCode).toBe(200);
+      expect(res.json()).toMatchObject({ id, joinPolicy: "request", isPublic: false });
+    });
+
     it("rejects a non-owner with 403", async () => {
       const { token: ownerToken } = await registerAndGetToken(h, "patchowner3@x.com");
       const { token: otherToken } = await registerAndGetToken(h, "patchother3@x.com");

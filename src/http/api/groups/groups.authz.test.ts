@@ -8,6 +8,8 @@ const aGroup = (overrides: Partial<Group> = {}): Group => ({
   ownerId: "u1",
   statsMode: "organizador",
   monthlyFeeCents: null,
+  isPublic: false,
+  joinPolicy: "open",
   createdAt: new Date().toISOString(),
   ...overrides,
 });

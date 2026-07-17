@@ -6,11 +6,27 @@
  */
 export type GroupStatsMode = "organizador" | "colaborativo";
 
+/**
+ * Domain `JoinPolicy` — mirrors the Prisma `JoinPolicy` enum values as a plain
+ * string union (same rationale as `GroupStatsMode`). Governs how strangers join
+ * a PUBLIC group's matches: `open` = confirm directly, `request` = organizer
+ * approves. Only meaningful while `isPublic` is true.
+ */
+export type JoinPolicy = "open" | "request";
+
 export type Group = {
   id: string;
   name: string;
   ownerId: string;
   statsMode: GroupStatsMode;
+  /**
+   * Geo G3: a public group's upcoming `open` matches surface in
+   * `GET /discover`. Setting `true` requires the `public_groups` entitlement
+   * (gated in `update-group.service`).
+   */
+  isPublic: boolean;
+  /** How strangers join this group's public matches (only takes effect while `isPublic`). */
+  joinPolicy: JoinPolicy;
   /**
    * Task 1 (Mensalista vs Avulso): default monthly fee for `mensalista`
    * members of this group, in cents. `null` means the group hasn't set one

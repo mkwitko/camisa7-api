@@ -59,6 +59,15 @@ export const ERRORS = {
       status: 403,
       internalMessage: "group_not_owner",
     }),
+    // Geo G3 (descoberta pública): setting `Group.isPublic = true` requires the
+    // `public_groups` entitlement (organizer plan). `update-group.service`
+    // throws this 403 when the caller lacks the feature — the real consumption
+    // point of the `public_groups` gate.
+    PUBLIC_REQUIRES_PLAN: defineError({
+      code: "GRP-T0003",
+      status: 403,
+      internalMessage: "group_public_requires_plan",
+    }),
   },
   PLR: {
     MEMBER_NOT_FOUND: defineError({

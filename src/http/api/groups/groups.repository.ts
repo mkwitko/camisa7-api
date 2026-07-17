@@ -1,5 +1,5 @@
 import type { PrismaLike } from "@/infra/db/client";
-import type { Group, GroupNextMatch, GroupStatsMode, GroupWithMeta } from "./groups.types";
+import type { Group, GroupNextMatch, GroupStatsMode, GroupWithMeta, JoinPolicy } from "./groups.types";
 
 type GroupRow = {
   id: string;
@@ -7,6 +7,8 @@ type GroupRow = {
   ownerId: string;
   statsMode: GroupStatsMode;
   monthlyFeeCents: number | null;
+  isPublic: boolean;
+  joinPolicy: JoinPolicy;
   createdAt: Date;
 };
 
@@ -17,6 +19,8 @@ function toDomainGroup(row: GroupRow): Group {
     ownerId: row.ownerId,
     statsMode: row.statsMode,
     monthlyFeeCents: row.monthlyFeeCents,
+    isPublic: row.isPublic,
+    joinPolicy: row.joinPolicy,
     createdAt: row.createdAt.toISOString(),
   };
 }
@@ -29,6 +33,10 @@ export type UpdateGroupPatch = {
    * the two via `!== undefined` rather than truthiness.
    */
   monthlyFeeCents?: number | null | undefined;
+  /** Geo G3: toggle discovery visibility (gated by `public_groups` in the service). */
+  isPublic?: boolean | undefined;
+  /** Geo G3: how strangers join this group's public matches. */
+  joinPolicy?: JoinPolicy | undefined;
 };
 
 export interface GroupsRepository {
@@ -75,6 +83,8 @@ export function createGroupsRepository(db: PrismaLike): GroupsRepository {
           ...(patch.monthlyFeeCents !== undefined
             ? { monthlyFeeCents: patch.monthlyFeeCents }
             : {}),
+          ...(patch.isPublic !== undefined ? { isPublic: patch.isPublic } : {}),
+          ...(patch.joinPolicy !== undefined ? { joinPolicy: patch.joinPolicy } : {}),
         },
       });
       return toDomainGroup(row);

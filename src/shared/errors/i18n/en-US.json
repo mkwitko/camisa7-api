@@ -6,6 +6,7 @@
   "AUTH-T0005": "Invalid Google token.",
   "GRP-T0001": "Group not found.",
   "GRP-T0002": "You do not own this group.",
+  "GRP-T0003": "Making a group public requires an organizer plan.",
   "PLR-T0001": "Member not found.",
   "PLR-T0002": "Player not found.",
   "PLR-T0003": "Profile is not public.",
