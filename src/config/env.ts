@@ -53,6 +53,11 @@ const EnvSchema = z.object({
   // `max(priceCents * PLATFORM_FEE_BPS / 10000, PLATFORM_FEE_MIN_CENTS)`.
   PLATFORM_FEE_BPS: z.coerce.number().int().min(0).max(10000).default(500),
   PLATFORM_FEE_MIN_CENTS: z.coerce.number().int().min(0).default(200),
+
+  // Base URL of the web app (Vite dev server in dev), used to build the
+  // `refresh_url`/`return_url` of Stripe Connect Account Links — the owner is
+  // sent back there after (or mid-) onboarding.
+  WEB_BASE_URL: z.string().default("http://localhost:5173"),
 });
 
 export type EnvConfig = z.infer<typeof EnvSchema>;
