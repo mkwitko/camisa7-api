@@ -7,13 +7,15 @@ describe("remapLegacyPositions", () => {
       campo_goleiro: 90,
       campo_meia: 50,
       campo_atacante: 70,
-      campo_ala_volante: 40,
+      campo_volante: 40,
     });
   });
 
-  it("collapses lateral + zagueiro into campo_lateral keeping the max", () => {
-    expect(remapLegacyPositions({ zagueiro: 60, lateral: 80 })).toEqual({ campo_lateral: 80 });
-    expect(remapLegacyPositions({ zagueiro: 90, lateral: 70 })).toEqual({ campo_lateral: 90 });
+  it("maps zagueiro and lateral to their own campo slots", () => {
+    expect(remapLegacyPositions({ zagueiro: 60, lateral: 80 })).toEqual({
+      campo_zagueiro: 60,
+      campo_lateral_dir: 80,
+    });
   });
 
   it("passes through already-migrated slugs untouched", () => {

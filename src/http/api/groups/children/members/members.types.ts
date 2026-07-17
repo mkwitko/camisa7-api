@@ -33,14 +33,14 @@ export const MODALITIES: readonly Modality[] = ["futsal", "society", "campo"];
  * flat `<modality>_<role>`; keys never cross modalities.
  */
 export type FieldPosition =
-  | "futsal_goleiro" | "futsal_fixo" | "futsal_ala" | "futsal_pivo"
-  | "society_goleiro" | "society_lateral" | "society_volante" | "society_meia" | "society_ala" | "society_atacante"
-  | "campo_goleiro" | "campo_lateral" | "campo_ala_volante" | "campo_meia_esq" | "campo_meia" | "campo_meia_dir" | "campo_camisa10" | "campo_ponta_esq" | "campo_atacante" | "campo_ponta_dir";
+  | "futsal_goleiro" | "futsal_fixo" | "futsal_ala_esq" | "futsal_ala_dir" | "futsal_pivo"
+  | "society_goleiro" | "society_zagueiro" | "society_lateral_esq" | "society_lateral_dir" | "society_volante" | "society_meia" | "society_ala_esq" | "society_ala_dir" | "society_atacante"
+  | "campo_goleiro" | "campo_zagueiro" | "campo_lateral_esq" | "campo_lateral_dir" | "campo_volante" | "campo_meia_esq" | "campo_meia" | "campo_meia_dir" | "campo_camisa10" | "campo_ponta_esq" | "campo_atacante" | "campo_ponta_dir";
 
 export const MODALITY_POSITIONS: Record<Modality, readonly FieldPosition[]> = {
-  futsal: ["futsal_goleiro", "futsal_fixo", "futsal_ala", "futsal_pivo"],
-  society: ["society_goleiro", "society_lateral", "society_volante", "society_meia", "society_ala", "society_atacante"],
-  campo: ["campo_goleiro", "campo_lateral", "campo_ala_volante", "campo_meia_esq", "campo_meia", "campo_meia_dir", "campo_camisa10", "campo_ponta_esq", "campo_atacante", "campo_ponta_dir"],
+  futsal: ["futsal_goleiro", "futsal_fixo", "futsal_ala_esq", "futsal_ala_dir", "futsal_pivo"],
+  society: ["society_goleiro", "society_zagueiro", "society_lateral_esq", "society_lateral_dir", "society_volante", "society_meia", "society_ala_esq", "society_ala_dir", "society_atacante"],
+  campo: ["campo_goleiro", "campo_zagueiro", "campo_lateral_esq", "campo_lateral_dir", "campo_volante", "campo_meia_esq", "campo_meia", "campo_meia_dir", "campo_camisa10", "campo_ponta_esq", "campo_atacante", "campo_ponta_dir"],
 };
 
 export const FIELD_POSITIONS: readonly FieldPosition[] = [

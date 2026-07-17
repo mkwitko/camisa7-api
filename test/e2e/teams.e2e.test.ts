@@ -137,7 +137,7 @@ describe("teams e2e", () => {
         { primaryPos: "campo_goleiro", overall: 65 },
         { primaryPos: "campo_atacante", overall: 90 },
         { primaryPos: "campo_atacante", overall: 80 },
-        { primaryPos: "campo_lateral", overall: 70 },
+        { primaryPos: "campo_zagueiro", overall: 70 },
         { primaryPos: "campo_meia", overall: 60 },
       ];
       const goalkeeperIds: string[] = [];

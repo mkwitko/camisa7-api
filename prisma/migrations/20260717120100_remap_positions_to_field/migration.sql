@@ -21,9 +21,9 @@ BEGIN
           SELECT
             CASE key
               WHEN 'goleiro'  THEN 'campo_goleiro'
-              WHEN 'zagueiro' THEN 'campo_lateral'
-              WHEN 'lateral'  THEN 'campo_lateral'
-              WHEN 'volante'  THEN 'campo_ala_volante'
+              WHEN 'zagueiro' THEN 'campo_zagueiro'
+              WHEN 'lateral'  THEN 'campo_lateral_dir'
+              WHEN 'volante'  THEN 'campo_volante'
               WHEN 'meia'     THEN 'campo_meia'
               WHEN 'atacante' THEN 'campo_atacante'
               ELSE key

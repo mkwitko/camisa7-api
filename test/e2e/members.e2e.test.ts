@@ -271,7 +271,7 @@ describe("members e2e", () => {
           method: "PATCH",
           url: `/groups/${groupId}/members/${memberId}`,
           headers: { authorization: `Bearer ${token}` },
-          payload: { affinity: { campo_ala_volante: -5 } },
+          payload: { affinity: { campo_volante: -5 } },
         });
 
         expect(res.statusCode).toBe(400);
@@ -303,7 +303,7 @@ describe("members e2e", () => {
           method: "PATCH",
           url: `/groups/${groupId}/members/${memberId}`,
           headers: { authorization: `Bearer ${token}` },
-          payload: { affinity: { campo_lateral: 50.5 } },
+          payload: { affinity: { campo_lateral_dir: 50.5 } },
         });
 
         expect(res.statusCode).toBe(400);
