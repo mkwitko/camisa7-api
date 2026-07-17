@@ -1,16 +1,23 @@
 import type { FastifyPluginAsync } from "fastify";
 import type { ZodTypeProvider } from "fastify-type-provider-zod";
+import { z } from "zod/v4";
 import { aggregateRanking } from "@/http/api/groups/children/ranking/ranking.repository";
 import { GroupRankingResponse } from "@/http/api/groups/children/ranking/ranking.schema";
 import { prisma } from "@/infra/db/client";
 
 const GLOBAL_LIMIT = 20;
 
+const GlobalRankingQuery = z.object({
+  // Geo (G1): quando presente, agrega só partidas com `Match.city == city`
+  // (case-insensitive). Ausente = global all-time (comportamento atual).
+  city: z.string().min(1).optional(),
+});
+
 /**
  * `GET /rankings/global` — ranking all-time sobre TODAS as partidas fechadas
  * (todos os grupos): artilharia, assistências, clean sheets, MVP, presença,
- * pontuação. Top 20. Autenticado (hook global). Ranking por cidade/região virá
- * com a fundação de geolocalização (coords + reverse-geocode).
+ * pontuação. Top 20. Autenticado (hook global). `?city=` (Geo G1) filtra por
+ * cidade da partida (case-insensitive).
  */
 export const globalRankingRoute: FastifyPluginAsync = async (app) => {
   app.withTypeProvider<ZodTypeProvider>().get(
@@ -19,12 +26,16 @@ export const globalRankingRoute: FastifyPluginAsync = async (app) => {
       schema: {
         operationId: "getGlobalRanking",
         tags: ["rankings"],
+        querystring: GlobalRankingQuery,
         response: { 200: GroupRankingResponse },
       },
     },
-    async (_req, reply) => {
+    async (req, reply) => {
       const matches = await prisma.match.findMany({
-        where: { status: { in: ["closed", "finished"] } },
+        where: {
+          status: { in: ["closed", "finished"] },
+          ...(req.query.city ? { city: { equals: req.query.city, mode: "insensitive" } } : {}),
+        },
         select: { id: true },
       });
       const ranking = await aggregateRanking(
