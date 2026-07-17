@@ -4591,7 +4591,7 @@
                       "additionalProperties": {
                         "type": "integer",
                         "minimum": 0,
-                        "maximum": 100
+                        "maximum": 99
                       }
                     },
                     "skills": {
@@ -4599,16 +4599,112 @@
                       "items": {
                         "type": "string",
                         "enum": [
-                          "driblador",
-                          "goleador",
-                          "garcom",
-                          "muralha",
-                          "motorzinho",
-                          "capitao",
-                          "maestro",
-                          "paredao"
+                          "chute_rasteiro",
+                          "cabeceio_preciso",
+                          "acrobata",
+                          "chute_colocado",
+                          "cavadinha",
+                          "pombo_sem_asas",
+                          "bola_parada",
+                          "tecnica",
+                          "veloz",
+                          "dominio",
+                          "malvadeza",
+                          "cabeca_fria",
+                          "forca_aerea",
+                          "cercar",
+                          "barreira",
+                          "interceptacao_ps",
+                          "antecipacao",
+                          "carrinho_limpo",
+                          "solidez",
+                          "xerife",
+                          "pe_de_vento",
+                          "incansavel",
+                          "lateral_longo",
+                          "sai_que_e_sua",
+                          "arremesso_longo",
+                          "usa_os_pes",
+                          "saida_aerea",
+                          "braco_elastico",
+                          "deflector",
+                          "passe_direto",
+                          "passe_guiado",
+                          "passe_longo",
+                          "tiki_taka",
+                          "passe_de_gps"
                         ]
                       }
+                    },
+                    "dominantFoot": {
+                      "nullable": true,
+                      "type": "string",
+                      "enum": [
+                        "left",
+                        "right",
+                        "both"
+                      ]
+                    },
+                    "weakFoot": {
+                      "nullable": true,
+                      "type": "integer",
+                      "minimum": 1,
+                      "maximum": 5
+                    },
+                    "skillMoves": {
+                      "nullable": true,
+                      "type": "integer",
+                      "minimum": 1,
+                      "maximum": 5
+                    },
+                    "heightCm": {
+                      "nullable": true,
+                      "type": "integer",
+                      "minimum": 100,
+                      "maximum": 250
+                    },
+                    "weightKg": {
+                      "nullable": true,
+                      "type": "integer",
+                      "minimum": 30,
+                      "maximum": 200
+                    },
+                    "birthYear": {
+                      "nullable": true,
+                      "type": "integer",
+                      "minimum": 1900,
+                      "maximum": 2100
+                    },
+                    "preferredTeam": {
+                      "nullable": true,
+                      "type": "string",
+                      "maxLength": 80
+                    },
+                    "nationality": {
+                      "nullable": true,
+                      "type": "string",
+                      "maxLength": 80
+                    },
+                    "categoryOverall": {
+                      "type": "object",
+                      "additionalProperties": {
+                        "type": "integer",
+                        "minimum": 0,
+                        "maximum": 99
+                      }
+                    },
+                    "overallByPosition": {
+                      "type": "object",
+                      "additionalProperties": {
+                        "type": "integer",
+                        "minimum": 0,
+                        "maximum": 99
+                      }
+                    },
+                    "generalOverall": {
+                      "type": "integer",
+                      "minimum": 0,
+                      "maximum": 99
                     }
                   },
                   "required": [
@@ -4618,7 +4714,18 @@
                     "userId",
                     "affinity",
                     "attributes",
-                    "skills"
+                    "skills",
+                    "dominantFoot",
+                    "weakFoot",
+                    "skillMoves",
+                    "heightCm",
+                    "weightKg",
+                    "birthYear",
+                    "preferredTeam",
+                    "nationality",
+                    "categoryOverall",
+                    "overallByPosition",
+                    "generalOverall"
                   ],
                   "additionalProperties": false
                 }
@@ -4652,37 +4759,137 @@
                     "additionalProperties": {
                       "type": "integer",
                       "minimum": 0,
-                      "maximum": 100
+                      "maximum": 99
                     },
                     "required": [
-                      "chute",
-                      "passe",
-                      "drible",
-                      "velocidade",
-                      "forca",
-                      "cabeceio",
-                      "marcacao",
-                      "desarme",
+                      "aceleracao",
+                      "pique",
+                      "posicionamento",
+                      "finalizacao",
+                      "forca_chute",
+                      "chute_longe",
+                      "voleio",
+                      "penalti",
                       "visao",
-                      "lideranca"
+                      "cruzamento",
+                      "falta",
+                      "passe_curto",
+                      "lancamento",
+                      "curva",
+                      "agilidade",
+                      "equilibrio",
+                      "reacao",
+                      "controle_bola",
+                      "conducao",
+                      "compostura",
+                      "interceptacao",
+                      "cabeceio_def",
+                      "nocao_def",
+                      "dividida",
+                      "carrinho",
+                      "impulsao",
+                      "folego",
+                      "forca",
+                      "combatividade",
+                      "elasticidade",
+                      "defesa_mao",
+                      "reflexo",
+                      "saida",
+                      "pos_gol",
+                      "chute_gol"
                     ]
                   },
                   "skills": {
-                    "maxItems": 3,
+                    "maxItems": 5,
                     "type": "array",
                     "items": {
                       "type": "string",
                       "enum": [
-                        "driblador",
-                        "goleador",
-                        "garcom",
-                        "muralha",
-                        "motorzinho",
-                        "capitao",
-                        "maestro",
-                        "paredao"
+                        "chute_rasteiro",
+                        "cabeceio_preciso",
+                        "acrobata",
+                        "chute_colocado",
+                        "cavadinha",
+                        "pombo_sem_asas",
+                        "bola_parada",
+                        "tecnica",
+                        "veloz",
+                        "dominio",
+                        "malvadeza",
+                        "cabeca_fria",
+                        "forca_aerea",
+                        "cercar",
+                        "barreira",
+                        "interceptacao_ps",
+                        "antecipacao",
+                        "carrinho_limpo",
+                        "solidez",
+                        "xerife",
+                        "pe_de_vento",
+                        "incansavel",
+                        "lateral_longo",
+                        "sai_que_e_sua",
+                        "arremesso_longo",
+                        "usa_os_pes",
+                        "saida_aerea",
+                        "braco_elastico",
+                        "deflector",
+                        "passe_direto",
+                        "passe_guiado",
+                        "passe_longo",
+                        "tiki_taka",
+                        "passe_de_gps"
                       ]
                     }
+                  },
+                  "dominantFoot": {
+                    "nullable": true,
+                    "type": "string",
+                    "enum": [
+                      "left",
+                      "right",
+                      "both"
+                    ]
+                  },
+                  "weakFoot": {
+                    "nullable": true,
+                    "type": "integer",
+                    "minimum": 1,
+                    "maximum": 5
+                  },
+                  "skillMoves": {
+                    "nullable": true,
+                    "type": "integer",
+                    "minimum": 1,
+                    "maximum": 5
+                  },
+                  "heightCm": {
+                    "nullable": true,
+                    "type": "integer",
+                    "minimum": 100,
+                    "maximum": 250
+                  },
+                  "weightKg": {
+                    "nullable": true,
+                    "type": "integer",
+                    "minimum": 30,
+                    "maximum": 200
+                  },
+                  "birthYear": {
+                    "nullable": true,
+                    "type": "integer",
+                    "minimum": 1900,
+                    "maximum": 2100
+                  },
+                  "preferredTeam": {
+                    "nullable": true,
+                    "type": "string",
+                    "maxLength": 80
+                  },
+                  "nationality": {
+                    "nullable": true,
+                    "type": "string",
+                    "maxLength": 80
                   }
                 }
               }
@@ -4726,7 +4933,7 @@
                       "additionalProperties": {
                         "type": "integer",
                         "minimum": 0,
-                        "maximum": 100
+                        "maximum": 99
                       }
                     },
                     "skills": {
@@ -4734,16 +4941,112 @@
                       "items": {
                         "type": "string",
                         "enum": [
-                          "driblador",
-                          "goleador",
-                          "garcom",
-                          "muralha",
-                          "motorzinho",
-                          "capitao",
-                          "maestro",
-                          "paredao"
+                          "chute_rasteiro",
+                          "cabeceio_preciso",
+                          "acrobata",
+                          "chute_colocado",
+                          "cavadinha",
+                          "pombo_sem_asas",
+                          "bola_parada",
+                          "tecnica",
+                          "veloz",
+                          "dominio",
+                          "malvadeza",
+                          "cabeca_fria",
+                          "forca_aerea",
+                          "cercar",
+                          "barreira",
+                          "interceptacao_ps",
+                          "antecipacao",
+                          "carrinho_limpo",
+                          "solidez",
+                          "xerife",
+                          "pe_de_vento",
+                          "incansavel",
+                          "lateral_longo",
+                          "sai_que_e_sua",
+                          "arremesso_longo",
+                          "usa_os_pes",
+                          "saida_aerea",
+                          "braco_elastico",
+                          "deflector",
+                          "passe_direto",
+                          "passe_guiado",
+                          "passe_longo",
+                          "tiki_taka",
+                          "passe_de_gps"
                         ]
                       }
+                    },
+                    "dominantFoot": {
+                      "nullable": true,
+                      "type": "string",
+                      "enum": [
+                        "left",
+                        "right",
+                        "both"
+                      ]
+                    },
+                    "weakFoot": {
+                      "nullable": true,
+                      "type": "integer",
+                      "minimum": 1,
+                      "maximum": 5
+                    },
+                    "skillMoves": {
+                      "nullable": true,
+                      "type": "integer",
+                      "minimum": 1,
+                      "maximum": 5
+                    },
+                    "heightCm": {
+                      "nullable": true,
+                      "type": "integer",
+                      "minimum": 100,
+                      "maximum": 250
+                    },
+                    "weightKg": {
+                      "nullable": true,
+                      "type": "integer",
+                      "minimum": 30,
+                      "maximum": 200
+                    },
+                    "birthYear": {
+                      "nullable": true,
+                      "type": "integer",
+                      "minimum": 1900,
+                      "maximum": 2100
+                    },
+                    "preferredTeam": {
+                      "nullable": true,
+                      "type": "string",
+                      "maxLength": 80
+                    },
+                    "nationality": {
+                      "nullable": true,
+                      "type": "string",
+                      "maxLength": 80
+                    },
+                    "categoryOverall": {
+                      "type": "object",
+                      "additionalProperties": {
+                        "type": "integer",
+                        "minimum": 0,
+                        "maximum": 99
+                      }
+                    },
+                    "overallByPosition": {
+                      "type": "object",
+                      "additionalProperties": {
+                        "type": "integer",
+                        "minimum": 0,
+                        "maximum": 99
+                      }
+                    },
+                    "generalOverall": {
+                      "type": "integer",
+                      "minimum": 0,
+                      "maximum": 99
                     }
                   },
                   "required": [
@@ -4753,7 +5056,18 @@
                     "userId",
                     "affinity",
                     "attributes",
-                    "skills"
+                    "skills",
+                    "dominantFoot",
+                    "weakFoot",
+                    "skillMoves",
+                    "heightCm",
+                    "weightKg",
+                    "birthYear",
+                    "preferredTeam",
+                    "nationality",
+                    "categoryOverall",
+                    "overallByPosition",
+                    "generalOverall"
                   ],
                   "additionalProperties": false
                 }

@@ -3,6 +3,7 @@ import type { ZodTypeProvider } from "fastify-type-provider-zod";
 import { createPlayersRepository } from "@/http/api/players/players.repository";
 import { requireUser } from "@/http/hooks/auth";
 import { prisma } from "@/infra/db/client";
+import { presentMyPlayer } from "./me.presenter";
 import { MyPlayerResponse, UpdateMyPlayerBody } from "./me.schema";
 import { createMyPlayerService, createUpdateMyPlayerService } from "./me.service";
 
@@ -26,7 +27,7 @@ export const myPlayerRoute: FastifyPluginAsync = async (app) => {
       const service = createMyPlayerService({ playersRepo: createPlayersRepository(prisma) });
       const { userId } = requireUser(req);
       const player = await service(userId);
-      void reply.code(200).send(player);
+      void reply.code(200).send(presentMyPlayer(player));
     },
   );
 };
@@ -50,8 +51,16 @@ export const updateMyPlayerRoute: FastifyPluginAsync = async (app) => {
         affinity: req.body.affinity,
         attributes: req.body.attributes,
         skills: req.body.skills,
+        dominantFoot: req.body.dominantFoot,
+        weakFoot: req.body.weakFoot,
+        skillMoves: req.body.skillMoves,
+        heightCm: req.body.heightCm,
+        weightKg: req.body.weightKg,
+        birthYear: req.body.birthYear,
+        preferredTeam: req.body.preferredTeam,
+        nationality: req.body.nationality,
       });
-      void reply.code(200).send(player);
+      void reply.code(200).send(presentMyPlayer(player));
     },
   );
 };

@@ -68,6 +68,14 @@ export type MatchPerformance = {
    * NOW, for every match in their history alike.
    */
   affinity: Partial<Record<FieldPosition, number>>;
+  /**
+   * The player's self-declared attribute map (`players.catalog.ts`). When
+   * present, a position's starting overall bootstraps from the
+   * attribute-derived `effectiveBase` (attributes × affinity); absent, it falls
+   * back to the raw affinity value. `Player.attributes` for a registered
+   * player; a guest (no `Player.attributes` surface) omits it.
+   */
+  attributes?: Record<string, number> | undefined;
   /** The player's own team's result — `"draw"` when it can't be resolved (no `MatchResult`, or the stat row carries no `team`). */
   outcome: MatchOutcome;
   goals: number;

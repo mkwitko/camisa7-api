@@ -54,6 +54,14 @@ describe("attendanceRepository (integration)", () => {
         affinity: (row.affinity ?? {}) as Record<string, number>,
         attributes: (row.attributes ?? {}) as Player["attributes"],
         skills: (row.skills ?? []) as Player["skills"],
+      dominantFoot: row.dominantFoot,
+      weakFoot: row.weakFoot,
+      skillMoves: row.skillMoves,
+      heightCm: row.heightCm,
+      weightKg: row.weightKg,
+      birthYear: row.birthYear,
+      preferredTeam: row.preferredTeam,
+      nationality: row.nationality,
       });
     }
     return players;

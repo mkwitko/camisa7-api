@@ -169,6 +169,9 @@ export function createPlayerCareerRepository(db: PrismaLike): PlayerCareerReposi
         matchId: match.id,
         datetime: match.datetime,
         affinity: resolveAffinity(player, member),
+        // Registered player: bootstrap positions from attribute-derived overall.
+        // Guest (no attributes surface): omit → falls back to raw affinity.
+        attributes: player?.userId != null ? player.attributes : undefined,
         outcome: deriveOutcome(result, stat.team),
         goals: stat.goals,
         assists: stat.assists,

@@ -1,7 +1,7 @@
 import { Prisma } from "@/generated/prisma/client";
 import type { PrismaLike } from "@/infra/db/client";
 import { type SkillKey, withAttributeDefaults } from "./players.catalog";
-import type { Player } from "./players.types";
+import type { Foot, Player } from "./players.types";
 
 type PlayerRow = {
   id: string;
@@ -11,6 +11,14 @@ type PlayerRow = {
   affinity: unknown;
   attributes: unknown;
   skills: string[];
+  dominantFoot: string | null;
+  weakFoot: number | null;
+  skillMoves: number | null;
+  heightCm: number | null;
+  weightKg: number | null;
+  birthYear: number | null;
+  preferredTeam: string | null;
+  nationality: string | null;
 };
 
 function toDomainPlayer(row: PlayerRow): Player {
@@ -21,10 +29,18 @@ function toDomainPlayer(row: PlayerRow): Player {
     phone: row.phone,
     affinity: (row.affinity ?? {}) as Record<string, number>,
     // Always the full catalog — a never-onboarded player stores `{}`, so fill
-    // the 50 baseline here (the balancer never reads this; it's card flair).
+    // the 50 baseline here.
     attributes: withAttributeDefaults((row.attributes ?? {}) as Record<string, number>),
     // Trusted: only ever written through the validated `PATCH /players/me` body.
     skills: (row.skills ?? []) as SkillKey[],
+    dominantFoot: (row.dominantFoot ?? null) as Foot | null,
+    weakFoot: row.weakFoot,
+    skillMoves: row.skillMoves,
+    heightCm: row.heightCm,
+    weightKg: row.weightKg,
+    birthYear: row.birthYear,
+    preferredTeam: row.preferredTeam,
+    nationality: row.nationality,
   };
 }
 
@@ -33,6 +49,14 @@ export type ProfilePatch = {
   affinity?: Partial<Record<string, number>> | undefined;
   attributes?: Record<string, number> | undefined;
   skills?: string[] | undefined;
+  dominantFoot?: Foot | null | undefined;
+  weakFoot?: number | null | undefined;
+  skillMoves?: number | null | undefined;
+  heightCm?: number | null | undefined;
+  weightKg?: number | null | undefined;
+  birthYear?: number | null | undefined;
+  preferredTeam?: string | null | undefined;
+  nationality?: string | null | undefined;
 };
 
 export interface PlayersRepository {
@@ -98,6 +122,14 @@ export function createPlayersRepository(db: PrismaLike): PlayersRepository {
             ? { attributes: patch.attributes as unknown as Prisma.InputJsonValue }
             : {}),
           ...(patch.skills !== undefined ? { skills: patch.skills } : {}),
+          ...(patch.dominantFoot !== undefined ? { dominantFoot: patch.dominantFoot } : {}),
+          ...(patch.weakFoot !== undefined ? { weakFoot: patch.weakFoot } : {}),
+          ...(patch.skillMoves !== undefined ? { skillMoves: patch.skillMoves } : {}),
+          ...(patch.heightCm !== undefined ? { heightCm: patch.heightCm } : {}),
+          ...(patch.weightKg !== undefined ? { weightKg: patch.weightKg } : {}),
+          ...(patch.birthYear !== undefined ? { birthYear: patch.birthYear } : {}),
+          ...(patch.preferredTeam !== undefined ? { preferredTeam: patch.preferredTeam } : {}),
+          ...(patch.nationality !== undefined ? { nationality: patch.nationality } : {}),
         },
       });
       return toDomainPlayer(row);

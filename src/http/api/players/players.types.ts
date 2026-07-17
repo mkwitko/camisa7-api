@@ -14,6 +14,8 @@
  */
 import type { AttributeKey, SkillKey } from "./players.catalog";
 
+export type Foot = "left" | "right" | "both";
+
 export type Player = {
   id: string;
   userId: string | null;
@@ -21,11 +23,20 @@ export type Player = {
   phone: string | null;
   affinity: Record<string, number>;
   /**
-   * Onboarding profile (descriptive only, never feeds the balancer): the
-   * self-declared attribute budget (`{attribute: 0-100}`, always the full
-   * catalog — the repo fills the 50 baseline) and up to `MAX_SKILLS` skill
-   * tags. See `players.catalog.ts`.
+   * FIFA-style profile: the self-declared attribute budget (`{attribute: 0-99}`,
+   * always the full 35-sub catalog — the repo fills the 50 baseline), up to
+   * `MAX_SKILLS` playstyle tags, and the card fields below. Attributes DRIVE the
+   * per-position overall (`players.rating.ts`); skills/card fields are
+   * descriptive. See `players.catalog.ts`.
    */
   attributes: Record<AttributeKey, number>;
   skills: SkillKey[];
+  dominantFoot: Foot | null;
+  weakFoot: number | null;
+  skillMoves: number | null;
+  heightCm: number | null;
+  weightKg: number | null;
+  birthYear: number | null;
+  preferredTeam: string | null;
+  nationality: string | null;
 };

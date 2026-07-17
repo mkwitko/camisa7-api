@@ -95,6 +95,13 @@ enum Modality {
   campo
 }
 
+/// Dominant foot (card field).
+enum Foot {
+  left
+  right
+  both
+}
+
 /// Task 5: a member's role inside one specific group (not a global role).
 enum MemberRole {
   organizador
@@ -142,6 +149,16 @@ model Player {
   /// fixed catalog (`players.catalog.ts`), e.g. `["driblador","goleador"]`.
   /// Rendered as badges on the profile/card, never consumed by the balancer.
   skills String[] @default([])
+
+  /// Card fields (FIFA-style profile) — all optional, descriptive.
+  dominantFoot  Foot?
+  weakFoot      Int? /// 1-5 stars
+  skillMoves    Int? /// 1-5 stars (fintas)
+  heightCm      Int?
+  weightKg      Int?
+  birthYear     Int?
+  preferredTeam String?
+  nationality   String?
 
   createdAt DateTime @default(now()) @db.Timestamptz(3)
   updatedAt DateTime @updatedAt @db.Timestamptz(3)

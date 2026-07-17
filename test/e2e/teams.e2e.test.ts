@@ -241,6 +241,7 @@ describe("teams e2e", () => {
       // `POST /matches/:id/attendance` with.
       const attendanceRepo = createAttendanceRepository(h.prisma);
       await attendanceRepo.confirm(matchId, {
+        ...unratedMember.player,
         id: unratedMember.player.id,
         userId: unratedMember.player.userId,
         name: unratedMember.player.name,

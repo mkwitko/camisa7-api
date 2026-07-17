@@ -116,6 +116,14 @@ describe("playerCareerRepository (integration)", () => {
       affinity: (row.affinity ?? {}) as Record<string, number>,
       attributes: (row.attributes ?? {}) as Player["attributes"],
       skills: (row.skills ?? []) as Player["skills"],
+      dominantFoot: row.dominantFoot,
+      weakFoot: row.weakFoot,
+      skillMoves: row.skillMoves,
+      heightCm: row.heightCm,
+      weightKg: row.weightKg,
+      birthYear: row.birthYear,
+      preferredTeam: row.preferredTeam,
+      nationality: row.nationality,
     };
   }
 
@@ -134,6 +142,14 @@ describe("playerCareerRepository (integration)", () => {
       affinity: (row.affinity ?? {}) as Record<string, number>,
       attributes: (row.attributes ?? {}) as Player["attributes"],
       skills: (row.skills ?? []) as Player["skills"],
+      dominantFoot: row.dominantFoot,
+      weakFoot: row.weakFoot,
+      skillMoves: row.skillMoves,
+      heightCm: row.heightCm,
+      weightKg: row.weightKg,
+      birthYear: row.birthYear,
+      preferredTeam: row.preferredTeam,
+      nationality: row.nationality,
     };
   }
 
@@ -170,7 +186,7 @@ describe("playerCareerRepository (integration)", () => {
       expect(career.matchesPlayed).toBe(1);
       expect(career.wins).toBe(1);
       expect(career.goals).toBe(2);
-      // win(6) + 2 goals(3 each) = raw 12, * 60% affinity = 7.2, bounded to the +3 step cap: 60 -> 63.
+      // guest: no attributes -> bootstrap falls back to raw group affinity 60; +3 -> 63.
       expect(career.overall.campo_atacante).toBe(63);
       expect(career.level).toBe("bronze");
     });
@@ -207,8 +223,8 @@ describe("playerCareerRepository (integration)", () => {
 
       const career = await repo.recomputeForPlayer(player.id);
 
-      // win(6) + 2 goals(3 each) = raw 12, * 60% (Player.affinity.campo_meia) = 7.2, bounded to +3: 60 -> 63.
-      expect(career.overall.campo_meia).toBe(63);
+      // base = effectiveBase(baseline attrs=50, campo_meia, aff 60%) = 40; +3 step cap -> 43.
+      expect(career.overall.campo_meia).toBe(43);
       // The group's `campo_atacante` affinity never applied — it belongs to a guest-only fallback.
       expect(career.overall.campo_atacante).toBeUndefined();
     });

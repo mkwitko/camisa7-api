@@ -3,6 +3,7 @@ import {
   type FieldPosition,
   isGoalkeeper,
 } from "@/http/api/groups/children/members/members.types";
+import { effectiveBase } from "@/http/api/players/players.rating";
 import type { ComputedCareer, MatchOutcome, MatchPerformance, PlayerLevel } from "./career.types";
 import { CAREER_CONFIG } from "./career-config";
 
@@ -55,19 +56,20 @@ function stepToward(current: number, signal: number): number {
 
 /**
  * `overall[position]` if already touched during this replay, else the
- * player's OWN declared `affinity[position]` (clamped to the valid 0-99
- * overall range — affinity itself goes up to 100) seeds it. Only ever
- * called for a `position` the caller has already gated on
- * `affinity[position] > 0`, so the fallback is never reached in practice —
- * `?? 0` just keeps this total for the type.
+ * starting value for `position`: the attribute-derived `effectiveBase`
+ * (attributes × affinity) when the player's `attributes` are known, otherwise
+ * the raw declared `affinity[position]` (clamped 0-99). Only ever called for a
+ * `position` already gated on `affinity[position] > 0`.
  */
 function bootstrap(
   overall: Partial<Record<FieldPosition, number>>,
   position: FieldPosition,
   affinity: Partial<Record<FieldPosition, number>>,
+  attributes: Record<string, number> | undefined,
 ): number {
   const current = overall[position];
   if (current !== undefined) return current;
+  if (attributes) return effectiveBase(attributes, position, affinity[position] ?? 0);
   return clamp(affinity[position] ?? 0, 0, 99);
 }
 
@@ -136,7 +138,10 @@ export function computeCareer(performances: MatchPerformance[]): ComputedCareer 
       if (!affinityValue || affinityValue <= 0) continue; // undeclared (or 0) — never touched
 
       const signal = computeSignal(position, perf) * (affinityValue / 100);
-      overall[position] = stepToward(bootstrap(overall, position, perf.affinity), signal);
+      overall[position] = stepToward(
+        bootstrap(overall, position, perf.affinity, perf.attributes),
+        signal,
+      );
     }
 
     if (perf.outcome === "win") wins += 1;

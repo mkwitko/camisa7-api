@@ -190,8 +190,8 @@ describe("finalize-match e2e", () => {
       expect(p1Body.wins).toBe(1);
       expect(p1Body.goals).toBe(2);
       expect(p1Body.mvpCount).toBe(1);
-      // win(6) + 2 goals(3 each = 6) = raw signal 12, bounded to the +3 step cap: 60 -> 63.
-      expect(p1Body.overall.campo_atacante).toBe(63);
+      // base = attrs(50) x affinity(60%) = 40; win+2 goals capped to +3 step -> 43.
+      expect(p1Body.overall.campo_atacante).toBe(43);
       expect(p1Body.level).toBe("bronze");
 
       const p2Career = await getCareer(h, owner.token, p2.playerId);
