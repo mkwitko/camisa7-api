@@ -49,14 +49,14 @@ describe("UpdateMyPlayerBody", () => {
 
   it("accepts up to 5 distinct skills from the catalog", () => {
     const parsed = UpdateMyPlayerBody.safeParse({
-      skills: ["tecnica", "veloz", "dominio", "malvadeza", "cabeca_fria"],
+      skills: ["tecnica", "veloz", "dominio", "ginga", "cabeca_fria"],
     });
     expect(parsed.success).toBe(true);
   });
 
   it("rejects more than 5 skills", () => {
     const parsed = UpdateMyPlayerBody.safeParse({
-      skills: ["tecnica", "veloz", "dominio", "malvadeza", "cabeca_fria", "acrobata"],
+      skills: ["tecnica", "veloz", "dominio", "ginga", "cabeca_fria", "acrobata"],
     });
     expect(parsed.success).toBe(false);
   });

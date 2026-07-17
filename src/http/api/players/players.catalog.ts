@@ -89,7 +89,7 @@ export const POSITION_WEIGHTS: Record<FieldPosition, Record<AttributeCategory, n
 export const SKILL_CATALOG = {
   chute_rasteiro: "artilharia", cabeceio_preciso: "artilharia", acrobata: "artilharia",
   chute_colocado: "artilharia", cavadinha: "artilharia", pombo_sem_asas: "artilharia", bola_parada: "artilharia",
-  tecnica: "controle_bola", veloz: "controle_bola", dominio: "controle_bola", malvadeza: "controle_bola", cabeca_fria: "controle_bola",
+  tecnica: "controle_bola", veloz: "controle_bola", dominio: "controle_bola", ginga: "controle_bola", cabeca_fria: "controle_bola",
   forca_aerea: "defesa", cercar: "defesa", barreira: "defesa", interceptacao_ps: "defesa", antecipacao: "defesa", carrinho_limpo: "defesa",
   solidez: "fisico", xerife: "fisico", pe_de_vento: "fisico", incansavel: "fisico", lateral_longo: "fisico",
   sai_que_e_sua: "goleiro", arremesso_longo: "goleiro", usa_os_pes: "goleiro", saida_aerea: "goleiro", braco_elastico: "goleiro", deflector: "goleiro",
