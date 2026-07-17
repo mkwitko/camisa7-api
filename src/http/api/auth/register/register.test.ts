@@ -50,7 +50,12 @@ describe("createRegisterService", () => {
     const jwt = makeFakeJwt();
     const service = createRegisterService({ repo, jwt });
 
-    const result = await service({ email: "a@b.com", password: "s3cret!!", name: "Alice", roles: ["jogador"] });
+    const result = await service({
+      email: "a@b.com",
+      password: "s3cret!!",
+      name: "Alice",
+      roles: ["jogador"],
+    });
 
     expect(result.user).toMatchObject({ email: "a@b.com", name: "Alice", hasPassword: true });
     expect(result.accessToken).toBe("access-token");

@@ -1,6 +1,6 @@
 import { assertVenueOwner } from "../venue.authz";
-import type { UpdateVenueBody } from "../venue.schema";
 import type { VenueRepository } from "../venue.repository";
+import type { UpdateVenueBody } from "../venue.schema";
 import type { Venue } from "../venue.types";
 
 export type UpdateVenueDeps = { venueRepo: VenueRepository };

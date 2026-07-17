@@ -1,7 +1,7 @@
 import type { AuthRepository } from "@/http/api/auth/auth.repository";
 import { ERRORS } from "@/shared/errors/catalog";
-import type { CreateVenueBody } from "../venue.schema";
 import type { VenueRepository } from "../venue.repository";
+import type { CreateVenueBody } from "../venue.schema";
 import type { Venue } from "../venue.types";
 
 export type CreateVenueDeps = {
