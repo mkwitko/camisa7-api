@@ -9,6 +9,7 @@ import { courtsRoutes } from "@/http/api/courts/index";
 import { discoverRoutes } from "@/http/api/discover/discover.controller";
 import { duesRoutes } from "@/http/api/dues/index";
 import { groupsRoutes } from "@/http/api/groups/index";
+import { growthRoutes } from "@/http/api/growth/growth.controller";
 import { invitesRoutes } from "@/http/api/invites/index";
 import { matchesRoutes } from "@/http/api/matches/index";
 import { playersRoutes } from "@/http/api/players/index";
@@ -56,4 +57,5 @@ export const httpRoutes: FastifyPluginAsync = async (app) => {
   await app.register(connectRoutes);
   await app.register(courtsRoutes);
   await app.register(bookingsRoutes);
+  await app.register(growthRoutes);
 };

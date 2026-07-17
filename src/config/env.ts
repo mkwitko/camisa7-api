@@ -58,6 +58,12 @@ const EnvSchema = z.object({
   // `refresh_url`/`return_url` of Stripe Connect Account Links — the owner is
   // sent back there after (or mid-) onboarding.
   WEB_BASE_URL: z.string().default("http://localhost:5173"),
+
+  // Growth reporting: shared-secret bearer token that gates `GET
+  // /api/growth/metrics` (server-to-server, consumed by the growth-os
+  // pipeline). Optional/config-gated, same convention as R2/Stripe: unset ->
+  // the route 503s instead of running unauthenticated.
+  GROWTH_SERVICE_TOKEN: z.string().optional(),
 });
 
 export type EnvConfig = z.infer<typeof EnvSchema>;

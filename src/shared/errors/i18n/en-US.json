@@ -65,5 +65,7 @@
   "BKG-T0003": "This time slot cannot be booked.",
   "BKG-T0004": "You do not have permission over this booking.",
   "BKG-T0005": "This booking cannot be changed in its current state.",
-  "BKG-T0006": "This court is inactive for new bookings."
+  "BKG-T0006": "This court is inactive for new bookings.",
+  "GRW-T0001": "Growth metrics are currently unavailable.",
+  "GRW-T0002": "Missing or invalid service token."
 }

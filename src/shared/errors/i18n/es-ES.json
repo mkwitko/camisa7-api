@@ -65,5 +65,7 @@
   "BKG-T0003": "Este horario no se puede reservar.",
   "BKG-T0004": "No tienes permiso sobre esta reserva.",
   "BKG-T0005": "Esta reserva no se puede modificar en su estado actual.",
-  "BKG-T0006": "Esta cancha está desactivada para nuevas reservas."
+  "BKG-T0006": "Esta cancha está desactivada para nuevas reservas.",
+  "GRW-T0001": "Las métricas de crecimiento no están disponibles en este momento.",
+  "GRW-T0002": "Token de servicio inválido o ausente."
 }

@@ -22,8 +22,8 @@ function defineError({ code, status, internalMessage }: ErrorDefinition) {
 // SER (match series, Motor de Recorrência), SYS (cross-cutting), BIL
 // (billing/entitlements), JRQ (join request, Geo G3), VEN (venue, Marketplace
 // V1), CON (Stripe Connect, Marketplace V2), CRT (court, Marketplace V2), BKG
-// (booking, Marketplace V2). Uma sigla só ganha entradas quando o módulo
-// correspondente nasce.
+// (booking, Marketplace V2), GRW (growth metrics, server-to-server). Uma
+// sigla só ganha entradas quando o módulo correspondente nasce.
 export const ERRORS = {
   AUTH: {
     INVALID_TOKEN: defineError({
@@ -569,6 +569,25 @@ export const ERRORS = {
       code: "BKG-T0006",
       status: 409,
       internalMessage: "booking_court_inactive",
+    }),
+  },
+  // Growth reporting: `GET /api/growth/metrics` — server-to-server endpoint
+  // consumed by the growth-os pipeline, gated by a shared-secret bearer
+  // token (`GROWTH_SERVICE_TOKEN`), not the regular JWT `authHook`. DISABLED
+  // (503) is the config-gate (token unset on this deploy) — same family as
+  // `BIL.DISABLED`/`CON.DISABLED`. UNAUTHORIZED (401) is thrown when the
+  // caller's `Authorization: Bearer <token>` header is missing or doesn't
+  // match the configured token.
+  GRW: {
+    DISABLED: defineError({
+      code: "GRW-T0001",
+      status: 503,
+      internalMessage: "growth_metrics_disabled",
+    }),
+    UNAUTHORIZED: defineError({
+      code: "GRW-T0002",
+      status: 401,
+      internalMessage: "growth_metrics_unauthorized",
     }),
   },
   SYS: {
