@@ -14,6 +14,7 @@ type UserRow = {
   lastLat: number | null;
   lastLng: number | null;
   stripeCustomerId: string | null;
+  stripeAccountId: string | null;
   createdAt: Date;
 };
 
@@ -29,6 +30,7 @@ function toDomainUser(row: UserRow): User {
     lastLat: row.lastLat ?? null,
     lastLng: row.lastLng ?? null,
     stripeCustomerId: row.stripeCustomerId ?? null,
+    stripeAccountId: row.stripeAccountId ?? null,
     createdAt: row.createdAt.toISOString(),
   };
 }
@@ -106,6 +108,13 @@ export interface AuthRepository {
    * we do — entitlements themselves live in Stripe, not here.
    */
   setStripeCustomerId(id: string, stripeCustomerId: string): Promise<void>;
+  /**
+   * Marketplace V2: persists the Stripe Connect (Express) account id for a
+   * court owner (from `createConnectedAccount`, on onboarding start). Same
+   * shape as `setStripeCustomerId` — the id is the only Connect state we
+   * store; `charges_enabled`/etc. are resolved live from Stripe.
+   */
+  setStripeAccountId(id: string, stripeAccountId: string): Promise<void>;
 }
 
 /** Factory `createAuthRepository(db: PrismaLike)` — composes inside a tx or standalone. */
@@ -162,6 +171,10 @@ export function createAuthRepository(db: PrismaLike): AuthRepository {
 
     async setStripeCustomerId(id, stripeCustomerId) {
       await db.user.update({ where: { id }, data: { stripeCustomerId } });
+    },
+
+    async setStripeAccountId(id, stripeAccountId) {
+      await db.user.update({ where: { id }, data: { stripeAccountId } });
     },
 
     async insert(input) {

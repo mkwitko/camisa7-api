@@ -31,5 +31,13 @@ export type User = {
    * `getOrCreateCustomer`). The only billing state we persist.
    */
   stripeCustomerId: string | null;
+  /**
+   * Marketplace V2: Stripe Connect (Express) account id for a court owner —
+   * the destination of `transfer_data.destination` on booking PaymentIntents.
+   * `null` until the owner starts onboarding (`createConnectedAccount`).
+   * `charges_enabled`/`payouts_enabled` are resolved live from Stripe
+   * (`retrieveAccountStatus`), not persisted here.
+   */
+  stripeAccountId: string | null;
   createdAt: string;
 };
