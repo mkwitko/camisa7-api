@@ -51,5 +51,19 @@
   "JRQ-T0004": "Esta solicitud de ingreso ya fue decidida.",
   "VEN-T0001": "Debes ser una cancha para registrar un espacio.",
   "VEN-T0002": "Cancha no encontrada.",
-  "VEN-T0003": "No eres el propietario de esta cancha."
+  "VEN-T0003": "No eres el propietario de esta cancha.",
+  "CON-T0001": "Los pagos no están disponibles en este momento.",
+  "CON-T0002": "Debes ser una cancha para configurar tus cobros.",
+  "CON-T0003": "Aún no has configurado tus cobros en Stripe.",
+  "CON-T0004": "Termina de configurar tus cobros en Stripe para recibir reservas.",
+  "CRT-T0001": "Cancha no encontrada.",
+  "CRT-T0002": "No eres el propietario de esta cancha.",
+  "CRT-T0003": "Las reglas de precio tienen horarios que se superponen.",
+  "CRT-T0004": "Indica el porcentaje de depósito para este modo de reserva.",
+  "BKG-T0001": "Reserva no encontrada.",
+  "BKG-T0002": "Este horario ya está reservado.",
+  "BKG-T0003": "Este horario no se puede reservar.",
+  "BKG-T0004": "No tienes permiso sobre esta reserva.",
+  "BKG-T0005": "Esta reserva no se puede modificar en su estado actual.",
+  "BKG-T0006": "Esta cancha está desactivada para nuevas reservas."
 }

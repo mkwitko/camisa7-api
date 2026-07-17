@@ -51,5 +51,19 @@
   "JRQ-T0004": "Este pedido de entrada já foi decidido.",
   "VEN-T0001": "Você precisa ser uma quadra para cadastrar um espaço.",
   "VEN-T0002": "Quadra não encontrada.",
-  "VEN-T0003": "Você não é o dono desta quadra."
+  "VEN-T0003": "Você não é o dono desta quadra.",
+  "CON-T0001": "Pagamentos indisponíveis no momento.",
+  "CON-T0002": "Você precisa ser uma quadra para configurar recebimentos.",
+  "CON-T0003": "Você ainda não configurou seus recebimentos no Stripe.",
+  "CON-T0004": "Finalize a configuração dos seus recebimentos no Stripe para receber reservas.",
+  "CRT-T0001": "Quadra não encontrada.",
+  "CRT-T0002": "Você não é o dono desta quadra.",
+  "CRT-T0003": "As regras de preço têm horários que se sobrepõem.",
+  "CRT-T0004": "Informe o percentual do depósito para este modo de reserva.",
+  "BKG-T0001": "Reserva não encontrada.",
+  "BKG-T0002": "Este horário já está reservado.",
+  "BKG-T0003": "Este horário não pode ser reservado.",
+  "BKG-T0004": "Você não tem permissão sobre esta reserva.",
+  "BKG-T0005": "Esta reserva não pode ser alterada no estado atual.",
+  "BKG-T0006": "Esta quadra está desativada para novas reservas."
 }

@@ -45,6 +45,14 @@ const EnvSchema = z.object({
   STRIPE_PRICE_PLAYER: z.string().optional(),
   REVIEWER_EMAILS: z.string().default(""),
   APP_DEEPLINK_SCHEME: z.string().default("futebolapp"),
+
+  // Marketplace V2 (booking + Stripe Connect): a platform fee cobrada em cima
+  // do `application_fee_amount` de cada PaymentIntent com destino ao
+  // `stripeAccountId` do dono da quadra. `PLATFORM_FEE_BPS` (basis points,
+  // 500 = 5%) e `PLATFORM_FEE_MIN_CENTS` (piso em centavos) combinam como
+  // `max(priceCents * PLATFORM_FEE_BPS / 10000, PLATFORM_FEE_MIN_CENTS)`.
+  PLATFORM_FEE_BPS: z.coerce.number().int().min(0).max(10000).default(500),
+  PLATFORM_FEE_MIN_CENTS: z.coerce.number().int().min(0).default(200),
 });
 
 export type EnvConfig = z.infer<typeof EnvSchema>;

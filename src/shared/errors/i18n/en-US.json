@@ -51,5 +51,19 @@
   "JRQ-T0004": "This join request has already been decided.",
   "VEN-T0001": "You must be a venue to register a space.",
   "VEN-T0002": "Venue not found.",
-  "VEN-T0003": "You do not own this venue."
+  "VEN-T0003": "You do not own this venue.",
+  "CON-T0001": "Payments are currently unavailable.",
+  "CON-T0002": "You must be a venue to set up payouts.",
+  "CON-T0003": "You haven't set up your Stripe payouts yet.",
+  "CON-T0004": "Finish setting up your Stripe payouts to receive bookings.",
+  "CRT-T0001": "Court not found.",
+  "CRT-T0002": "You do not own this court.",
+  "CRT-T0003": "The price rules have overlapping time windows.",
+  "CRT-T0004": "Enter the deposit percentage for this booking mode.",
+  "BKG-T0001": "Booking not found.",
+  "BKG-T0002": "This time slot is already booked.",
+  "BKG-T0003": "This time slot cannot be booked.",
+  "BKG-T0004": "You do not have permission over this booking.",
+  "BKG-T0005": "This booking cannot be changed in its current state.",
+  "BKG-T0006": "This court is inactive for new bookings."
 }

@@ -19,8 +19,11 @@ function defineError({ code, status, internalMessage }: ErrorDefinition) {
 // SIGLAs reservadas para este projeto (módulos ainda por vir nas próximas tasks):
 // AUTH (autenticação/autorização), GRP (group), PLR (player), MTC (match),
 // ATT (attendance), INV (invite), TEAM (team), RES (match result, Fase 1),
-// SER (match series, Motor de Recorrência), SYS (cross-cutting). Uma sigla só
-// ganha entradas quando o módulo correspondente nasce.
+// SER (match series, Motor de Recorrência), SYS (cross-cutting), BIL
+// (billing/entitlements), JRQ (join request, Geo G3), VEN (venue, Marketplace
+// V1), CON (Stripe Connect, Marketplace V2), CRT (court, Marketplace V2), BKG
+// (booking, Marketplace V2). Uma sigla só ganha entradas quando o módulo
+// correspondente nasce.
 export const ERRORS = {
   AUTH: {
     INVALID_TOKEN: defineError({
@@ -460,6 +463,112 @@ export const ERRORS = {
       code: "VEN-T0003",
       status: 403,
       internalMessage: "venue_not_owner",
+    }),
+  },
+  // Marketplace V2: Stripe Connect (`connect/`) — connected account (Express)
+  // por dono de quadra, persistido só como `User.stripeAccountId`. DISABLED
+  // (503) is the config-gate on every money flow (`isBillingConfigured`
+  // false), same family as `BIL.DISABLED` but Connect-specific (reviewer
+  // bypass does NOT apply here, per brief). ROLE_REQUIRED (403) mirrors
+  // `VEN.ROLE_REQUIRED` — the soft `quadra` role gate on starting onboarding.
+  // NO_ACCOUNT (409) is thrown when an action needs `stripeAccountId` and the
+  // owner never started onboarding. NOT_READY (409) is thrown when the
+  // account exists but `charges_enabled` resolves false live (the owner
+  // hasn't finished onboarding/KYC) — this is what blocks booking on a court
+  // whose owner isn't payable yet.
+  CON: {
+    DISABLED: defineError({
+      code: "CON-T0001",
+      status: 503,
+      internalMessage: "connect_disabled",
+    }),
+    ROLE_REQUIRED: defineError({
+      code: "CON-T0002",
+      status: 403,
+      internalMessage: "connect_role_required",
+    }),
+    NO_ACCOUNT: defineError({
+      code: "CON-T0003",
+      status: 409,
+      internalMessage: "connect_no_account",
+    }),
+    NOT_READY: defineError({
+      code: "CON-T0004",
+      status: 409,
+      internalMessage: "connect_charges_disabled",
+    }),
+  },
+  // Marketplace V2: `Court` (quadra dentro de um `Venue`) CRUD + price rules
+  // (`courts/`). NOT_FOUND (404) / NOT_OWNER (403) mirror
+  // `VEN.NOT_FOUND`/`VEN.NOT_OWNER` (unknown id vs. not yours).
+  // INVALID_PRICE_RULES (422) backs the price-rule validator when two rules'
+  // day/time windows overlap (ambiguous price for a slot).
+  // DEPOSIT_PERCENT_REQUIRED (422) is thrown when `bookingMode` is `deposit`
+  // but no deposit percentage was supplied — the field is required only for
+  // that mode.
+  CRT: {
+    NOT_FOUND: defineError({
+      code: "CRT-T0001",
+      status: 404,
+      internalMessage: "court_not_found",
+    }),
+    NOT_OWNER: defineError({
+      code: "CRT-T0002",
+      status: 403,
+      internalMessage: "court_not_owner",
+    }),
+    INVALID_PRICE_RULES: defineError({
+      code: "CRT-T0003",
+      status: 422,
+      internalMessage: "court_price_rules_overlap",
+    }),
+    DEPOSIT_PERCENT_REQUIRED: defineError({
+      code: "CRT-T0004",
+      status: 422,
+      internalMessage: "court_deposit_percent_required",
+    }),
+  },
+  // Marketplace V2: `Booking` (reserva de um `Court`) lifecycle
+  // (`bookings/`). NOT_FOUND (404) is the unknown-id guard. SLOT_UNAVAILABLE
+  // (409) backs the create-booking conflict check — the fixed-grid slot
+  // (`courtId`,`date`,`startMinute`) already has an active booking (mirrors
+  // `ATT.ALREADY_IN`'s "already in this state" family). SLOT_NOT_BOOKABLE
+  // (422) is thrown for a structurally invalid slot (outside `slotMinutes`
+  // grid, in the past, etc). NOT_ALLOWED (403) is the ownership/participation
+  // guard (neither the booker nor the court owner). BAD_STATE (409) backs
+  // lifecycle transitions attempted from the wrong status (e.g. confirming an
+  // already-cancelled booking). COURT_INACTIVE (409) is thrown when booking
+  // is attempted on a court the owner deactivated.
+  BKG: {
+    NOT_FOUND: defineError({
+      code: "BKG-T0001",
+      status: 404,
+      internalMessage: "booking_not_found",
+    }),
+    SLOT_UNAVAILABLE: defineError({
+      code: "BKG-T0002",
+      status: 409,
+      internalMessage: "booking_slot_unavailable",
+    }),
+    SLOT_NOT_BOOKABLE: defineError({
+      code: "BKG-T0003",
+      status: 422,
+      internalMessage: "booking_slot_not_bookable",
+    }),
+    NOT_ALLOWED: defineError({
+      code: "BKG-T0004",
+      status: 403,
+      internalMessage: "booking_not_allowed",
+    }),
+    BAD_STATE: defineError({
+      code: "BKG-T0005",
+      status: 409,
+      internalMessage: "booking_bad_state",
+    }),
+    COURT_INACTIVE: defineError({
+      code: "BKG-T0006",
+      status: 409,
+      internalMessage: "booking_court_inactive",
     }),
   },
   SYS: {
