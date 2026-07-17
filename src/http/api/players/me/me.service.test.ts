@@ -51,14 +51,14 @@ describe("createMyPlayerService", () => {
 describe("createUpdateMyPlayerService", () => {
   it("resolves the caller's player then overwrites the given profile fields", async () => {
     const player = aPlayer();
-    const updated = aPlayer({ affinity: { atacante: 80 }, skills: ["goleador"] });
+    const updated = aPlayer({ affinity: { campo_atacante: 80 }, skills: ["goleador"] });
     const playersRepo = makeFakeRepo({
       findOrCreateForUser: vi.fn().mockResolvedValue(player),
       updateProfile: vi.fn().mockResolvedValue(updated),
     });
     const service = createUpdateMyPlayerService({ playersRepo });
 
-    const patch = { affinity: { atacante: 80 }, skills: ["goleador"] };
+    const patch = { affinity: { campo_atacante: 80 }, skills: ["goleador"] };
     await expect(service("u1", patch)).resolves.toEqual(updated);
     expect(playersRepo.findOrCreateForUser).toHaveBeenCalledWith("u1");
     expect(playersRepo.updateProfile).toHaveBeenCalledWith("p1", patch);

@@ -149,7 +149,7 @@ describe("finalize-match e2e", () => {
     // `resolveAffinity` reads `Player.affinity`, not the group's.
     await h.prisma.player.update({
       where: { id: a1.playerId },
-      data: { affinity: { atacante: 60 } },
+      data: { affinity: { campo_atacante: 60 } },
     });
 
     await finishMatch(h, owner.token, matchId);
@@ -191,7 +191,7 @@ describe("finalize-match e2e", () => {
       expect(p1Body.goals).toBe(2);
       expect(p1Body.mvpCount).toBe(1);
       // win(6) + 2 goals(3 each = 6) = raw signal 12, bounded to the +3 step cap: 60 -> 63.
-      expect(p1Body.overall.atacante).toBe(63);
+      expect(p1Body.overall.campo_atacante).toBe(63);
       expect(p1Body.level).toBe("bronze");
 
       const p2Career = await getCareer(h, owner.token, p2.playerId);

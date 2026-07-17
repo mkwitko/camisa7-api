@@ -8,8 +8,10 @@ describe("CreateMatchBody.modality", () => {
     expect(CreateMatchBody.safeParse({ ...base, modality: "futsal" }).success).toBe(true);
   });
 
-  it("requires modality", () => {
-    expect(CreateMatchBody.safeParse(base).success).toBe(false);
+  it("defaults modality to campo when omitted", () => {
+    const r = CreateMatchBody.safeParse(base);
+    expect(r.success).toBe(true);
+    expect(r.success && r.data.modality).toBe("campo");
   });
 
   it("rejects an unknown modality", () => {

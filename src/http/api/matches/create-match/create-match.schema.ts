@@ -12,6 +12,8 @@ export const CreateMatchBody = z.object({
   priceCents: z.number().int().min(0).optional(),
   slots: z.number().int().min(2).max(64),
   pixKey: z.string().optional(),
-  modality: ModalitySchema,
+  // App envia sempre (campo obrigatório no form); default `campo` cobre o DB
+  // default e mantém compat com chamadas legadas/materialização de série.
+  modality: ModalitySchema.default("campo"),
 });
 export type CreateMatchBody = z.infer<typeof CreateMatchBody>;

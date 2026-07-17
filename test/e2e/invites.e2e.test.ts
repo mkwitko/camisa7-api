@@ -187,7 +187,7 @@ describe("invites e2e", () => {
         name: "Rated Player",
         primaryPos: "atacante",
         seedOverall: { atacante: 87 },
-        affinity: { atacante: 5 },
+        affinity: { campo_atacante: 5 },
       });
       const match = await createMatch(h, ownerToken, groupId);
       const { id: matchId } = match.json();

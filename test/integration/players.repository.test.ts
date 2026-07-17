@@ -86,12 +86,12 @@ describe("playersRepository (integration)", () => {
 
       await testDb.prisma.player.update({
         where: { id: player.id },
-        data: { affinity: { atacante: 80, meia: 60 } },
+        data: { affinity: { campo_atacante: 80, campo_meia: 60 } },
       });
 
       const reloaded = await repo.findById(player.id);
 
-      expect(reloaded?.affinity).toEqual({ atacante: 80, meia: 60 });
+      expect(reloaded?.affinity).toEqual({ campo_atacante: 80, campo_meia: 60 });
     });
   });
 });

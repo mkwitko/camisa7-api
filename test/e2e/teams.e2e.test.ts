@@ -1,6 +1,6 @@
 import { afterAll, beforeAll, beforeEach, describe, expect, it } from "vitest";
 import { createMembersRepository } from "../../src/http/api/groups/children/members/members.repository";
-import type { Position } from "../../src/http/api/groups/children/members/members.types";
+import type { FieldPosition } from "../../src/http/api/groups/children/members/members.types";
 import { createAttendanceRepository } from "../../src/http/api/matches/children/attendance/attendance.repository";
 import { createTeamsRepository } from "../../src/http/api/matches/children/teams/teams.repository";
 import { buildTestApp, type TestApp } from "./helpers/app";
@@ -94,7 +94,7 @@ async function addRatedMember(
   h: TestApp,
   groupId: string,
   userId: string,
-  rating: { primaryPos: Position; overall: number },
+  rating: { primaryPos: FieldPosition; overall: number },
 ) {
   const membersRepo = createMembersRepository(h.prisma);
   await membersRepo.addForUser(groupId, userId, "jogador");
@@ -132,20 +132,20 @@ describe("teams e2e", () => {
       const match = await createMatch(h, owner.token, groupId);
       const { id: matchId } = match.json();
 
-      const ratings: { primaryPos: Position; overall: number }[] = [
-        { primaryPos: "goleiro", overall: 85 },
-        { primaryPos: "goleiro", overall: 65 },
-        { primaryPos: "atacante", overall: 90 },
-        { primaryPos: "atacante", overall: 80 },
-        { primaryPos: "zagueiro", overall: 70 },
-        { primaryPos: "meia", overall: 60 },
+      const ratings: { primaryPos: FieldPosition; overall: number }[] = [
+        { primaryPos: "campo_goleiro", overall: 85 },
+        { primaryPos: "campo_goleiro", overall: 65 },
+        { primaryPos: "campo_atacante", overall: 90 },
+        { primaryPos: "campo_atacante", overall: 80 },
+        { primaryPos: "campo_lateral", overall: 70 },
+        { primaryPos: "campo_meia", overall: 60 },
       ];
       const goalkeeperIds: string[] = [];
       for (const [i, rating] of ratings.entries()) {
         const p = await registerAndGetToken(h, `player-gen-${i}@x.com`, `Player ${i}`);
         await addRatedMember(h, groupId, p.userId, rating);
         const confirmed = await confirmPresence(h, p.token, matchId);
-        if (rating.primaryPos === "goleiro") goalkeeperIds.push(confirmed.json().player.id);
+        if (rating.primaryPos === "campo_goleiro") goalkeeperIds.push(confirmed.json().player.id);
       }
 
       const res = await generateTeams(h, owner.token, matchId, 2);
@@ -191,7 +191,7 @@ describe("teams e2e", () => {
       const { id: matchId } = match.json();
 
       const rated = await registerAndGetToken(h, "rated-guest@x.com", "Rated");
-      await addRatedMember(h, groupId, rated.userId, { primaryPos: "atacante", overall: 90 });
+      await addRatedMember(h, groupId, rated.userId, { primaryPos: "campo_atacante", overall: 90 });
       await confirmPresence(h, rated.token, matchId);
 
       // Confirms presence without ever joining the group as a `GroupMember`
@@ -224,7 +224,7 @@ describe("teams e2e", () => {
       const { id: matchId } = match.json();
 
       const rated = await registerAndGetToken(h, "rated-unrated@x.com", "Rated");
-      await addRatedMember(h, groupId, rated.userId, { primaryPos: "atacante", overall: 90 });
+      await addRatedMember(h, groupId, rated.userId, { primaryPos: "campo_atacante", overall: 90 });
       await confirmPresence(h, rated.token, matchId);
 
       // Added via the real HTTP add-member endpoint with just a name — Task
@@ -460,7 +460,7 @@ describe("teams e2e", () => {
       await generateTeams(h, owner.token, matchId, 2);
 
       const member = await registerAndGetToken(h, "member-get@x.com", "Member");
-      await addRatedMember(h, groupId, member.userId, { primaryPos: "meia", overall: 60 });
+      await addRatedMember(h, groupId, member.userId, { primaryPos: "campo_meia", overall: 60 });
 
       const res = await getTeams(h, member.token, matchId);
 

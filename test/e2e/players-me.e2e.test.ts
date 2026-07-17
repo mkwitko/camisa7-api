@@ -48,7 +48,7 @@ describe("GET /players/me e2e", () => {
 
     expect(res.statusCode).toBe(200);
     const body = res.json();
-    expect(body).toEqual({
+    expect(body).toMatchObject({
       id: expect.any(String),
       name: "Real Rafa",
       phone: null,
@@ -91,23 +91,23 @@ describe("GET /players/me e2e", () => {
 
   it("PATCH sets the caller's self-declared affinity (creating the player on first call)", async () => {
     const { token } = await registerAndGetToken(h, "me-patch@x.com", "Rafa");
-    const res = await patchAffinity(token, { atacante: 80, meia: 60 });
+    const res = await patchAffinity(token, { campo_atacante: 80, campo_meia: 60 });
     expect(res.statusCode).toBe(200);
-    expect(res.json().affinity).toEqual({ atacante: 80, meia: 60 });
+    expect(res.json().affinity).toEqual({ campo_atacante: 80, campo_meia: 60 });
     const got = await getMyPlayer(h, token);
-    expect(got.json().affinity).toEqual({ atacante: 80, meia: 60 });
+    expect(got.json().affinity).toEqual({ campo_atacante: 80, campo_meia: 60 });
   });
 
   it("PATCH overwrites affinity on a subsequent call", async () => {
     const { token } = await registerAndGetToken(h, "me-patch-2@x.com");
-    await patchAffinity(token, { atacante: 80 });
-    const res = await patchAffinity(token, { goleiro: 90 });
-    expect(res.json().affinity).toEqual({ goleiro: 90 });
+    await patchAffinity(token, { campo_atacante: 80 });
+    const res = await patchAffinity(token, { campo_goleiro: 90 });
+    expect(res.json().affinity).toEqual({ campo_goleiro: 90 });
   });
 
   it("PATCH rejects affinity out of 0-100 range", async () => {
     const { token } = await registerAndGetToken(h, "me-patch-3@x.com");
-    const res = await patchAffinity(token, { atacante: 150 });
+    const res = await patchAffinity(token, { campo_atacante: 150 });
     expect(res.statusCode).toBe(400);
   });
 

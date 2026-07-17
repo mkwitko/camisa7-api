@@ -1680,6 +1680,7 @@
                     "type": "string"
                   },
                   "modality": {
+                    "default": "campo",
                     "type": "string",
                     "enum": [
                       "futsal",
@@ -1691,8 +1692,7 @@
                 "required": [
                   "datetime",
                   "location",
-                  "slots",
-                  "modality"
+                  "slots"
                 ]
               }
             }

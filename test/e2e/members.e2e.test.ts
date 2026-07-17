@@ -84,7 +84,7 @@ describe("members e2e", () => {
       const res = await addMember(h, token, groupId, {
         name: "Guest Player",
         primaryPos: "atacante",
-        affinity: { atacante: 8 },
+        affinity: { campo_atacante: 8 },
         seedOverall: { atacante: 70 },
       });
 
@@ -255,7 +255,7 @@ describe("members e2e", () => {
           method: "PATCH",
           url: `/groups/${groupId}/members/${memberId}`,
           headers: { authorization: `Bearer ${token}` },
-          payload: { affinity: { meia: 101 } },
+          payload: { affinity: { campo_meia: 101 } },
         });
 
         expect(res.statusCode).toBe(400);
@@ -271,7 +271,7 @@ describe("members e2e", () => {
           method: "PATCH",
           url: `/groups/${groupId}/members/${memberId}`,
           headers: { authorization: `Bearer ${token}` },
-          payload: { affinity: { volante: -5 } },
+          payload: { affinity: { campo_ala_volante: -5 } },
         });
 
         expect(res.statusCode).toBe(400);
@@ -303,7 +303,7 @@ describe("members e2e", () => {
           method: "PATCH",
           url: `/groups/${groupId}/members/${memberId}`,
           headers: { authorization: `Bearer ${token}` },
-          payload: { affinity: { lateral: 50.5 } },
+          payload: { affinity: { campo_lateral: 50.5 } },
         });
 
         expect(res.statusCode).toBe(400);
