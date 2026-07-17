@@ -73,6 +73,21 @@
                     "type": "string",
                     "minLength": 2,
                     "maxLength": 120
+                  },
+                  "roles": {
+                    "default": [
+                      "jogador"
+                    ],
+                    "minItems": 1,
+                    "type": "array",
+                    "items": {
+                      "type": "string",
+                      "enum": [
+                        "jogador",
+                        "organizador",
+                        "quadra"
+                      ]
+                    }
                   }
                 },
                 "required": [
@@ -110,6 +125,17 @@
                         "name": {
                           "type": "string"
                         },
+                        "roles": {
+                          "type": "array",
+                          "items": {
+                            "type": "string",
+                            "enum": [
+                              "jogador",
+                              "organizador",
+                              "quadra"
+                            ]
+                          }
+                        },
                         "hasPassword": {
                           "type": "boolean"
                         },
@@ -137,6 +163,7 @@
                         "id",
                         "email",
                         "name",
+                        "roles",
                         "hasPassword",
                         "googleSub",
                         "lastCity",
@@ -217,6 +244,17 @@
                         "name": {
                           "type": "string"
                         },
+                        "roles": {
+                          "type": "array",
+                          "items": {
+                            "type": "string",
+                            "enum": [
+                              "jogador",
+                              "organizador",
+                              "quadra"
+                            ]
+                          }
+                        },
                         "hasPassword": {
                           "type": "boolean"
                         },
@@ -244,6 +282,7 @@
                         "id",
                         "email",
                         "name",
+                        "roles",
                         "hasPassword",
                         "googleSub",
                         "lastCity",
@@ -318,6 +357,17 @@
                         "name": {
                           "type": "string"
                         },
+                        "roles": {
+                          "type": "array",
+                          "items": {
+                            "type": "string",
+                            "enum": [
+                              "jogador",
+                              "organizador",
+                              "quadra"
+                            ]
+                          }
+                        },
                         "hasPassword": {
                           "type": "boolean"
                         },
@@ -345,6 +395,7 @@
                         "id",
                         "email",
                         "name",
+                        "roles",
                         "hasPassword",
                         "googleSub",
                         "lastCity",
@@ -419,6 +470,17 @@
                         "name": {
                           "type": "string"
                         },
+                        "roles": {
+                          "type": "array",
+                          "items": {
+                            "type": "string",
+                            "enum": [
+                              "jogador",
+                              "organizador",
+                              "quadra"
+                            ]
+                          }
+                        },
                         "hasPassword": {
                           "type": "boolean"
                         },
@@ -446,6 +508,7 @@
                         "id",
                         "email",
                         "name",
+                        "roles",
                         "hasPassword",
                         "googleSub",
                         "lastCity",
@@ -492,6 +555,17 @@
                     "name": {
                       "type": "string"
                     },
+                    "roles": {
+                      "type": "array",
+                      "items": {
+                        "type": "string",
+                        "enum": [
+                          "jogador",
+                          "organizador",
+                          "quadra"
+                        ]
+                      }
+                    },
                     "hasPassword": {
                       "type": "boolean"
                     },
@@ -519,6 +593,7 @@
                     "id",
                     "email",
                     "name",
+                    "roles",
                     "hasPassword",
                     "googleSub",
                     "lastCity",
@@ -632,6 +707,17 @@
                     "name": {
                       "type": "string"
                     },
+                    "roles": {
+                      "type": "array",
+                      "items": {
+                        "type": "string",
+                        "enum": [
+                          "jogador",
+                          "organizador",
+                          "quadra"
+                        ]
+                      }
+                    },
                     "hasPassword": {
                       "type": "boolean"
                     },
@@ -659,6 +745,111 @@
                     "id",
                     "email",
                     "name",
+                    "roles",
+                    "hasPassword",
+                    "googleSub",
+                    "lastCity",
+                    "lastLat",
+                    "lastLng",
+                    "createdAt"
+                  ],
+                  "additionalProperties": false
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/auth/me/roles": {
+      "patch": {
+        "operationId": "updateMyRoles",
+        "tags": [
+          "auth"
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "object",
+                "properties": {
+                  "roles": {
+                    "minItems": 1,
+                    "type": "array",
+                    "items": {
+                      "type": "string",
+                      "enum": [
+                        "jogador",
+                        "organizador",
+                        "quadra"
+                      ]
+                    }
+                  }
+                },
+                "required": [
+                  "roles"
+                ]
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "Default Response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "id": {
+                      "type": "string"
+                    },
+                    "email": {
+                      "type": "string"
+                    },
+                    "name": {
+                      "type": "string"
+                    },
+                    "roles": {
+                      "type": "array",
+                      "items": {
+                        "type": "string",
+                        "enum": [
+                          "jogador",
+                          "organizador",
+                          "quadra"
+                        ]
+                      }
+                    },
+                    "hasPassword": {
+                      "type": "boolean"
+                    },
+                    "googleSub": {
+                      "nullable": true,
+                      "type": "string"
+                    },
+                    "lastCity": {
+                      "nullable": true,
+                      "type": "string"
+                    },
+                    "lastLat": {
+                      "nullable": true,
+                      "type": "number"
+                    },
+                    "lastLng": {
+                      "nullable": true,
+                      "type": "number"
+                    },
+                    "createdAt": {
+                      "type": "string"
+                    }
+                  },
+                  "required": [
+                    "id",
+                    "email",
+                    "name",
+                    "roles",
                     "hasPassword",
                     "googleSub",
                     "lastCity",
@@ -2160,6 +2351,11 @@
                   "address": {
                     "type": "string",
                     "maxLength": 200
+                  },
+                  "venueId": {
+                    "type": "string",
+                    "format": "uuid",
+                    "pattern": "^([0-9a-fA-F]{8}-[0-9a-fA-F]{4}-[1-8][0-9a-fA-F]{3}-[89abAB][0-9a-fA-F]{3}-[0-9a-fA-F]{12}|00000000-0000-0000-0000-000000000000|ffffffff-ffff-ffff-ffff-ffffffffffff)$"
                   }
                 },
                 "required": [
@@ -2264,6 +2460,12 @@
                       "nullable": true,
                       "type": "string"
                     },
+                    "venueId": {
+                      "nullable": true,
+                      "type": "string",
+                      "format": "uuid",
+                      "pattern": "^([0-9a-fA-F]{8}-[0-9a-fA-F]{4}-[1-8][0-9a-fA-F]{3}-[89abAB][0-9a-fA-F]{3}-[0-9a-fA-F]{12}|00000000-0000-0000-0000-000000000000|ffffffff-ffff-ffff-ffff-ffffffffffff)$"
+                    },
                     "createdAt": {
                       "type": "string"
                     }
@@ -2284,6 +2486,7 @@
                     "longitude",
                     "city",
                     "address",
+                    "venueId",
                     "createdAt"
                   ],
                   "additionalProperties": false
@@ -2401,6 +2604,12 @@
                         "nullable": true,
                         "type": "string"
                       },
+                      "venueId": {
+                        "nullable": true,
+                        "type": "string",
+                        "format": "uuid",
+                        "pattern": "^([0-9a-fA-F]{8}-[0-9a-fA-F]{4}-[1-8][0-9a-fA-F]{3}-[89abAB][0-9a-fA-F]{3}-[0-9a-fA-F]{12}|00000000-0000-0000-0000-000000000000|ffffffff-ffff-ffff-ffff-ffffffffffff)$"
+                      },
                       "createdAt": {
                         "type": "string"
                       }
@@ -2421,6 +2630,7 @@
                       "longitude",
                       "city",
                       "address",
+                      "venueId",
                       "createdAt"
                     ],
                     "additionalProperties": false
@@ -2531,6 +2741,12 @@
                       "nullable": true,
                       "type": "string"
                     },
+                    "venueId": {
+                      "nullable": true,
+                      "type": "string",
+                      "format": "uuid",
+                      "pattern": "^([0-9a-fA-F]{8}-[0-9a-fA-F]{4}-[1-8][0-9a-fA-F]{3}-[89abAB][0-9a-fA-F]{3}-[0-9a-fA-F]{12}|00000000-0000-0000-0000-000000000000|ffffffff-ffff-ffff-ffff-ffffffffffff)$"
+                    },
                     "createdAt": {
                       "type": "string"
                     }
@@ -2551,6 +2767,7 @@
                     "longitude",
                     "city",
                     "address",
+                    "venueId",
                     "createdAt"
                   ],
                   "additionalProperties": false
@@ -2691,6 +2908,12 @@
                       "nullable": true,
                       "type": "string"
                     },
+                    "venueId": {
+                      "nullable": true,
+                      "type": "string",
+                      "format": "uuid",
+                      "pattern": "^([0-9a-fA-F]{8}-[0-9a-fA-F]{4}-[1-8][0-9a-fA-F]{3}-[89abAB][0-9a-fA-F]{3}-[0-9a-fA-F]{12}|00000000-0000-0000-0000-000000000000|ffffffff-ffff-ffff-ffff-ffffffffffff)$"
+                    },
                     "createdAt": {
                       "type": "string"
                     }
@@ -2711,6 +2934,7 @@
                     "longitude",
                     "city",
                     "address",
+                    "venueId",
                     "createdAt"
                   ],
                   "additionalProperties": false
@@ -2820,6 +3044,12 @@
                       "nullable": true,
                       "type": "string"
                     },
+                    "venueId": {
+                      "nullable": true,
+                      "type": "string",
+                      "format": "uuid",
+                      "pattern": "^([0-9a-fA-F]{8}-[0-9a-fA-F]{4}-[1-8][0-9a-fA-F]{3}-[89abAB][0-9a-fA-F]{3}-[0-9a-fA-F]{12}|00000000-0000-0000-0000-000000000000|ffffffff-ffff-ffff-ffff-ffffffffffff)$"
+                    },
                     "createdAt": {
                       "type": "string"
                     }
@@ -2840,6 +3070,7 @@
                     "longitude",
                     "city",
                     "address",
+                    "venueId",
                     "createdAt"
                   ],
                   "additionalProperties": false
@@ -2949,6 +3180,12 @@
                       "nullable": true,
                       "type": "string"
                     },
+                    "venueId": {
+                      "nullable": true,
+                      "type": "string",
+                      "format": "uuid",
+                      "pattern": "^([0-9a-fA-F]{8}-[0-9a-fA-F]{4}-[1-8][0-9a-fA-F]{3}-[89abAB][0-9a-fA-F]{3}-[0-9a-fA-F]{12}|00000000-0000-0000-0000-000000000000|ffffffff-ffff-ffff-ffff-ffffffffffff)$"
+                    },
                     "createdAt": {
                       "type": "string"
                     }
@@ -2969,6 +3206,7 @@
                     "longitude",
                     "city",
                     "address",
+                    "venueId",
                     "createdAt"
                   ],
                   "additionalProperties": false
@@ -3078,6 +3316,12 @@
                       "nullable": true,
                       "type": "string"
                     },
+                    "venueId": {
+                      "nullable": true,
+                      "type": "string",
+                      "format": "uuid",
+                      "pattern": "^([0-9a-fA-F]{8}-[0-9a-fA-F]{4}-[1-8][0-9a-fA-F]{3}-[89abAB][0-9a-fA-F]{3}-[0-9a-fA-F]{12}|00000000-0000-0000-0000-000000000000|ffffffff-ffff-ffff-ffff-ffffffffffff)$"
+                    },
                     "createdAt": {
                       "type": "string"
                     }
@@ -3098,6 +3342,7 @@
                     "longitude",
                     "city",
                     "address",
+                    "venueId",
                     "createdAt"
                   ],
                   "additionalProperties": false
@@ -8068,6 +8313,12 @@
                         "nullable": true,
                         "type": "string"
                       },
+                      "venueId": {
+                        "nullable": true,
+                        "type": "string",
+                        "format": "uuid",
+                        "pattern": "^([0-9a-fA-F]{8}-[0-9a-fA-F]{4}-[1-8][0-9a-fA-F]{3}-[89abAB][0-9a-fA-F]{3}-[0-9a-fA-F]{12}|00000000-0000-0000-0000-000000000000|ffffffff-ffff-ffff-ffff-ffffffffffff)$"
+                      },
                       "createdAt": {
                         "type": "string"
                       }
@@ -8088,6 +8339,7 @@
                       "longitude",
                       "city",
                       "address",
+                      "venueId",
                       "createdAt"
                     ],
                     "additionalProperties": false
@@ -8970,6 +9222,488 @@
                     ],
                     "additionalProperties": false
                   }
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/venues": {
+      "post": {
+        "operationId": "createVenue",
+        "tags": [
+          "venues"
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "object",
+                "properties": {
+                  "name": {
+                    "type": "string",
+                    "minLength": 1,
+                    "maxLength": 120
+                  },
+                  "latitude": {
+                    "type": "number"
+                  },
+                  "longitude": {
+                    "type": "number"
+                  },
+                  "address": {
+                    "type": "string",
+                    "minLength": 1,
+                    "maxLength": 200
+                  },
+                  "city": {
+                    "type": "string",
+                    "minLength": 1,
+                    "maxLength": 120
+                  },
+                  "amenities": {
+                    "default": [],
+                    "type": "array",
+                    "items": {
+                      "type": "string",
+                      "enum": [
+                        "gramado",
+                        "iluminacao",
+                        "estacionamento",
+                        "vestiario",
+                        "bar",
+                        "lanchonete",
+                        "cobertura"
+                      ]
+                    }
+                  },
+                  "phone": {
+                    "type": "string",
+                    "maxLength": 40
+                  }
+                },
+                "required": [
+                  "name",
+                  "latitude",
+                  "longitude",
+                  "address",
+                  "city"
+                ]
+              }
+            }
+          }
+        },
+        "responses": {
+          "201": {
+            "description": "Default Response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "id": {
+                      "type": "string",
+                      "format": "uuid",
+                      "pattern": "^([0-9a-fA-F]{8}-[0-9a-fA-F]{4}-[1-8][0-9a-fA-F]{3}-[89abAB][0-9a-fA-F]{3}-[0-9a-fA-F]{12}|00000000-0000-0000-0000-000000000000|ffffffff-ffff-ffff-ffff-ffffffffffff)$"
+                    },
+                    "ownerId": {
+                      "type": "string",
+                      "format": "uuid",
+                      "pattern": "^([0-9a-fA-F]{8}-[0-9a-fA-F]{4}-[1-8][0-9a-fA-F]{3}-[89abAB][0-9a-fA-F]{3}-[0-9a-fA-F]{12}|00000000-0000-0000-0000-000000000000|ffffffff-ffff-ffff-ffff-ffffffffffff)$"
+                    },
+                    "name": {
+                      "type": "string"
+                    },
+                    "latitude": {
+                      "type": "number"
+                    },
+                    "longitude": {
+                      "type": "number"
+                    },
+                    "address": {
+                      "type": "string"
+                    },
+                    "city": {
+                      "type": "string"
+                    },
+                    "amenities": {
+                      "type": "array",
+                      "items": {
+                        "type": "string",
+                        "enum": [
+                          "gramado",
+                          "iluminacao",
+                          "estacionamento",
+                          "vestiario",
+                          "bar",
+                          "lanchonete",
+                          "cobertura"
+                        ]
+                      }
+                    },
+                    "phone": {
+                      "nullable": true,
+                      "type": "string"
+                    },
+                    "createdAt": {
+                      "type": "string"
+                    },
+                    "updatedAt": {
+                      "type": "string"
+                    }
+                  },
+                  "required": [
+                    "id",
+                    "ownerId",
+                    "name",
+                    "latitude",
+                    "longitude",
+                    "address",
+                    "city",
+                    "amenities",
+                    "phone",
+                    "createdAt",
+                    "updatedAt"
+                  ],
+                  "additionalProperties": false
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/venues/mine": {
+      "get": {
+        "operationId": "listMyVenues",
+        "tags": [
+          "venues"
+        ],
+        "responses": {
+          "200": {
+            "description": "Default Response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "array",
+                  "items": {
+                    "type": "object",
+                    "properties": {
+                      "id": {
+                        "type": "string",
+                        "format": "uuid",
+                        "pattern": "^([0-9a-fA-F]{8}-[0-9a-fA-F]{4}-[1-8][0-9a-fA-F]{3}-[89abAB][0-9a-fA-F]{3}-[0-9a-fA-F]{12}|00000000-0000-0000-0000-000000000000|ffffffff-ffff-ffff-ffff-ffffffffffff)$"
+                      },
+                      "ownerId": {
+                        "type": "string",
+                        "format": "uuid",
+                        "pattern": "^([0-9a-fA-F]{8}-[0-9a-fA-F]{4}-[1-8][0-9a-fA-F]{3}-[89abAB][0-9a-fA-F]{3}-[0-9a-fA-F]{12}|00000000-0000-0000-0000-000000000000|ffffffff-ffff-ffff-ffff-ffffffffffff)$"
+                      },
+                      "name": {
+                        "type": "string"
+                      },
+                      "latitude": {
+                        "type": "number"
+                      },
+                      "longitude": {
+                        "type": "number"
+                      },
+                      "address": {
+                        "type": "string"
+                      },
+                      "city": {
+                        "type": "string"
+                      },
+                      "amenities": {
+                        "type": "array",
+                        "items": {
+                          "type": "string",
+                          "enum": [
+                            "gramado",
+                            "iluminacao",
+                            "estacionamento",
+                            "vestiario",
+                            "bar",
+                            "lanchonete",
+                            "cobertura"
+                          ]
+                        }
+                      },
+                      "phone": {
+                        "nullable": true,
+                        "type": "string"
+                      },
+                      "createdAt": {
+                        "type": "string"
+                      },
+                      "updatedAt": {
+                        "type": "string"
+                      }
+                    },
+                    "required": [
+                      "id",
+                      "ownerId",
+                      "name",
+                      "latitude",
+                      "longitude",
+                      "address",
+                      "city",
+                      "amenities",
+                      "phone",
+                      "createdAt",
+                      "updatedAt"
+                    ],
+                    "additionalProperties": false
+                  }
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/venues/{id}": {
+      "get": {
+        "operationId": "getVenue",
+        "tags": [
+          "venues"
+        ],
+        "parameters": [
+          {
+            "schema": {
+              "type": "string",
+              "format": "uuid",
+              "pattern": "^([0-9a-fA-F]{8}-[0-9a-fA-F]{4}-[1-8][0-9a-fA-F]{3}-[89abAB][0-9a-fA-F]{3}-[0-9a-fA-F]{12}|00000000-0000-0000-0000-000000000000|ffffffff-ffff-ffff-ffff-ffffffffffff)$"
+            },
+            "in": "path",
+            "name": "id",
+            "required": true
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Default Response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "id": {
+                      "type": "string",
+                      "format": "uuid",
+                      "pattern": "^([0-9a-fA-F]{8}-[0-9a-fA-F]{4}-[1-8][0-9a-fA-F]{3}-[89abAB][0-9a-fA-F]{3}-[0-9a-fA-F]{12}|00000000-0000-0000-0000-000000000000|ffffffff-ffff-ffff-ffff-ffffffffffff)$"
+                    },
+                    "ownerId": {
+                      "type": "string",
+                      "format": "uuid",
+                      "pattern": "^([0-9a-fA-F]{8}-[0-9a-fA-F]{4}-[1-8][0-9a-fA-F]{3}-[89abAB][0-9a-fA-F]{3}-[0-9a-fA-F]{12}|00000000-0000-0000-0000-000000000000|ffffffff-ffff-ffff-ffff-ffffffffffff)$"
+                    },
+                    "name": {
+                      "type": "string"
+                    },
+                    "latitude": {
+                      "type": "number"
+                    },
+                    "longitude": {
+                      "type": "number"
+                    },
+                    "address": {
+                      "type": "string"
+                    },
+                    "city": {
+                      "type": "string"
+                    },
+                    "amenities": {
+                      "type": "array",
+                      "items": {
+                        "type": "string",
+                        "enum": [
+                          "gramado",
+                          "iluminacao",
+                          "estacionamento",
+                          "vestiario",
+                          "bar",
+                          "lanchonete",
+                          "cobertura"
+                        ]
+                      }
+                    },
+                    "phone": {
+                      "nullable": true,
+                      "type": "string"
+                    },
+                    "createdAt": {
+                      "type": "string"
+                    },
+                    "updatedAt": {
+                      "type": "string"
+                    }
+                  },
+                  "required": [
+                    "id",
+                    "ownerId",
+                    "name",
+                    "latitude",
+                    "longitude",
+                    "address",
+                    "city",
+                    "amenities",
+                    "phone",
+                    "createdAt",
+                    "updatedAt"
+                  ],
+                  "additionalProperties": false
+                }
+              }
+            }
+          }
+        }
+      },
+      "patch": {
+        "operationId": "updateVenue",
+        "tags": [
+          "venues"
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "object",
+                "properties": {
+                  "name": {
+                    "type": "string",
+                    "minLength": 1,
+                    "maxLength": 120
+                  },
+                  "latitude": {
+                    "type": "number"
+                  },
+                  "longitude": {
+                    "type": "number"
+                  },
+                  "address": {
+                    "type": "string",
+                    "minLength": 1,
+                    "maxLength": 200
+                  },
+                  "city": {
+                    "type": "string",
+                    "minLength": 1,
+                    "maxLength": 120
+                  },
+                  "amenities": {
+                    "type": "array",
+                    "items": {
+                      "type": "string",
+                      "enum": [
+                        "gramado",
+                        "iluminacao",
+                        "estacionamento",
+                        "vestiario",
+                        "bar",
+                        "lanchonete",
+                        "cobertura"
+                      ]
+                    }
+                  },
+                  "phone": {
+                    "nullable": true,
+                    "type": "string",
+                    "maxLength": 40
+                  }
+                }
+              }
+            }
+          }
+        },
+        "parameters": [
+          {
+            "schema": {
+              "type": "string",
+              "format": "uuid",
+              "pattern": "^([0-9a-fA-F]{8}-[0-9a-fA-F]{4}-[1-8][0-9a-fA-F]{3}-[89abAB][0-9a-fA-F]{3}-[0-9a-fA-F]{12}|00000000-0000-0000-0000-000000000000|ffffffff-ffff-ffff-ffff-ffffffffffff)$"
+            },
+            "in": "path",
+            "name": "id",
+            "required": true
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Default Response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "id": {
+                      "type": "string",
+                      "format": "uuid",
+                      "pattern": "^([0-9a-fA-F]{8}-[0-9a-fA-F]{4}-[1-8][0-9a-fA-F]{3}-[89abAB][0-9a-fA-F]{3}-[0-9a-fA-F]{12}|00000000-0000-0000-0000-000000000000|ffffffff-ffff-ffff-ffff-ffffffffffff)$"
+                    },
+                    "ownerId": {
+                      "type": "string",
+                      "format": "uuid",
+                      "pattern": "^([0-9a-fA-F]{8}-[0-9a-fA-F]{4}-[1-8][0-9a-fA-F]{3}-[89abAB][0-9a-fA-F]{3}-[0-9a-fA-F]{12}|00000000-0000-0000-0000-000000000000|ffffffff-ffff-ffff-ffff-ffffffffffff)$"
+                    },
+                    "name": {
+                      "type": "string"
+                    },
+                    "latitude": {
+                      "type": "number"
+                    },
+                    "longitude": {
+                      "type": "number"
+                    },
+                    "address": {
+                      "type": "string"
+                    },
+                    "city": {
+                      "type": "string"
+                    },
+                    "amenities": {
+                      "type": "array",
+                      "items": {
+                        "type": "string",
+                        "enum": [
+                          "gramado",
+                          "iluminacao",
+                          "estacionamento",
+                          "vestiario",
+                          "bar",
+                          "lanchonete",
+                          "cobertura"
+                        ]
+                      }
+                    },
+                    "phone": {
+                      "nullable": true,
+                      "type": "string"
+                    },
+                    "createdAt": {
+                      "type": "string"
+                    },
+                    "updatedAt": {
+                      "type": "string"
+                    }
+                  },
+                  "required": [
+                    "id",
+                    "ownerId",
+                    "name",
+                    "latitude",
+                    "longitude",
+                    "address",
+                    "city",
+                    "amenities",
+                    "phone",
+                    "createdAt",
+                    "updatedAt"
+                  ],
+                  "additionalProperties": false
                 }
               }
             }
