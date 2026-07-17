@@ -1,6 +1,7 @@
 import type { FastifyPluginAsync } from "fastify";
 import { cancelMatchRoute } from "./cancel-match/cancel-match.controller";
 import { attendanceRoutes } from "./children/attendance/index";
+import { joinRequestRoutes } from "./children/join-requests/join-request.controller";
 import { resultRoutes } from "./children/result/index";
 import { statsRoutes } from "./children/stats/index";
 import { teamsRoutes } from "./children/teams/index";
@@ -30,6 +31,7 @@ export const matchesRoutes: FastifyPluginAsync = async (app) => {
   await app.register(finishMatchRoute);
   await app.register(finalizeMatchRoute);
   await app.register(attendanceRoutes);
+  await app.register(joinRequestRoutes);
   await app.register(teamsRoutes);
   await app.register(resultRoutes);
   await app.register(statsRoutes);
