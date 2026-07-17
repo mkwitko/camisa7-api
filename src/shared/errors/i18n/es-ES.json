@@ -40,5 +40,6 @@
   "SYS-T0001": "Error de validación.",
   "SYS-T0002": "Error interno del servidor.",
   "PLR-T0006": "La subida de imágenes no está disponible.",
-  "PLR-T0007": "Tipo de imagen no admitido."
+  "PLR-T0007": "Tipo de imagen no admitido.",
+  "BIL-T0001": "Los pagos no están disponibles en este momento."
 }

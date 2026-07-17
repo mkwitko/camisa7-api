@@ -40,5 +40,6 @@
   "SYS-T0001": "Validation error.",
   "SYS-T0002": "Internal server error.",
   "PLR-T0006": "Image upload is currently unavailable.",
-  "PLR-T0007": "Unsupported image type."
+  "PLR-T0007": "Unsupported image type.",
+  "BIL-T0001": "Payments are currently unavailable."
 }

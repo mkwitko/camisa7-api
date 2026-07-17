@@ -365,6 +365,18 @@ export const ERRORS = {
       internalMessage: "due_forbidden",
     }),
   },
+  // Entitlements & billing (Stripe). `DISABLED` (503) is thrown by the
+  // billing endpoints that need Stripe configured (`checkout`/`portal`/
+  // `webhook`) when `STRIPE_SECRET_KEY` is unset on this deploy — same
+  // config-gated 503 shape as `PLR.STORAGE_DISABLED` (R2). `GET /billing/me`
+  // does NOT throw this (it degrades to "no features").
+  BIL: {
+    DISABLED: defineError({
+      code: "BIL-T0001",
+      status: 503,
+      internalMessage: "billing_disabled",
+    }),
+  },
   SYS: {
     VALIDATION: defineError({
       code: "SYS-T0001",
