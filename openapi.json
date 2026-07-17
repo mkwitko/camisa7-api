@@ -4578,6 +4578,10 @@
                       "nullable": true,
                       "type": "string"
                     },
+                    "avatarUrl": {
+                      "nullable": true,
+                      "type": "string"
+                    },
                     "affinity": {
                       "type": "object",
                       "additionalProperties": {
@@ -4712,6 +4716,7 @@
                     "name",
                     "phone",
                     "userId",
+                    "avatarUrl",
                     "affinity",
                     "attributes",
                     "skills",
@@ -4746,6 +4751,11 @@
               "schema": {
                 "type": "object",
                 "properties": {
+                  "avatarUrl": {
+                    "nullable": true,
+                    "type": "string",
+                    "format": "uri"
+                  },
                   "affinity": {
                     "type": "object",
                     "additionalProperties": {
@@ -4920,6 +4930,10 @@
                       "nullable": true,
                       "type": "string"
                     },
+                    "avatarUrl": {
+                      "nullable": true,
+                      "type": "string"
+                    },
                     "affinity": {
                       "type": "object",
                       "additionalProperties": {
@@ -5054,6 +5068,7 @@
                     "name",
                     "phone",
                     "userId",
+                    "avatarUrl",
                     "affinity",
                     "attributes",
                     "skills",
@@ -5068,6 +5083,128 @@
                     "categoryOverall",
                     "overallByPosition",
                     "generalOverall"
+                  ],
+                  "additionalProperties": false
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/players/me/avatar-upload-url": {
+      "post": {
+        "operationId": "createAvatarUploadUrl",
+        "tags": [
+          "players"
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "object",
+                "properties": {
+                  "contentType": {
+                    "type": "string",
+                    "enum": [
+                      "image/jpeg",
+                      "image/png",
+                      "image/webp"
+                    ]
+                  }
+                },
+                "required": [
+                  "contentType"
+                ]
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "Default Response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "uploadUrl": {
+                      "type": "string",
+                      "format": "uri"
+                    },
+                    "publicUrl": {
+                      "type": "string",
+                      "format": "uri"
+                    }
+                  },
+                  "required": [
+                    "uploadUrl",
+                    "publicUrl"
+                  ],
+                  "additionalProperties": false
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/players/search": {
+      "get": {
+        "operationId": "searchPlayers",
+        "tags": [
+          "players"
+        ],
+        "parameters": [
+          {
+            "schema": {
+              "type": "string",
+              "minLength": 2,
+              "maxLength": 40
+            },
+            "in": "query",
+            "name": "q",
+            "required": true
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Default Response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "players": {
+                      "type": "array",
+                      "items": {
+                        "type": "object",
+                        "properties": {
+                          "playerId": {
+                            "type": "string",
+                            "format": "uuid",
+                            "pattern": "^([0-9a-fA-F]{8}-[0-9a-fA-F]{4}-[1-8][0-9a-fA-F]{3}-[89abAB][0-9a-fA-F]{3}-[0-9a-fA-F]{12}|00000000-0000-0000-0000-000000000000|ffffffff-ffff-ffff-ffff-ffffffffffff)$"
+                          },
+                          "name": {
+                            "type": "string"
+                          },
+                          "avatarUrl": {
+                            "nullable": true,
+                            "type": "string"
+                          }
+                        },
+                        "required": [
+                          "playerId",
+                          "name",
+                          "avatarUrl"
+                        ],
+                        "additionalProperties": false
+                      }
+                    }
+                  },
+                  "required": [
+                    "players"
                   ],
                   "additionalProperties": false
                 }

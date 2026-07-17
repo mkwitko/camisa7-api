@@ -20,6 +20,16 @@ const EnvSchema = z.object({
   GOOGLE_APPLICATION_CREDENTIALS: z.string().optional(),
 
   TRUST_PROXY_HOPS: z.coerce.number().int().min(0).default(1),
+
+  // Cloudflare R2 (S3-compatible object storage) — avatares/mídia via presigned
+  // upload. Todos opcionais: quando faltam, o upload é no-op (feature desligada),
+  // igual ao push. `R2_PUBLIC_URL` é a base pública (dev r2.dev ou domínio) que
+  // vira o `avatarUrl` salvo. `R2_ENDPOINT` é o endpoint S3 da conta (sem bucket).
+  R2_ENDPOINT: z.string().url().optional(),
+  R2_ACCESS_KEY_ID: z.string().optional(),
+  R2_SECRET_ACCESS_KEY: z.string().optional(),
+  R2_BUCKET: z.string().optional(),
+  R2_PUBLIC_URL: z.string().url().optional(),
 });
 
 export type EnvConfig = z.infer<typeof EnvSchema>;

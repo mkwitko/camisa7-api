@@ -131,6 +131,10 @@ model Player {
   name  String
   phone String?
 
+  /// Avatar (foto de perfil) — URL pública no R2. `null` = sem foto (usa
+  /// monograma). Enviada pelo próprio jogador via presigned upload.
+  avatarUrl String?
+
   /// Task 1 (UX overhaul, FM rating model): the player's own self-declared
   /// affinity map (`{position: 0-100}`) — the N positions they play and how
   /// good they judge themselves at each, filled in by the player, never set

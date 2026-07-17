@@ -21,6 +21,7 @@ export type Player = {
   userId: string | null;
   name: string;
   phone: string | null;
+  avatarUrl: string | null;
   affinity: Record<string, number>;
   /**
    * FIFA-style profile: the self-declared attribute budget (`{attribute: 0-99}`,

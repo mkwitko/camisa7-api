@@ -52,6 +52,7 @@ export const MyPlayerResponse = z.object({
   name: z.string(),
   phone: z.string().nullable(),
   userId: z.string().nullable(),
+  avatarUrl: z.string().nullable(),
   affinity: z.partialRecord(FieldPositionSchema, AffinityValueSchema),
   attributes: AttributesSchema,
   skills: z.array(SkillKeySchema),
@@ -68,6 +69,7 @@ export type MyPlayerResponse = z.infer<typeof MyPlayerResponse>;
  * and sum to `ATTRIBUTE_BUDGET` (baseline redistributed + 20 bonus).
  */
 export const UpdateMyPlayerBody = z.object({
+  avatarUrl: z.string().url().nullable().optional(),
   affinity: z.partialRecord(FieldPositionSchema, AffinityValueSchema).optional(),
   attributes: z
     .record(AttributeKeySchema, AttributeValueSchema)

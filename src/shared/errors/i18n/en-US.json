@@ -38,5 +38,7 @@
   "DUE-T0001": "Due not found.",
   "DUE-T0002": "You do not have permission over this due.",
   "SYS-T0001": "Validation error.",
-  "SYS-T0002": "Internal server error."
+  "SYS-T0002": "Internal server error.",
+  "PLR-T0006": "Image upload is currently unavailable.",
+  "PLR-T0007": "Unsupported image type."
 }

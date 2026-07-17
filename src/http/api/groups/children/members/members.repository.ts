@@ -34,6 +34,7 @@ function toDomainMember(row: MemberRow): GroupMember {
       userId: row.player.userId,
       name: row.player.name,
       phone: row.player.phone,
+      avatarUrl: null,
       affinity: (row.player.affinity ?? {}) as Record<string, number>,
       attributes: withAttributeDefaults((row.player.attributes ?? {}) as Record<string, number>),
       skills: (row.player.skills ?? []) as SkillKey[],

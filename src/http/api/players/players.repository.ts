@@ -8,6 +8,7 @@ type PlayerRow = {
   userId: string | null;
   name: string;
   phone: string | null;
+  avatarUrl: string | null;
   affinity: unknown;
   attributes: unknown;
   skills: string[];
@@ -27,6 +28,7 @@ function toDomainPlayer(row: PlayerRow): Player {
     userId: row.userId,
     name: row.name,
     phone: row.phone,
+    avatarUrl: row.avatarUrl,
     affinity: (row.affinity ?? {}) as Record<string, number>,
     // Always the full catalog — a never-onboarded player stores `{}`, so fill
     // the 50 baseline here.
@@ -46,6 +48,7 @@ function toDomainPlayer(row: PlayerRow): Player {
 
 /** Partial edit of the caller's own descriptive profile (all fields optional). */
 export type ProfilePatch = {
+  avatarUrl?: string | null | undefined;
   affinity?: Partial<Record<string, number>> | undefined;
   attributes?: Record<string, number> | undefined;
   skills?: string[] | undefined;
@@ -82,6 +85,11 @@ export interface PlayersRepository {
    * (`affinity`/`attributes`/`skills`). Fields left `undefined` are untouched.
    */
   updateProfile(playerId: string, patch: ProfilePatch): Promise<Player>;
+  /**
+   * Case-insensitive name search over REGISTERED players (`userId` set) — backs
+   * `GET /players/search`. Ordered by name, capped at `limit`.
+   */
+  searchByName(query: string, limit: number): Promise<Player[]>;
 }
 
 /** Factory `createPlayersRepository(db: PrismaLike)` — composes inside a tx or standalone. */
@@ -115,6 +123,7 @@ export function createPlayersRepository(db: PrismaLike): PlayersRepository {
       const row = await db.player.update({
         where: { id: playerId },
         data: {
+          ...(patch.avatarUrl !== undefined ? { avatarUrl: patch.avatarUrl } : {}),
           ...(patch.affinity !== undefined
             ? { affinity: patch.affinity as unknown as Prisma.InputJsonValue }
             : {}),
@@ -133,6 +142,15 @@ export function createPlayersRepository(db: PrismaLike): PlayersRepository {
         },
       });
       return toDomainPlayer(row);
+    },
+
+    async searchByName(query, limit) {
+      const rows = await db.player.findMany({
+        where: { userId: { not: null }, name: { contains: query, mode: "insensitive" } },
+        orderBy: { name: "asc" },
+        take: limit,
+      });
+      return rows.map(toDomainPlayer);
     },
   };
 }

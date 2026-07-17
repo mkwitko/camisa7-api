@@ -38,5 +38,7 @@
   "DUE-T0001": "Mensualidad no encontrada.",
   "DUE-T0002": "No tienes permiso sobre esta mensualidad.",
   "SYS-T0001": "Error de validación.",
-  "SYS-T0002": "Error interno del servidor."
+  "SYS-T0002": "Error interno del servidor.",
+  "PLR-T0006": "La subida de imágenes no está disponible.",
+  "PLR-T0007": "Tipo de imagen no admitido."
 }

@@ -8,6 +8,7 @@ const aPlayer = (overrides: Partial<Player> = {}): Player => ({
   userId: "u1",
   name: "Real Rafa",
   phone: null,
+  avatarUrl: null,
   affinity: {},
   attributes: {},
   skills: [],
@@ -28,6 +29,7 @@ function makeFakeRepo(overrides: Partial<PlayersRepository> = {}): PlayersReposi
     createGuest: vi.fn(),
     findOrCreateForUser: vi.fn(),
     updateProfile: vi.fn(),
+    searchByName: vi.fn(),
     ...overrides,
   };
 }

@@ -107,6 +107,19 @@ export const ERRORS = {
       status: 400,
       internalMessage: "member_not_guest",
     }),
+    // `POST /players/me/avatar-upload-url` — object storage (R2) not
+    // configured on this deploy (env vars unset). Feature off.
+    STORAGE_DISABLED: defineError({
+      code: "PLR-T0006",
+      status: 503,
+      internalMessage: "storage_disabled",
+    }),
+    // Same endpoint: the requested `contentType` isn't an allowed image type.
+    UNSUPPORTED_MEDIA_TYPE: defineError({
+      code: "PLR-T0007",
+      status: 400,
+      internalMessage: "unsupported_media_type",
+    }),
   },
   MTC: {
     NOT_FOUND: defineError({

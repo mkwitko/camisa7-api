@@ -51,6 +51,7 @@ describe("attendanceRepository (integration)", () => {
         userId: row.userId,
         name: row.name,
         phone: row.phone,
+      avatarUrl: row.avatarUrl,
         affinity: (row.affinity ?? {}) as Record<string, number>,
         attributes: (row.attributes ?? {}) as Player["attributes"],
         skills: (row.skills ?? []) as Player["skills"],

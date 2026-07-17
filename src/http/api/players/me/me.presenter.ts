@@ -28,6 +28,7 @@ export function presentMyPlayer(player: Player): MyPlayerResponse {
     name: player.name,
     phone: player.phone,
     userId: player.userId,
+    avatarUrl: player.avatarUrl,
     affinity: player.affinity,
     attributes: player.attributes,
     skills: player.skills,

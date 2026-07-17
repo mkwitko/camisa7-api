@@ -19,6 +19,7 @@ function fakePlayersRepo(): PlayersRepository {
     createGuest: vi.fn(),
     findOrCreateForUser: vi.fn().mockResolvedValue(player),
     updateProfile: vi.fn(),
+    searchByName: vi.fn(),
   };
 }
 
