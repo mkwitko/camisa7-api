@@ -19,13 +19,29 @@ datasource db {
   provider = "postgresql"
 }
 
+/// Marketplace V1: account types a `User` opts into at register (and can edit
+/// via `PATCH /auth/me/roles`). MULTI (`User.roles Role[]`) — intenção/feature
+/// unlock, NÃO fronteira de autorização (o backend segue autorizando por
+/// ownership + entitlements). `quadra` liga o `User` às suas `Venue`(s) (gestão
+/// na web); `organizador` destrava a criação de grupos/peladas; `jogador` é o
+/// default de toda conta.
+enum Role {
+  jogador
+  organizador
+  quadra
+}
+
 /// Extended in Task 2 (auth): `passwordHash` (own email/password auth, null for
 /// Google-only accounts), `googleSub` (Google Sign-In, Task 3+), `expoPushToken`
 /// (Task 12). Extended in Task 4: `ownedGroups` (reverse of `Group.ownerId`).
+/// Marketplace V1: `roles` (account types, multi) + `venues` (reverse of
+/// `Venue.ownerId`, for `quadra` owners).
 model User {
   id    String @id @default(uuid()) @db.Uuid
   email String @unique
   name  String
+
+  roles Role[] @default([jogador])
 
   passwordHash   String?
   googleSub      String? @unique
@@ -45,6 +61,37 @@ model User {
 
   ownedGroups Group[]
   players     Player[]
+  venues      Venue[]
+}
+
+/// Marketplace V1: uma quadra (arena física) gerida por um `User` com role
+/// `quadra`. Gestão acontece na web (`futebol-web`); o app apenas exibe a
+/// quadra na descoberta/partida quando `Match.venueId` aponta pra cá. Sem
+/// booking/agenda/pagamento (V2+). `latitude`/`longitude` são a fonte de
+/// localização copiada pro `Match` quando uma partida é criada com `venueId`.
+/// `amenities` é um `String[]` livre validado no boundary HTTP contra o
+/// catálogo (`venues/venue.catalog.ts`), não uma constraint de DB. (Fotos = R2,
+/// fica pra depois.)
+model Venue {
+  id String @id @default(uuid()) @db.Uuid
+
+  ownerId String @db.Uuid
+  owner   User   @relation(fields: [ownerId], references: [id])
+
+  name      String
+  latitude  Float
+  longitude Float
+  address   String
+  city      String
+  amenities String[] @default([])
+  phone     String?
+
+  createdAt DateTime @default(now()) @db.Timestamptz(3)
+  updatedAt DateTime @updatedAt @db.Timestamptz(3)
+
+  matches Match[]
+
+  @@index([ownerId])
 }
 
 /// Fase 0 only issues `organizador` (single-owner stats). `colaborativo`
@@ -382,6 +429,13 @@ model Match {
   seriesId String?      @db.Uuid
   series   MatchSeries? @relation(fields: [seriesId], references: [id])
   detached Boolean      @default(false)
+
+  /// Marketplace V1: partida pode apontar pra uma `Venue` (quadra). Ao criar
+  /// com `venueId`, o service copia `latitude/longitude/city/address` da Venue
+  /// (fonte da localização, sobrepõe coords manuais). `null` = partida sem
+  /// quadra vinculada.
+  venueId String? @db.Uuid
+  venue   Venue?  @relation(fields: [venueId], references: [id])
 
   createdAt DateTime @default(now()) @db.Timestamptz(3)
   updatedAt DateTime @updatedAt @db.Timestamptz(3)
