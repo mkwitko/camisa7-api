@@ -48,5 +48,8 @@
   "JRQ-T0001": "Ya has solicitado unirte a este partido.",
   "JRQ-T0002": "Este partido permite unirse directamente — solo confirma tu asistencia.",
   "JRQ-T0003": "Solicitud de ingreso no encontrada.",
-  "JRQ-T0004": "Esta solicitud de ingreso ya fue decidida."
+  "JRQ-T0004": "Esta solicitud de ingreso ya fue decidida.",
+  "VEN-T0001": "Debes ser una cancha para registrar un espacio.",
+  "VEN-T0002": "Cancha no encontrada.",
+  "VEN-T0003": "No eres el propietario de esta cancha."
 }

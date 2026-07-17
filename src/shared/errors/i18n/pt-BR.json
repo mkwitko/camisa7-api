@@ -48,5 +48,8 @@
   "JRQ-T0001": "Você já pediu para entrar nesta partida.",
   "JRQ-T0002": "Esta partida permite entrada direta — confirme sua presença.",
   "JRQ-T0003": "Pedido de entrada não encontrado.",
-  "JRQ-T0004": "Este pedido de entrada já foi decidido."
+  "JRQ-T0004": "Este pedido de entrada já foi decidido.",
+  "VEN-T0001": "Você precisa ser uma quadra para cadastrar um espaço.",
+  "VEN-T0002": "Quadra não encontrada.",
+  "VEN-T0003": "Você não é o dono desta quadra."
 }

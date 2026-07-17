@@ -48,5 +48,8 @@
   "JRQ-T0001": "You have already requested to join this match.",
   "JRQ-T0002": "This match allows joining directly — just confirm your attendance.",
   "JRQ-T0003": "Join request not found.",
-  "JRQ-T0004": "This join request has already been decided."
+  "JRQ-T0004": "This join request has already been decided.",
+  "VEN-T0001": "You must be a venue to register a space.",
+  "VEN-T0002": "Venue not found.",
+  "VEN-T0003": "You do not own this venue."
 }

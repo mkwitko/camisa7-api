@@ -438,6 +438,30 @@ export const ERRORS = {
       internalMessage: "join_request_not_pending",
     }),
   },
+  // Marketplace V1: `Venue` (quadra) CRUD (`venues/`). ROLE_REQUIRED (403) is
+  // the soft-gate on `POST /venues` — creating a venue requires the caller's
+  // `User.roles` to include `quadra` (a self-declared, UX-level gate, NOT a
+  // security boundary — roles are intenção/feature-unlock; the real
+  // authorization is ownership). NOT_FOUND (404) / NOT_OWNER (403) back
+  // `assertVenueOwner` (same "unknown id vs. not yours" split as
+  // `GRP.NOT_FOUND`/`GRP.NOT_OWNER`).
+  VEN: {
+    ROLE_REQUIRED: defineError({
+      code: "VEN-T0001",
+      status: 403,
+      internalMessage: "venue_role_required",
+    }),
+    NOT_FOUND: defineError({
+      code: "VEN-T0002",
+      status: 404,
+      internalMessage: "venue_not_found",
+    }),
+    NOT_OWNER: defineError({
+      code: "VEN-T0003",
+      status: 403,
+      internalMessage: "venue_not_owner",
+    }),
+  },
   SYS: {
     VALIDATION: defineError({
       code: "SYS-T0001",

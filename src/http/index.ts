@@ -11,6 +11,7 @@ import { matchesRoutes } from "@/http/api/matches/index";
 import { playersRoutes } from "@/http/api/players/index";
 import { rankingsRoutes } from "@/http/api/rankings/global.controller";
 import { seriesRoutes } from "@/http/api/series/index";
+import { venuesRoutes } from "@/http/api/venues/index";
 import { authHook } from "@/http/hooks/auth";
 
 const HealthResponse = z.object({ status: z.literal("ok") });
@@ -48,4 +49,5 @@ export const httpRoutes: FastifyPluginAsync = async (app) => {
   await app.register(rankingsRoutes);
   await app.register(billingRoutes);
   await app.register(discoverRoutes);
+  await app.register(venuesRoutes);
 };
