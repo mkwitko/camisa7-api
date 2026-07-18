@@ -43,5 +43,12 @@ export type Match = {
    * copied from that venue (the venue is the source of location).
    */
   venueId: string | null;
+  /**
+   * Marketplace V2: the `Booking` this match is tied to (`null` = no booking
+   * — the V1 flow, or a V2 match scheduled without going through a court
+   * reservation). Set at create time from a `confirmed` `Booking`; the DB
+   * enforces one match per booking (`Match.bookingId @unique`).
+   */
+  bookingId: string | null;
   createdAt: string;
 };

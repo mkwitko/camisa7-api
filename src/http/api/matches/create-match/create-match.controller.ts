@@ -1,5 +1,7 @@
 import type { FastifyPluginAsync } from "fastify";
 import type { ZodTypeProvider } from "fastify-type-provider-zod";
+import { createBookingRepository } from "@/http/api/bookings/booking.repository";
+import { createCourtRepository } from "@/http/api/courts/court.repository";
 import { createGroupsRepository } from "@/http/api/groups/groups.repository";
 import { createVenueRepository } from "@/http/api/venues/venue.repository";
 import { requireUser } from "@/http/hooks/auth";
@@ -27,6 +29,8 @@ export const createMatchRoute: FastifyPluginAsync = async (app) => {
         matchesRepo: createMatchesRepository(prisma),
         groupsRepo: createGroupsRepository(prisma),
         venueRepo: createVenueRepository(prisma),
+        bookingRepo: createBookingRepository(prisma),
+        courtRepo: createCourtRepository(prisma),
       });
       const { userId } = requireUser(req);
       const match = await service({ ...req.body, groupId: req.params.id, userId });

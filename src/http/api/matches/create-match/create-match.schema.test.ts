@@ -36,3 +36,18 @@ describe("CreateMatchBody geo (G1)", () => {
     expect(CreateMatchBody.safeParse(base).success).toBe(true);
   });
 });
+
+describe("CreateMatchBody.bookingId (Marketplace V2)", () => {
+  it("accepts an optional bookingId", () => {
+    const r = CreateMatchBody.safeParse({ ...base, bookingId: "3fa85f64-5717-4562-b3fc-2c963f66afa6" });
+    expect(r.success).toBe(true);
+  });
+
+  it("is valid without bookingId", () => {
+    expect(CreateMatchBody.safeParse(base).success).toBe(true);
+  });
+
+  it("rejects a non-uuid bookingId", () => {
+    expect(CreateMatchBody.safeParse({ ...base, bookingId: "not-a-uuid" }).success).toBe(false);
+  });
+});

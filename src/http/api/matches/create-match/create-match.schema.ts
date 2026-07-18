@@ -23,5 +23,11 @@ export const CreateMatchBody = z.object({
   // Marketplace V1: quadra vinculada. Quando presente, o service carrega a
   // Venue e copia `latitude/longitude/city/address` dela (sobrepõe os manuais).
   venueId: z.uuid().optional(),
+  // Marketplace V2: booking vinculado. Quando presente, o service exige a
+  // booking `confirmed` (senão BKG.NOT_FOUND/BKG.BAD_STATE) e copia a
+  // localização da Venue da quadra da booking — tem precedência sobre
+  // `venueId` quando ambos são enviados (booking é a fonte de verdade da
+  // quadra reservada).
+  bookingId: z.uuid().optional(),
 });
 export type CreateMatchBody = z.infer<typeof CreateMatchBody>;

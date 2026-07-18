@@ -1,4 +1,6 @@
+import { Prisma } from "@/generated/prisma/client";
 import type { PrismaLike } from "@/infra/db/client";
+import { ERRORS } from "@/shared/errors/catalog";
 import type { Match, MatchStatus, Modality } from "./matches.types";
 
 type MatchRow = {
@@ -18,6 +20,7 @@ type MatchRow = {
   city: string | null;
   address: string | null;
   venueId: string | null;
+  bookingId: string | null;
   createdAt: Date;
 };
 
@@ -39,6 +42,7 @@ function toDomainMatch(row: MatchRow): Match {
     city: row.city ?? null,
     address: row.address ?? null,
     venueId: row.venueId ?? null,
+    bookingId: row.bookingId ?? null,
     createdAt: row.createdAt.toISOString(),
   };
 }
@@ -71,6 +75,8 @@ export type InsertMatchInput = {
   address?: string | null | undefined;
   /** Marketplace V1: quadra vinculada (ausente = null). */
   venueId?: string | null | undefined;
+  /** Marketplace V2: booking vinculado (ausente = null). */
+  bookingId?: string | null | undefined;
 };
 
 export type UpdateMatchPatch = {
@@ -92,6 +98,12 @@ export type SeriesFieldsPatch = {
 };
 
 export interface MatchesRepository {
+  /**
+   * Throws `ERRORS.BKG.BAD_STATE()` (409) on a P2002 against the
+   * `Match.bookingId` unique constraint — a booking already linked to
+   * another match (double-link guard, mirrors `BookingRepository.insert`'s
+   * `SLOT_UNAVAILABLE` mapping).
+   */
   insert(input: InsertMatchInput): Promise<Match>;
   findById(id: string): Promise<Match | null>;
   listByGroup(groupId: string, opts: { includeFinished: boolean }): Promise<Match[]>;
@@ -130,23 +142,31 @@ export interface MatchesRepository {
 export function createMatchesRepository(db: PrismaLike): MatchesRepository {
   const repo: MatchesRepository = {
     async insert(input) {
-      const row = await db.match.create({
-        data: {
-          groupId: input.groupId,
-          datetime: new Date(input.datetime),
-          location: input.location,
-          priceCents: input.priceCents,
-          slots: input.slots,
-          pixKey: input.pixKey ?? null,
-          modality: input.modality ?? "campo",
-          latitude: input.latitude ?? null,
-          longitude: input.longitude ?? null,
-          city: input.city ?? null,
-          address: input.address ?? null,
-          venueId: input.venueId ?? null,
-        },
-      });
-      return toDomainMatch(row);
+      try {
+        const row = await db.match.create({
+          data: {
+            groupId: input.groupId,
+            datetime: new Date(input.datetime),
+            location: input.location,
+            priceCents: input.priceCents,
+            slots: input.slots,
+            pixKey: input.pixKey ?? null,
+            modality: input.modality ?? "campo",
+            latitude: input.latitude ?? null,
+            longitude: input.longitude ?? null,
+            city: input.city ?? null,
+            address: input.address ?? null,
+            venueId: input.venueId ?? null,
+            bookingId: input.bookingId ?? null,
+          },
+        });
+        return toDomainMatch(row);
+      } catch (error) {
+        if (error instanceof Prisma.PrismaClientKnownRequestError && error.code === "P2002") {
+          throw ERRORS.BKG.BAD_STATE();
+        }
+        throw error;
+      }
     },
 
     async findById(id) {

@@ -124,10 +124,19 @@ export function createCourtRepository(db: PrismaLike): CourtRepository {
     async findByIdWithVenue(id) {
       const row = await db.court.findUnique({
         where: { id },
-        include: { venue: { select: { ownerId: true } } },
+        include: { venue: { select: { ownerId: true, latitude: true, longitude: true, city: true, address: true } } },
       });
       if (!row) return null;
-      return { ...toDomainCourt(row), venue: { ownerId: row.venue.ownerId } };
+      return {
+        ...toDomainCourt(row),
+        venue: {
+          ownerId: row.venue.ownerId,
+          latitude: row.venue.latitude,
+          longitude: row.venue.longitude,
+          city: row.venue.city,
+          address: row.venue.address,
+        },
+      };
     },
 
     async update(id, patch) {

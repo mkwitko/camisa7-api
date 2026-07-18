@@ -20,6 +20,7 @@ export function presentMatch(match: Match): MatchResponse {
     city: match.city,
     address: match.address,
     venueId: match.venueId,
+    bookingId: match.bookingId,
     createdAt: match.createdAt,
   };
 }

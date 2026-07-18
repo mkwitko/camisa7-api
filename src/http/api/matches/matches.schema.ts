@@ -23,6 +23,7 @@ export const MatchResponse = z.object({
   city: z.string().nullable(),
   address: z.string().nullable(),
   venueId: z.uuid().nullable(),
+  bookingId: z.uuid().nullable(),
   createdAt: z.string(),
 });
 export type MatchResponse = z.infer<typeof MatchResponse>;

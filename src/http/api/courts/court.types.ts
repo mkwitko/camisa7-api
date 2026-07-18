@@ -49,5 +49,19 @@ export type CourtWithPriceRules = Court & { priceRules: PriceRule[] };
 /**
  * `Court` joined with its parent `Venue`'s `ownerId` — the minimal shape
  * `assertCourtOwner` needs to authorize a mutation without a second query.
+ *
+ * Marketplace V2 (B9): the venue's `latitude/longitude/city/address` are also
+ * selected — `create-match`'s booking-link path (booking → court → venue)
+ * needs them to copy the venue's location onto the match. Optional (rather
+ * than widening every existing `CourtWithVenue` fixture across the courts/
+ * bookings tests) since only that path reads them.
  */
-export type CourtWithVenue = Court & { venue: { ownerId: string } };
+export type CourtWithVenue = Court & {
+  venue: {
+    ownerId: string;
+    latitude?: number;
+    longitude?: number;
+    city?: string;
+    address?: string;
+  };
+};

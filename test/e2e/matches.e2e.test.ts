@@ -1,4 +1,6 @@
 import { afterAll, beforeAll, beforeEach, describe, expect, it } from "vitest";
+import { createBookingRepository } from "@/http/api/bookings/booking.repository";
+import { createOwner } from "../builders/group.builder";
 import { buildTestApp, type TestApp } from "./helpers/app";
 
 const register = (h: TestApp, email: string) =>
@@ -352,6 +354,125 @@ describe("matches e2e", () => {
 
       expect(res.statusCode).toBe(409);
       expect(res.json().code).toBe("MTC-T0002");
+    });
+  });
+
+  describe("POST /groups/:id/matches — bookingId (Marketplace V2)", () => {
+    /** Venue → Court → confirmed `Booking`, seeded directly (bypasses the money flow — B9 only cares about a `confirmed` booking existing). */
+    async function seedConfirmedBooking(): Promise<{ bookingId: string; venue: Record<string, unknown> }> {
+      const ownerId = await createOwner(h.prisma);
+      const bookerId = await createOwner(h.prisma);
+      const venue = await h.prisma.venue.create({
+        data: {
+          ownerId,
+          name: "Arena Booking",
+          latitude: -22.9,
+          longitude: -43.2,
+          address: "Av. das Reservas, 500",
+          city: "Rio de Janeiro",
+        },
+      });
+      const court = await h.prisma.court.create({
+        data: { venueId: venue.id, name: "Quadra B" },
+      });
+      const bookingRepo = createBookingRepository(h.prisma);
+      const booking = await bookingRepo.insert({
+        courtId: court.id,
+        bookedById: bookerId,
+        date: "2026-08-10",
+        startMinute: 600,
+        endMinute: 660,
+        priceCents: 10000,
+        mode: "instant",
+        status: "confirmed",
+      });
+      return { bookingId: booking.id, venue };
+    }
+
+    it("links the match to a confirmed booking, copying its court's venue coords, overriding manual coords", async () => {
+      const token = await registerAndGetToken(h, "mkt-booking-owner@x.com");
+      const group = await createGroup(h, token, { name: "Team Booking" });
+      const { id: groupId } = group.json();
+      const { bookingId, venue } = await seedConfirmedBooking();
+
+      const res = await createMatch(h, token, groupId, {
+        bookingId,
+        latitude: 0,
+        longitude: 0,
+        city: "Manual",
+        address: "Manual Addr",
+      });
+
+      expect(res.statusCode).toBe(201);
+      expect(res.json()).toMatchObject({
+        bookingId,
+        latitude: venue.latitude,
+        longitude: venue.longitude,
+        city: venue.city,
+        address: venue.address,
+      });
+    });
+
+    it("rejects an unknown bookingId with 404 BKG-T0001", async () => {
+      const token = await registerAndGetToken(h, "mkt-booking-unknown@x.com");
+      const group = await createGroup(h, token, { name: "Team Booking Unknown" });
+      const { id: groupId } = group.json();
+
+      const res = await createMatch(h, token, groupId, {
+        bookingId: "00000000-0000-0000-0000-000000000000",
+      });
+
+      expect(res.statusCode).toBe(404);
+      expect(res.json().code).toBe("BKG-T0001");
+    });
+
+    it("rejects a non-confirmed booking with 409 BKG-T0005", async () => {
+      const token = await registerAndGetToken(h, "mkt-booking-pending@x.com");
+      const group = await createGroup(h, token, { name: "Team Booking Pending" });
+      const { id: groupId } = group.json();
+      const ownerId = await createOwner(h.prisma);
+      const bookerId = await createOwner(h.prisma);
+      const venue = await h.prisma.venue.create({
+        data: {
+          ownerId,
+          name: "Arena Pending",
+          latitude: -10,
+          longitude: -20,
+          address: "Rua Pendente, 1",
+          city: "Curitiba",
+        },
+      });
+      const court = await h.prisma.court.create({ data: { venueId: venue.id, name: "Quadra P" } });
+      const bookingRepo = createBookingRepository(h.prisma);
+      const booking = await bookingRepo.insert({
+        courtId: court.id,
+        bookedById: bookerId,
+        date: "2026-08-10",
+        startMinute: 600,
+        endMinute: 660,
+        priceCents: 5000,
+        mode: "instant",
+        status: "pending_payment",
+      });
+
+      const res = await createMatch(h, token, groupId, { bookingId: booking.id });
+
+      expect(res.statusCode).toBe(409);
+      expect(res.json().code).toBe("BKG-T0005");
+    });
+
+    it("rejects linking the same booking to a second match with 409 BKG-T0005", async () => {
+      const token = await registerAndGetToken(h, "mkt-booking-double@x.com");
+      const group = await createGroup(h, token, { name: "Team Booking Double" });
+      const { id: groupId } = group.json();
+      const { bookingId } = await seedConfirmedBooking();
+
+      const first = await createMatch(h, token, groupId, { bookingId });
+      const second = await createMatch(h, token, groupId, { bookingId });
+
+      expect(first.statusCode).toBe(201);
+      expect(second.statusCode).toBe(409);
+      expect(second.json().code).toBe("BKG-T0005");
     });
   });
 });
