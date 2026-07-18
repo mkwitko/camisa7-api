@@ -18,10 +18,10 @@ const BEARER_PREFIX = "Bearer ";
  * `Authorization: Bearer <token>` -> 401 (`GRW.UNAUTHORIZED`).
  *
  * Counts `Match`/`Group`/`User` rows created in the `[from, to)` window
- * (half-open: `from` inclusive, `to` exclusive). `goals` and per-city
- * `growthPct` are TODOs — not cheaply derivable from the current schema
- * without a heavier join/prior-period query, and the consumer tolerates
- * `0`/`[]` (see task brief).
+ * (half-open: `from` inclusive, `to` exclusive). `goals` sums the per-player
+ * `MatchStat.goals` logged against matches created in that window. `cities`
+ * ranks the top 5 cities by new-user growth (current window vs. the
+ * immediately-preceding equal-length window), keyed off `User.lastCity`.
  */
 export const growthRoutes: FastifyPluginAsync = async (app) => {
   app.withTypeProvider<ZodTypeProvider>().get(
@@ -46,21 +46,55 @@ export const growthRoutes: FastifyPluginAsync = async (app) => {
       const to = new Date(req.query.to);
       const createdInWindow = { createdAt: { gte: from, lt: to } };
 
-      const [matches, newGroups, newUsers] = await Promise.all([
-        prisma.match.count({ where: createdInWindow }),
-        prisma.group.count({ where: createdInWindow }),
-        prisma.user.count({ where: createdInWindow }),
-      ]);
+      // Previous equal-length window, immediately preceding `from` — the
+      // baseline the per-city growth % below is computed against.
+      const windowMs = to.getTime() - from.getTime();
+      const prevFrom = new Date(from.getTime() - windowMs);
+      const prevTo = from;
 
-      // TODO(growth): sum `MatchStat.goals` for matches in this window once
-      // the growth-os consumer actually needs it — a single
-      // `prisma.matchStat.aggregate` with a `match: { createdAt: ... }`
-      // relation filter would do it, left out for now per task brief.
-      const goals = 0;
-      // TODO(growth): per-city growth needs a previous-period comparison
-      // query (same window length, shifted back) grouped by `Match.city` —
-      // left out for now per task brief.
-      const cities: GrowthMetricsResponse["cities"] = [];
+      const [matches, newGroups, newUsers, goalsAgg, currentCityCounts, prevCityCounts] =
+        await Promise.all([
+          prisma.match.count({ where: createdInWindow }),
+          prisma.group.count({ where: createdInWindow }),
+          prisma.user.count({ where: createdInWindow }),
+          // goals = sum of logged per-player `MatchStat.goals` whose match was
+          // created in this window (`MatchStat.match` is the relation field).
+          prisma.matchStat.aggregate({
+            _sum: { goals: true },
+            where: { match: createdInWindow },
+          }),
+          prisma.user.groupBy({
+            by: ["lastCity"],
+            where: { ...createdInWindow, lastCity: { not: null } },
+            _count: { _all: true },
+          }),
+          prisma.user.groupBy({
+            by: ["lastCity"],
+            where: {
+              createdAt: { gte: prevFrom, lt: prevTo },
+              lastCity: { not: null },
+            },
+            _count: { _all: true },
+          }),
+        ]);
+
+      const goals = goalsAgg._sum.goals ?? 0;
+
+      const prevCountByCity = new Map(
+        prevCityCounts.map((row) => [row.lastCity as string, row._count._all]),
+      );
+      const cities: GrowthMetricsResponse["cities"] = currentCityCounts
+        .map((row) => {
+          const name = row.lastCity as string;
+          const curCount = row._count._all;
+          const prevCount = prevCountByCity.get(name) ?? 0;
+          const growthPct =
+            prevCount === 0 ? 100 : Math.round(((curCount - prevCount) / prevCount) * 1000) / 10;
+          return { name, growthPct, curCount };
+        })
+        .sort((a, b) => b.curCount - a.curCount)
+        .slice(0, 5)
+        .map(({ name, growthPct }) => ({ name, growthPct }));
 
       void reply.code(200).send({ matches, goals, newGroups, newUsers, cities });
     },

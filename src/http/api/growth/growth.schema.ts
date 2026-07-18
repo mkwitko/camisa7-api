@@ -13,7 +13,12 @@ export const GrowthMetricsQuery = z.object({
 });
 export type GrowthMetricsQuery = z.infer<typeof GrowthMetricsQuery>;
 
-/** Per-city growth entry. `growthPct` is a TODO (see `growth.controller.ts`) — always `0` for now. */
+/**
+ * Per-city growth entry. `growthPct` compares new-user counts (by
+ * `User.lastCity`) in the requested window vs. the immediately-preceding
+ * equal-length window; `100` when the previous window had zero users for
+ * that city (see `growth.controller.ts`).
+ */
 export const GrowthCityMetric = z.object({
   name: z.string(),
   growthPct: z.number(),

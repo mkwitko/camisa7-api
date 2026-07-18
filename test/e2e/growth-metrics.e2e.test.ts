@@ -78,23 +78,57 @@ describe("GET /api/growth/metrics", () => {
   });
 
   it("200s with aggregated counts when authorized with the configured token", async () => {
-    const owner = await token(h, "growth-owner@x.com");
+    const ownerRes = await register(h, "growth-owner@x.com");
+    const owner = ownerRes.json().accessToken as string;
+    const ownerId = ownerRes.json().user.id as string;
     const groupId = await createGroup(h, owner, "Growth FC");
-    await createMatch(h, owner, groupId);
+    const matchRes = await createMatch(h, owner, groupId);
+    const matchId = matchRes.json().id as string;
 
     // Wide window guaranteed to cover "now" (when the rows above were created).
-    const wideFrom = new Date(Date.now() - 60_000).toISOString();
-    const wideTo = new Date(Date.now() + 60_000).toISOString();
+    const wideFrom = new Date(Date.now() - 60_000);
+    const wideTo = new Date(Date.now() + 60_000);
+    // Previous equal-length window, immediately preceding `wideFrom` — the
+    // baseline the endpoint's per-city growthPct is computed against.
+    const windowMs = wideTo.getTime() - wideFrom.getTime();
+    const prevFrom = new Date(wideFrom.getTime() - windowMs);
 
-    const res = await metrics(h, `from=${wideFrom}&to=${wideTo}`, "Bearer test-growth-secret");
+    // goals: a logged MatchStat for the match created above (goals = sum of
+    // logged per-player MatchStat.goals for matches created in the window).
+    const player = await h.prisma.player.create({ data: { name: "Striker" } });
+    await h.prisma.matchStat.create({
+      data: { matchId, playerId: player.id, goals: 3 },
+    });
+
+    // cities: 2 new users in "São Paulo" inside the current window (the
+    // owner registered above + one seeded directly) vs. 1 in the
+    // immediately-preceding window -> growthPct = (2-1)/1*100 = 100.
+    await h.prisma.user.update({ where: { id: ownerId }, data: { lastCity: "São Paulo" } });
+    await h.prisma.user.create({
+      data: { email: "growth-sp-2@x.com", name: "SP User 2", lastCity: "São Paulo" },
+    });
+    await h.prisma.user.create({
+      data: {
+        email: "growth-sp-prev@x.com",
+        name: "SP User Prev",
+        lastCity: "São Paulo",
+        createdAt: new Date(prevFrom.getTime() + 10_000),
+      },
+    });
+
+    const res = await metrics(
+      h,
+      `from=${wideFrom.toISOString()}&to=${wideTo.toISOString()}`,
+      "Bearer test-growth-secret",
+    );
     expect(res.statusCode).toBe(200);
     const body = res.json();
     expect(body).toEqual({
       matches: 1,
-      goals: 0,
+      goals: 3,
       newGroups: 1,
-      newUsers: 1,
-      cities: [],
+      newUsers: 2,
+      cities: [{ name: "São Paulo", growthPct: 100 }],
     });
   });
 
