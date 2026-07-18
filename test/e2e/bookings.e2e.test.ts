@@ -209,7 +209,7 @@ describe("bookings e2e", () => {
     });
     mocks.createBookingPaymentIntent
       .mockReset()
-      .mockResolvedValue({ id: "pi_test", clientSecret: "pi_test_secret" });
+      .mockResolvedValue({ id: "pi_test", clientSecret: "pi_test_secret", pix: null });
     mocks.getOrCreateCustomer.mockReset().mockResolvedValue("cus_test");
     mocks.paymentIntentsCancel.mockReset().mockResolvedValue({ id: "pi_test", status: "canceled" });
   });
@@ -275,7 +275,7 @@ describe("bookings e2e", () => {
         status: "pending_payment",
         depositCents: null,
       });
-      expect(body.payment).toEqual({ paymentIntentId: "pi_test", clientSecret: "pi_test_secret" });
+      expect(body.payment).toEqual({ paymentIntentId: "pi_test", clientSecret: "pi_test_secret", pix: null });
       expect(mocks.createBookingPaymentIntent).toHaveBeenCalledWith(
         expect.objectContaining({
           amountCents: 10000,
@@ -696,7 +696,7 @@ describe("bookings e2e", () => {
         payment: { paymentIntentId: string; clientSecret: string };
       };
       expect(body.booking).toMatchObject({ status: "pending_payment", mode: "request" });
-      expect(body.payment).toEqual({ paymentIntentId: "pi_test", clientSecret: "pi_test_secret" });
+      expect(body.payment).toEqual({ paymentIntentId: "pi_test", clientSecret: "pi_test_secret", pix: null });
       expect(mocks.createBookingPaymentIntent).toHaveBeenCalledWith(
         expect.objectContaining({ amountCents: 10000, destinationAccountId: "acct_test" }),
       );

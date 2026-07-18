@@ -44,9 +44,22 @@ export const CreateBookingBody = z
   });
 export type CreateBookingBody = z.infer<typeof CreateBookingBody>;
 
+/**
+ * Ready-to-render PIX voucher (server-confirmed — see
+ * `createBookingPaymentIntent`). `null` in the rare case Stripe's
+ * `next_action.pix_display_qr_code` isn't present on the confirmed PI.
+ */
+export const PixVoucherResponse = z.object({
+  qrCodeImageUrl: z.string(),
+  copyPaste: z.string(),
+  expiresAt: z.string(),
+});
+export type PixVoucherResponse = z.infer<typeof PixVoucherResponse>;
+
 export const PaymentInfoResponse = z.object({
   paymentIntentId: z.string(),
   clientSecret: z.string(),
+  pix: PixVoucherResponse.nullable(),
 });
 export type PaymentInfoResponse = z.infer<typeof PaymentInfoResponse>;
 

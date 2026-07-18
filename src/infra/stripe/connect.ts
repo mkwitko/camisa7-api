@@ -81,28 +81,63 @@ export async function retrieveAccountStatus(accountId: string): Promise<{
   };
 }
 
+/** The ready-to-render PIX voucher handed to the app — no native Stripe module needed. */
+export type PixVoucher = {
+  qrCodeImageUrl: string;
+  copyPaste: string;
+  expiresAt: string;
+};
+
 /**
  * Booking PaymentIntent — a destination charge to the court owner's
  * connected account, PIX only, 30min TTL (matches the booking hold window).
  * `application_fee_amount` is computed over `amountCents` (the amount
  * actually charged — full price or deposit, per the court's `bookingMode`),
  * not the court's full price.
+ *
+ * Confirmed server-side (`confirm: true` + `payment_method_data: { type:
+ * "pix" }` on create, atomic — no separate confirm call): `@stripe/
+ * stripe-react-native` has no PIX support, so the app can't confirm
+ * client-side. After confirm the PI sits `requires_action` with the PIX
+ * voucher on `next_action.pix_display_qr_code` — mapped here into `pix` so
+ * the app can render the QR/copy-paste directly. `pix` is `null` if
+ * `next_action`/`pix_display_qr_code` is absent (shouldn't happen for a
+ * fresh PIX confirm, but Stripe doesn't type it as guaranteed).
+ *
+ * Real-integration caveat: a live BR PIX confirm may require
+ * `payment_method_data.billing_details` (name/email) and, for some
+ * cross-border setups, a CPF/CNPJ `tax_id` — likely optional here since the
+ * platform settles BRL domestically, but worth confirming against a real
+ * (non-mocked) Stripe account.
  */
 export async function createBookingPaymentIntent(args: {
   amountCents: number;
   destinationAccountId: string;
   bookingId: string;
   customerId: string;
-}): Promise<{ id: string; clientSecret: string }> {
+}): Promise<{ id: string; clientSecret: string; pix: PixVoucher | null }> {
   const pi = await stripe().paymentIntents.create({
     amount: args.amountCents,
     currency: "brl",
     customer: args.customerId,
-    payment_method_types: ["pix"],
+    payment_method_data: { type: "pix" },
     payment_method_options: { pix: { expires_after_seconds: 1800 } },
+    confirm: true,
     transfer_data: { destination: args.destinationAccountId },
     application_fee_amount: platformFeeCents(args.amountCents),
     metadata: { bookingId: args.bookingId },
   });
-  return { id: pi.id, clientSecret: pi.client_secret as string };
+  if (!pi.client_secret) throw new Error("Stripe PaymentIntent created without a client_secret");
+
+  const qr = pi.next_action?.pix_display_qr_code;
+  const pix =
+    qr?.image_url_png && qr.data && qr.expires_at
+      ? {
+          qrCodeImageUrl: qr.image_url_png,
+          copyPaste: qr.data,
+          expiresAt: new Date(qr.expires_at * 1000).toISOString(),
+        }
+      : null;
+
+  return { id: pi.id, clientSecret: pi.client_secret, pix };
 }

@@ -1,7 +1,11 @@
 import type { AuthRepository } from "@/http/api/auth/auth.repository";
 import type { PrismaLike } from "@/infra/db/client";
 import { getOrCreateCustomer, isBillingConfigured } from "@/infra/stripe/client";
-import { createBookingPaymentIntent, retrieveAccountStatus } from "@/infra/stripe/connect";
+import {
+  createBookingPaymentIntent,
+  type PixVoucher,
+  retrieveAccountStatus,
+} from "@/infra/stripe/connect";
 import { ERRORS } from "@/shared/errors/catalog";
 import { createBookingRepository } from "./booking.repository";
 import type { Booking } from "./booking.types";
@@ -31,7 +35,7 @@ export type CreatePaymentIntentDeps = {
 
 export type CreatePaymentIntentForBookingResult = {
   booking: Booking;
-  payment: { paymentIntentId: string; clientSecret: string };
+  payment: { paymentIntentId: string; clientSecret: string; pix: PixVoucher | null };
 };
 
 /**
@@ -65,6 +69,6 @@ export async function createPaymentIntentForBooking(
 
   return {
     booking: updated,
-    payment: { paymentIntentId: pi.id, clientSecret: pi.clientSecret },
+    payment: { paymentIntentId: pi.id, clientSecret: pi.clientSecret, pix: pi.pix },
   };
 }

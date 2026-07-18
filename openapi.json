@@ -10775,11 +10775,33 @@
                         },
                         "clientSecret": {
                           "type": "string"
+                        },
+                        "pix": {
+                          "nullable": true,
+                          "type": "object",
+                          "properties": {
+                            "qrCodeImageUrl": {
+                              "type": "string"
+                            },
+                            "copyPaste": {
+                              "type": "string"
+                            },
+                            "expiresAt": {
+                              "type": "string"
+                            }
+                          },
+                          "required": [
+                            "qrCodeImageUrl",
+                            "copyPaste",
+                            "expiresAt"
+                          ],
+                          "additionalProperties": false
                         }
                       },
                       "required": [
                         "paymentIntentId",
-                        "clientSecret"
+                        "clientSecret",
+                        "pix"
                       ],
                       "additionalProperties": false
                     }
@@ -11290,11 +11312,33 @@
                         },
                         "clientSecret": {
                           "type": "string"
+                        },
+                        "pix": {
+                          "nullable": true,
+                          "type": "object",
+                          "properties": {
+                            "qrCodeImageUrl": {
+                              "type": "string"
+                            },
+                            "copyPaste": {
+                              "type": "string"
+                            },
+                            "expiresAt": {
+                              "type": "string"
+                            }
+                          },
+                          "required": [
+                            "qrCodeImageUrl",
+                            "copyPaste",
+                            "expiresAt"
+                          ],
+                          "additionalProperties": false
                         }
                       },
                       "required": [
                         "paymentIntentId",
-                        "clientSecret"
+                        "clientSecret",
+                        "pix"
                       ],
                       "additionalProperties": false
                     }

@@ -1,6 +1,7 @@
 import type { AuthRepository } from "@/http/api/auth/auth.repository";
 import type { CourtRepository } from "@/http/api/courts/court.repository";
 import type { PrismaLike } from "@/infra/db/client";
+import type { PixVoucher } from "@/infra/stripe/connect";
 import { ERRORS } from "@/shared/errors/catalog";
 import { assertOwnerChargesEnabled, createPaymentIntentForBooking } from "../booking.payment";
 import { presentBooking } from "../booking.presenter";
@@ -18,7 +19,7 @@ export type ApproveBookingInput = { bookingId: string; userId: string };
 
 export type ApproveBookingResult = {
   booking: BookingResponse;
-  payment: { paymentIntentId: string; clientSecret: string };
+  payment: { paymentIntentId: string; clientSecret: string; pix: PixVoucher | null };
 };
 
 /**

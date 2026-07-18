@@ -142,10 +142,17 @@ describe("retrieveAccountStatus", () => {
 });
 
 describe("createBookingPaymentIntent", () => {
-  it("creates a destination-charge PIX PaymentIntent with the platform fee on amountCents", async () => {
+  it("creates+confirms a destination-charge PIX PaymentIntent server-side with the platform fee on amountCents", async () => {
     h.paymentIntentsCreate.mockResolvedValue({
       id: "pi_123",
       client_secret: "pi_123_secret_abc",
+      next_action: {
+        pix_display_qr_code: {
+          image_url_png: "https://stripe.com/qr.png",
+          data: "00020126...emv...6304ABCD",
+          expires_at: 1_700_000_000,
+        },
+      },
     });
 
     const result = await createBookingPaymentIntent({
@@ -155,13 +162,22 @@ describe("createBookingPaymentIntent", () => {
       customerId: "cus_1",
     });
 
-    expect(result).toEqual({ id: "pi_123", clientSecret: "pi_123_secret_abc" });
+    expect(result).toEqual({
+      id: "pi_123",
+      clientSecret: "pi_123_secret_abc",
+      pix: {
+        qrCodeImageUrl: "https://stripe.com/qr.png",
+        copyPaste: "00020126...emv...6304ABCD",
+        expiresAt: new Date(1_700_000_000 * 1000).toISOString(),
+      },
+    });
     expect(h.paymentIntentsCreate).toHaveBeenCalledWith({
       amount: 10000,
       currency: "brl",
       customer: "cus_1",
-      payment_method_types: ["pix"],
+      payment_method_data: { type: "pix" },
       payment_method_options: { pix: { expires_after_seconds: 1800 } },
+      confirm: true,
       transfer_data: { destination: "acct_123" },
       application_fee_amount: 500,
       metadata: { bookingId: "bkg_1" },
@@ -179,7 +195,33 @@ describe("createBookingPaymentIntent", () => {
     });
 
     expect(h.paymentIntentsCreate).toHaveBeenCalledWith(
-      expect.objectContaining({ application_fee_amount: 200 }),
+      expect.objectContaining({ application_fee_amount: 200, confirm: true }),
     );
+  });
+
+  it("returns pix: null when next_action/pix_display_qr_code is absent", async () => {
+    h.paymentIntentsCreate.mockResolvedValue({ id: "pi_3", client_secret: "sec_3" });
+
+    const result = await createBookingPaymentIntent({
+      amountCents: 5000,
+      destinationAccountId: "acct_123",
+      bookingId: "bkg_3",
+      customerId: "cus_1",
+    });
+
+    expect(result.pix).toBeNull();
+  });
+
+  it("throws if Stripe returns no client_secret", async () => {
+    h.paymentIntentsCreate.mockResolvedValue({ id: "pi_4", client_secret: null });
+
+    await expect(
+      createBookingPaymentIntent({
+        amountCents: 5000,
+        destinationAccountId: "acct_123",
+        bookingId: "bkg_4",
+        customerId: "cus_1",
+      }),
+    ).rejects.toThrow();
   });
 });
