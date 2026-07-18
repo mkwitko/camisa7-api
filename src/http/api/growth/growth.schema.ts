@@ -33,3 +33,56 @@ export const GrowthMetricsResponse = z.object({
   cities: z.array(GrowthCityMetric),
 });
 export type GrowthMetricsResponse = z.infer<typeof GrowthMetricsResponse>;
+
+/**
+ * `GET /api/growth/content-feed` querystring — same `[from, to)` half-open
+ * window convention as `GrowthMetricsQuery`.
+ */
+export const GrowthContentFeedQuery = z.object({
+  from: z.iso.datetime(),
+  to: z.iso.datetime(),
+});
+export type GrowthContentFeedQuery = z.infer<typeof GrowthContentFeedQuery>;
+
+/**
+ * One match created in the window, ranked by summed `MatchStat.goals`
+ * (top 5). `city` is `Match.city` (nullable on the model — surfaced as-is,
+ * `null` when the organizer never set it); `groupName` is the owning
+ * `Group.name` via `Match.group`.
+ */
+export const GrowthTopMatch = z.object({
+  id: z.uuid(),
+  city: z.string().nullable(),
+  goals: z.number().int(),
+  groupName: z.string(),
+});
+export type GrowthTopMatch = z.infer<typeof GrowthTopMatch>;
+
+/**
+ * A group whose member count crossed a round threshold (50/100/…) inside the
+ * window. NOT YET IMPLEMENTED — `Group` has no `city` field (only `Match`
+ * does, and a group's matches can span several cities), so a milestone's
+ * `city` isn't cheaply derivable from the schema as-is; the controller
+ * always returns `[]` for now (see the `// TODO` there). Shape kept here so
+ * wiring it up later doesn't require a response-schema change.
+ */
+export const GrowthMilestone = z.object({
+  groupName: z.string(),
+  city: z.string().nullable(),
+  members: z.number().int(),
+});
+export type GrowthMilestone = z.infer<typeof GrowthMilestone>;
+
+export const GrowthContentFeedResponse = z.object({
+  range: z.object({ from: z.iso.datetime(), to: z.iso.datetime() }),
+  topMatches: z.array(GrowthTopMatch),
+  milestones: z.array(GrowthMilestone),
+  hotCity: GrowthCityMetric.nullable(),
+  totals: z.object({
+    matches: z.number().int(),
+    goals: z.number().int(),
+    newGroups: z.number().int(),
+    newUsers: z.number().int(),
+  }),
+});
+export type GrowthContentFeedResponse = z.infer<typeof GrowthContentFeedResponse>;
