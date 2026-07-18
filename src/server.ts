@@ -8,9 +8,11 @@ import { createMatchResultRepository } from "@/http/api/matches/children/result/
 import { createFinalizeMatchCore } from "@/http/api/matches/finalize-match/finalize-match.core";
 import { createMatchesRepository } from "@/http/api/matches/matches.repository";
 import { createPlayerCareerRepository } from "@/http/api/players/children/career/career.repository";
+import { createBookingRepository } from "@/http/api/bookings/booking.repository";
 import { createSeriesRepository } from "@/http/api/series/series.repository";
 import { prisma } from "@/infra/db/client";
 import { logger } from "@/infra/observability/logger";
+import { expireStaleBookings } from "@/jobs/expire-bookings.job";
 import { finalizeElapsedMatches } from "@/jobs/finalize-matches.job";
 import { generateMonthlyDues } from "@/jobs/membership-dues.job";
 import { generateHorizon } from "@/jobs/recurrence.job";
@@ -73,6 +75,24 @@ function startMembershipDuesCron(): void {
   });
 }
 
+/**
+ * Booking-expiry cron (Task B8) — every 5 minutes, a best-effort safety net
+ * that expires stale bookings the `payment_intent.*` webhook never resolved
+ * (see `expire-bookings.job.ts`): `pending_payment` past the 30-minute PIX
+ * TTL, and `request`-mode bookings the owner never approved/rejected within
+ * 24h. Tighter interval than the other crons since it's freeing slots other
+ * bookers may be waiting on. Skipped under `NODE_ENV === "test"`, same
+ * rationale as the other crons.
+ */
+function startExpireBookingsCron(): void {
+  const bookingRepo = createBookingRepository(prisma);
+  cron.schedule("*/5 * * * *", () => {
+    expireStaleBookings(bookingRepo, new Date()).catch((err: unknown) => {
+      logger.error({ err }, "expire-bookings.job.failed");
+    });
+  });
+}
+
 async function start(): Promise<void> {
   const app = await buildApp();
 
@@ -80,6 +100,7 @@ async function start(): Promise<void> {
     startRecurrenceCron();
     startFinalizeCron();
     startMembershipDuesCron();
+    startExpireBookingsCron();
   }
 
   const shutdown = async (signal: NodeJS.Signals): Promise<void> => {

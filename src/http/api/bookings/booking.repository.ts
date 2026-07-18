@@ -89,6 +89,14 @@ export interface BookingRepository {
   setPaymentIntent(id: string, paymentIntentId: string): Promise<Booking>;
   /** `startMinute`s of a court's ACTIVE bookings on `date` — what `computeAvailability` needs to mark slots unavailable. */
   activeSlotsFor(courtId: string, date: string): Promise<number[]>;
+  /**
+   * Best-effort expiry sweep (`expire-bookings.job.ts`) — two scoped
+   * `updateMany`s, each restricted to a single `from` status so it can never
+   * touch `confirmed`/`cancelled`/etc: `pending_payment` created before
+   * `pendingBefore` and `requested` created before `requestedBefore` both
+   * move to `expired`. Returns each bucket's row count for logging.
+   */
+  expireStale(pendingBefore: Date, requestedBefore: Date): Promise<{ pendingExpired: number; requestedExpired: number }>;
 }
 
 /** Factory `createBookingRepository(db: PrismaLike)` — composes inside a tx or standalone. */
@@ -174,6 +182,18 @@ export function createBookingRepository(db: PrismaLike): BookingRepository {
         select: { startMinute: true },
       });
       return rows.map((row) => row.startMinute);
+    },
+
+    async expireStale(pendingBefore, requestedBefore) {
+      const pending = await db.booking.updateMany({
+        where: { status: "pending_payment", createdAt: { lt: pendingBefore } },
+        data: { status: "expired" },
+      });
+      const requested = await db.booking.updateMany({
+        where: { status: "requested", createdAt: { lt: requestedBefore } },
+        data: { status: "expired" },
+      });
+      return { pendingExpired: pending.count, requestedExpired: requested.count };
     },
   };
 }
