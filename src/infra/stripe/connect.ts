@@ -93,7 +93,10 @@ export type PixVoucher = {
  * connected account, PIX only, 30min TTL (matches the booking hold window).
  * `application_fee_amount` is computed over `amountCents` (the amount
  * actually charged — full price or deposit, per the court's `bookingMode`),
- * not the court's full price.
+ * not the court's full price. Clamped to `amountCents` — `platformFeeCents`'s
+ * `PLATFORM_FEE_MIN_CENTS` floor can otherwise exceed a small charge (e.g. a
+ * low deposit), and Stripe rejects a PI whose `application_fee_amount` is
+ * greater than its `amount`.
  *
  * Confirmed server-side (`confirm: true` + `payment_method_data: { type:
  * "pix" }` on create, atomic — no separate confirm call): `@stripe/
@@ -124,7 +127,7 @@ export async function createBookingPaymentIntent(args: {
     payment_method_options: { pix: { expires_after_seconds: 1800 } },
     confirm: true,
     transfer_data: { destination: args.destinationAccountId },
-    application_fee_amount: platformFeeCents(args.amountCents),
+    application_fee_amount: Math.min(platformFeeCents(args.amountCents), args.amountCents),
     metadata: { bookingId: args.bookingId },
   });
   if (!pi.client_secret) throw new Error("Stripe PaymentIntent created without a client_secret");

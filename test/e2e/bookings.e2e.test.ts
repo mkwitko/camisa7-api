@@ -359,6 +359,52 @@ describe("bookings e2e", () => {
       expect(res.json().code).toBe("BKG-T0003");
     });
 
+    it("rejects a zero-price court with 422 BKG-T0003, creating no PaymentIntent nor booking row", async () => {
+      // Below Stripe's PIX minimum (0.50 BRL) — must be rejected cleanly
+      // before the booking is ever inserted, not surfaced as an unmapped
+      // 500 after a `pending_payment` row is already committed.
+      const { ownerToken, courtId } = await setUpBookableCourt(h, "owner-free@x.com", "instant");
+      await setPriceRules(h, ownerToken, courtId, [
+        { weekday: MONDAY_WEEKDAY, startMinute: 0, endMinute: 1440, priceCents: 0 },
+      ]);
+      const { token: bookerToken } = await registerAndGetToken(h, "booker-free@x.com");
+
+      const res = await bookSlot(h, bookerToken, {
+        courtId,
+        date: MONDAY,
+        startMinute: 600,
+        endMinute: 660,
+      });
+
+      expect(res.statusCode).toBe(422);
+      expect(res.json().code).toBe("BKG-T0003");
+      expect(mocks.createBookingPaymentIntent).not.toHaveBeenCalled();
+      const mine = await listMyBookings(h, bookerToken);
+      expect(mine.json()).toEqual([]);
+    });
+
+    it("rejects a deposit that rounds down to 0 with 422 BKG-T0003", async () => {
+      const { ownerToken, courtId } = await setUpBookableCourt(h, "owner-lowdeposit@x.com", "deposit", {
+        depositPercent: 1,
+      });
+      // 1 cent x 1% rounds to 0.
+      await setPriceRules(h, ownerToken, courtId, [
+        { weekday: MONDAY_WEEKDAY, startMinute: 0, endMinute: 1440, priceCents: 1 },
+      ]);
+      const { token: bookerToken } = await registerAndGetToken(h, "booker-lowdeposit@x.com");
+
+      const res = await bookSlot(h, bookerToken, {
+        courtId,
+        date: MONDAY,
+        startMinute: 600,
+        endMinute: 660,
+      });
+
+      expect(res.statusCode).toBe(422);
+      expect(res.json().code).toBe("BKG-T0003");
+      expect(mocks.createBookingPaymentIntent).not.toHaveBeenCalled();
+    });
+
     it("rejects with 409 BKG-T0006 when the court is inactive", async () => {
       const { courtId, ownerToken } = await setUpBookableCourt(
         h,

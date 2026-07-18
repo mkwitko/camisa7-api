@@ -33,9 +33,12 @@ export type CreateMatchInput = CreateMatchBody & { groupId: string; userId: stri
  * `venueId`. The booking must exist (`BKG.NOT_FOUND`) and be `confirmed`
  * (`BKG.BAD_STATE` otherwise), and must not already be linked to another match
  * — enforced by the DB's `Match.bookingId` unique constraint, surfaced as
- * `BKG.BAD_STATE` on a P2002 (see `MatchesRepository.insert`). Precedence:
- * when BOTH `venueId` and `bookingId` are sent, the booking's venue wins —
- * the booking is the source of truth for which court was actually reserved.
+ * `BKG.BAD_STATE` on a P2002 (see `MatchesRepository.insert`). It must also
+ * belong to the caller (`booking.bookedById === userId`) — `BKG.NOT_ALLOWED`
+ * (403) otherwise — an organizer links their OWN confirmed reservation, not
+ * any confirmed booking by UUID. Precedence: when BOTH `venueId` and
+ * `bookingId` are sent, the booking's venue wins — the booking is the source
+ * of truth for which court was actually reserved.
  */
 export function createCreateMatchService(deps: CreateMatchDeps) {
   return async (input: CreateMatchInput): Promise<Match> => {
@@ -54,6 +57,7 @@ export function createCreateMatchService(deps: CreateMatchDeps) {
     if (input.bookingId !== undefined) {
       const booking = await deps.bookingRepo.findById(input.bookingId);
       if (!booking) throw ERRORS.BKG.NOT_FOUND();
+      if (booking.bookedById !== input.userId) throw ERRORS.BKG.NOT_ALLOWED();
       if (booking.status !== "confirmed") throw ERRORS.BKG.BAD_STATE();
       bookingId = booking.id;
 

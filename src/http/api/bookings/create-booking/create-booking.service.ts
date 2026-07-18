@@ -4,7 +4,11 @@ import type { PrismaLike } from "@/infra/db/client";
 import type { PixVoucher } from "@/infra/stripe/connect";
 import { ERRORS } from "@/shared/errors/catalog";
 import { resolveSlotPrice } from "../availability.service";
-import { assertOwnerChargesEnabled, createPaymentIntentForBooking } from "../booking.payment";
+import {
+  assertChargeableAmount,
+  assertOwnerChargesEnabled,
+  createPaymentIntentForBooking,
+} from "../booking.payment";
 import { presentBooking } from "../booking.presenter";
 import { createBookingRepository } from "../booking.repository";
 import type { BookingResponse } from "../booking.schema";
@@ -81,6 +85,12 @@ export function createCreateBookingService(deps: CreateBookingDeps) {
       court.bookingMode === "deposit"
         ? Math.round((priceCents * (court.depositPercent ?? 0)) / 100)
         : null;
+    // Reject BEFORE the booking row is ever inserted — a charge below
+    // Stripe's PIX minimum (e.g. a free court, or a deposit rounding to 0)
+    // can never be collected, in ANY bookingMode (including `request`,
+    // which would otherwise create a row that's doomed to fail later at
+    // `approve-booking`).
+    assertChargeableAmount(depositCents ?? priceCents);
     const initialStatus = court.bookingMode === "request" ? "requested" : "pending_payment";
 
     const booking = await deps.db.$transaction(async (tx) => {

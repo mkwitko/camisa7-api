@@ -3,7 +3,11 @@ import type { CourtRepository } from "@/http/api/courts/court.repository";
 import type { PrismaLike } from "@/infra/db/client";
 import type { PixVoucher } from "@/infra/stripe/connect";
 import { ERRORS } from "@/shared/errors/catalog";
-import { assertOwnerChargesEnabled, createPaymentIntentForBooking } from "../booking.payment";
+import {
+  assertChargeableAmount,
+  assertOwnerChargesEnabled,
+  createPaymentIntentForBooking,
+} from "../booking.payment";
 import { presentBooking } from "../booking.presenter";
 import type { BookingRepository } from "../booking.repository";
 import type { BookingResponse } from "../booking.schema";
@@ -52,6 +56,13 @@ export function createApproveBookingService(deps: ApproveBookingDeps) {
     if (booking.mode !== "request" || booking.status !== "requested") {
       throw ERRORS.BKG.BAD_STATE();
     }
+
+    // Reject BEFORE the atomic `requested` -> `pending_payment` claim — a
+    // charge below Stripe's PIX minimum can never be collected, and failing
+    // after the claim would leave the booking stuck in `pending_payment`
+    // until the expiry sweep (defense in depth: `create-booking` already
+    // blocks this amount at creation time, so this should be unreachable).
+    assertChargeableAmount(booking.depositCents ?? booking.priceCents);
 
     const owner = await deps.authRepo.findById(court.venue.ownerId);
     const ownerStripeAccountId = await assertOwnerChargesEnabled(owner?.stripeAccountId ?? null);

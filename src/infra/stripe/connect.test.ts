@@ -199,6 +199,24 @@ describe("createBookingPaymentIntent", () => {
     );
   });
 
+  it("clamps application_fee_amount to amountCents when the platform fee floor would exceed the charge", async () => {
+    // amountCents=100 < PLATFORM_FEE_MIN_CENTS=200 (a low deposit, e.g. R$20
+    // court x 5% = 100 cents). Stripe rejects a PI whose
+    // `application_fee_amount` exceeds its `amount` — must clamp, not floor.
+    h.paymentIntentsCreate.mockResolvedValue({ id: "pi_5", client_secret: "sec_5" });
+
+    await createBookingPaymentIntent({
+      amountCents: 100,
+      destinationAccountId: "acct_123",
+      bookingId: "bkg_5",
+      customerId: "cus_1",
+    });
+
+    expect(h.paymentIntentsCreate).toHaveBeenCalledWith(
+      expect.objectContaining({ amount: 100, application_fee_amount: 100 }),
+    );
+  });
+
   it("returns pix: null when next_action/pix_display_qr_code is absent", async () => {
     h.paymentIntentsCreate.mockResolvedValue({ id: "pi_3", client_secret: "sec_3" });
 

@@ -232,7 +232,7 @@ describe("createCreateMatchService", () => {
         matchesRepo,
         groupsRepo: makeGroupsRepo(aGroup()),
         venueRepo: makeVenueRepo(aVenue()),
-        bookingRepo: makeBookingRepo(aBooking()),
+        bookingRepo: makeBookingRepo(aBooking({ bookedById: OWNER })),
         courtRepo: makeCourtRepo(aCourtWithVenue()),
       });
 
@@ -270,12 +270,41 @@ describe("createCreateMatchService", () => {
       });
     });
 
+    it("rejects with BKG-T0004 when the booking belongs to another user (IDOR guard)", async () => {
+      const service = createCreateMatchService({
+        matchesRepo: makeMatchesRepo(),
+        groupsRepo: makeGroupsRepo(aGroup()),
+        venueRepo: makeVenueRepo(null),
+        bookingRepo: makeBookingRepo(aBooking({ bookedById: "someone-else" })),
+        courtRepo: makeCourtRepo(aCourtWithVenue()),
+      });
+
+      await expect(service({ ...baseBody, bookingId: "b1" })).rejects.toMatchObject({
+        code: "BKG-T0004",
+      });
+    });
+
+    it("links a confirmed booking owned by the caller", async () => {
+      const matchesRepo = makeMatchesRepo();
+      const service = createCreateMatchService({
+        matchesRepo,
+        groupsRepo: makeGroupsRepo(aGroup()),
+        venueRepo: makeVenueRepo(null),
+        bookingRepo: makeBookingRepo(aBooking({ bookedById: OWNER })),
+        courtRepo: makeCourtRepo(aCourtWithVenue()),
+      });
+
+      const match = await service({ ...baseBody, bookingId: "b1" });
+
+      expect(match).toMatchObject({ bookingId: "b1" });
+    });
+
     it("rejects with BKG-T0005 when the booking isn't confirmed", async () => {
       const service = createCreateMatchService({
         matchesRepo: makeMatchesRepo(),
         groupsRepo: makeGroupsRepo(aGroup()),
         venueRepo: makeVenueRepo(null),
-        bookingRepo: makeBookingRepo(aBooking({ status: "pending_payment" })),
+        bookingRepo: makeBookingRepo(aBooking({ bookedById: OWNER, status: "pending_payment" })),
         courtRepo: makeCourtRepo(aCourtWithVenue()),
       });
 
@@ -291,7 +320,7 @@ describe("createCreateMatchService", () => {
         matchesRepo,
         groupsRepo: makeGroupsRepo(aGroup()),
         venueRepo: makeVenueRepo(null),
-        bookingRepo: makeBookingRepo(aBooking()),
+        bookingRepo: makeBookingRepo(aBooking({ bookedById: OWNER })),
         courtRepo: makeCourtRepo(aCourtWithVenue()),
       });
 

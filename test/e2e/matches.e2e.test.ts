@@ -358,10 +358,19 @@ describe("matches e2e", () => {
   });
 
   describe("POST /groups/:id/matches — bookingId (Marketplace V2)", () => {
-    /** Venue → Court → confirmed `Booking`, seeded directly (bypasses the money flow — B9 only cares about a `confirmed` booking existing). */
-    async function seedConfirmedBooking(): Promise<{ bookingId: string; venue: Record<string, unknown> }> {
+    /**
+     * Venue → Court → confirmed `Booking`, seeded directly (bypasses the
+     * money flow — B9 only cares about a `confirmed` booking existing).
+     * `bookedById` defaults to a random unrelated user — pass the calling
+     * user's id explicitly to seed a booking THEY own (required since
+     * `create-match` now enforces `booking.bookedById === userId`, closing
+     * the IDOR where any group owner could link ANY confirmed booking).
+     */
+    async function seedConfirmedBooking(
+      bookedById?: string,
+    ): Promise<{ bookingId: string; venue: Record<string, unknown> }> {
       const ownerId = await createOwner(h.prisma);
-      const bookerId = await createOwner(h.prisma);
+      const bookerId = bookedById ?? (await createOwner(h.prisma));
       const venue = await h.prisma.venue.create({
         data: {
           ownerId,
@@ -390,10 +399,12 @@ describe("matches e2e", () => {
     }
 
     it("links the match to a confirmed booking, copying its court's venue coords, overriding manual coords", async () => {
-      const token = await registerAndGetToken(h, "mkt-booking-owner@x.com");
+      const res0 = await register(h, "mkt-booking-owner@x.com");
+      const token = res0.json().accessToken as string;
+      const userId = res0.json().user.id as string;
       const group = await createGroup(h, token, { name: "Team Booking" });
       const { id: groupId } = group.json();
-      const { bookingId, venue } = await seedConfirmedBooking();
+      const { bookingId, venue } = await seedConfirmedBooking(userId);
 
       const res = await createMatch(h, token, groupId, {
         bookingId,
@@ -427,11 +438,12 @@ describe("matches e2e", () => {
     });
 
     it("rejects a non-confirmed booking with 409 BKG-T0005", async () => {
-      const token = await registerAndGetToken(h, "mkt-booking-pending@x.com");
+      const res0 = await register(h, "mkt-booking-pending@x.com");
+      const token = res0.json().accessToken as string;
+      const userId = res0.json().user.id as string;
       const group = await createGroup(h, token, { name: "Team Booking Pending" });
       const { id: groupId } = group.json();
       const ownerId = await createOwner(h.prisma);
-      const bookerId = await createOwner(h.prisma);
       const venue = await h.prisma.venue.create({
         data: {
           ownerId,
@@ -446,7 +458,7 @@ describe("matches e2e", () => {
       const bookingRepo = createBookingRepository(h.prisma);
       const booking = await bookingRepo.insert({
         courtId: court.id,
-        bookedById: bookerId,
+        bookedById: userId,
         date: "2026-08-10",
         startMinute: 600,
         endMinute: 660,
@@ -462,10 +474,12 @@ describe("matches e2e", () => {
     });
 
     it("rejects linking the same booking to a second match with 409 BKG-T0005", async () => {
-      const token = await registerAndGetToken(h, "mkt-booking-double@x.com");
+      const res0 = await register(h, "mkt-booking-double@x.com");
+      const token = res0.json().accessToken as string;
+      const userId = res0.json().user.id as string;
       const group = await createGroup(h, token, { name: "Team Booking Double" });
       const { id: groupId } = group.json();
-      const { bookingId } = await seedConfirmedBooking();
+      const { bookingId } = await seedConfirmedBooking(userId);
 
       const first = await createMatch(h, token, groupId, { bookingId });
       const second = await createMatch(h, token, groupId, { bookingId });
@@ -473,6 +487,19 @@ describe("matches e2e", () => {
       expect(first.statusCode).toBe(201);
       expect(second.statusCode).toBe(409);
       expect(second.json().code).toBe("BKG-T0005");
+    });
+
+    it("rejects with 403 BKG-T0004 (IDOR guard) when the booking belongs to a different user", async () => {
+      const token = await registerAndGetToken(h, "mkt-booking-idor@x.com");
+      const group = await createGroup(h, token, { name: "Team Booking IDOR" });
+      const { id: groupId } = group.json();
+      // seedConfirmedBooking() with no arg books it to a random unrelated user.
+      const { bookingId } = await seedConfirmedBooking();
+
+      const res = await createMatch(h, token, groupId, { bookingId });
+
+      expect(res.statusCode).toBe(403);
+      expect(res.json().code).toBe("BKG-T0004");
     });
   });
 });
