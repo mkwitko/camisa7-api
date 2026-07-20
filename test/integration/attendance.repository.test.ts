@@ -2,6 +2,7 @@ import { afterAll, beforeAll, beforeEach, describe, expect, it } from "vitest";
 import { createGroupsRepository } from "../../src/http/api/groups/groups.repository";
 import { createAttendanceRepository } from "../../src/http/api/matches/children/attendance/attendance.repository";
 import { createMatchesRepository } from "../../src/http/api/matches/matches.repository";
+import { generateSlug, randomHex4 } from "../../src/http/api/players/player-slug";
 import type { Player } from "../../src/http/api/players/players.types";
 import { buildGroupInput, createOwner } from "../builders/group.builder";
 import { startTestDb, type TestDb } from "./helpers/db";
@@ -45,11 +46,14 @@ describe("attendanceRepository (integration)", () => {
   async function seedPlayers(names: string[]): Promise<Player[]> {
     const players: Player[] = [];
     for (const name of names) {
-      const row = await testDb.prisma.player.create({ data: { userId: null, name, phone: null } });
+      const row = await testDb.prisma.player.create({
+        data: { userId: null, name, phone: null, slug: generateSlug(name, randomHex4) },
+      });
       players.push({
         id: row.id,
         userId: row.userId,
         name: row.name,
+        slug: row.slug,
         phone: row.phone,
       avatarUrl: row.avatarUrl,
         affinity: (row.affinity ?? {}) as Record<string, number>,

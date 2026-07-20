@@ -7,6 +7,7 @@ const player = {
   id: "p1",
   userId: "u1",
   name: "Rafa",
+  slug: "rafa-0001",
   phone: null,
   affinity: {},
   attributes: {} as never,
@@ -16,6 +17,7 @@ const player = {
 function fakePlayersRepo(): PlayersRepository {
   return {
     findById: vi.fn(),
+    findBySlug: vi.fn(),
     createGuest: vi.fn(),
     findOrCreateForUser: vi.fn().mockResolvedValue(player),
     updateProfile: vi.fn(),

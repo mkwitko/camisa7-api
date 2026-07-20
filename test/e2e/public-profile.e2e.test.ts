@@ -199,7 +199,7 @@ describe("public-profile e2e", () => {
 
     it("returns 404 PLR-T0003 for a guest player (no public profile)", async () => {
       const guest = await h.prisma.player.create({
-        data: { userId: null, name: "Guest Rafa", phone: "+5511999990000" },
+        data: { userId: null, name: "Guest Rafa", phone: "+5511999990000", slug: "guest-rafa-test" },
       });
 
       const res = await getPublicProfile(h, guest.id);
@@ -210,6 +210,26 @@ describe("public-profile e2e", () => {
 
     it("returns 404 PLR-T0002 for an unknown player id", async () => {
       const res = await getPublicProfile(h, "00000000-0000-0000-0000-000000000000");
+
+      expect(res.statusCode).toBe(404);
+      expect(res.json().code).toBe("PLR-T0002");
+    });
+
+    it("resolves by Player.slug (share-carta pretty URL) as well as by uuid", async () => {
+      const owner = await registerAndGetToken(h, "owner-profile-slug@x.com", "Slug Player");
+      const group = await createGroup(h, owner.token, { name: "Team A" });
+      const created = await createMatch(h, owner.token, group.json().id);
+      const { playerId } = await confirmPresence(h, owner.token, created.json().id);
+      const { slug } = await h.prisma.player.findUniqueOrThrow({ where: { id: playerId } });
+
+      const res = await getPublicProfile(h, slug);
+
+      expect(res.statusCode).toBe(200);
+      expect(res.json()).toMatchObject({ playerId, name: "Slug Player" });
+    });
+
+    it("returns 404 PLR-T0002 for an unknown slug", async () => {
+      const res = await getPublicProfile(h, "no-such-player-zzzz");
 
       expect(res.statusCode).toBe(404);
       expect(res.json().code).toBe("PLR-T0002");

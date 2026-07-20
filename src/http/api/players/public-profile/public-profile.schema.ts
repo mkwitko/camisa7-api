@@ -2,8 +2,11 @@ import { z } from "zod/v4";
 import { FieldPositionSchema } from "@/http/api/groups/children/members/members.schema";
 import { OverallValueSchema, PlayerLevelSchema } from "../children/career/career.schema";
 
+// `playerId` here is uuid OR slug (Task 1, share-carta): resolved to the
+// real id in the controller before the service ever sees it — the service's
+// own `playerId` stays a strict uuid.
 export const PublicProfileParams = z.object({
-  playerId: z.uuid(),
+  playerId: z.string().min(1),
 });
 export type PublicProfileParams = z.infer<typeof PublicProfileParams>;
 

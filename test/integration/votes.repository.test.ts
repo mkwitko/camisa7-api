@@ -2,6 +2,7 @@ import { afterAll, beforeAll, beforeEach, describe, expect, it } from "vitest";
 import { createGroupsRepository } from "../../src/http/api/groups/groups.repository";
 import { createVotesRepository } from "../../src/http/api/matches/children/votes/votes.repository";
 import { createMatchesRepository } from "../../src/http/api/matches/matches.repository";
+import { generateSlug, randomHex4 } from "../../src/http/api/players/player-slug";
 import { buildGroupInput, createOwner } from "../builders/group.builder";
 import { startTestDb, type TestDb } from "./helpers/db";
 
@@ -42,7 +43,9 @@ describe("votesRepository (integration)", () => {
   }
 
   async function createPlayerId(name = "Player"): Promise<string> {
-    const player = await testDb.prisma.player.create({ data: { name } });
+    const player = await testDb.prisma.player.create({
+      data: { name, slug: generateSlug(name, randomHex4) },
+    });
     return player.id;
   }
 

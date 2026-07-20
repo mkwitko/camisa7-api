@@ -20,6 +20,8 @@ export type Player = {
   id: string;
   userId: string | null;
   name: string;
+  /** Public unique slug for shareable card URLs (`/j/:slug`) — see `player-slug.ts`. */
+  slug: string;
   phone: string | null;
   avatarUrl: string | null;
   affinity: Record<string, number>;

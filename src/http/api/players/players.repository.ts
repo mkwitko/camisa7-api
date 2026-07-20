@@ -1,12 +1,17 @@
 import { Prisma } from "@/generated/prisma/client";
 import type { PrismaLike } from "@/infra/db/client";
+import { generateSlug, randomHex4 } from "./player-slug";
 import { type SkillKey, withAttributeDefaults } from "./players.catalog";
 import type { Foot, Player } from "./players.types";
+
+/** Max attempts to generate+insert a fresh slug on a P2002 collision (see `retryOnSlugCollision`). */
+const MAX_SLUG_ATTEMPTS = 5;
 
 type PlayerRow = {
   id: string;
   userId: string | null;
   name: string;
+  slug: string;
   phone: string | null;
   avatarUrl: string | null;
   affinity: unknown;
@@ -27,6 +32,7 @@ function toDomainPlayer(row: PlayerRow): Player {
     id: row.id,
     userId: row.userId,
     name: row.name,
+    slug: row.slug,
     phone: row.phone,
     avatarUrl: row.avatarUrl,
     affinity: (row.affinity ?? {}) as Record<string, number>,
@@ -65,6 +71,13 @@ export type ProfilePatch = {
 export interface PlayersRepository {
   /** Looks up a `Player` by id — backs `GET /players/:playerId/career` (F1-4). `null` for an unknown id. */
   findById(id: string): Promise<Player | null>;
+  /**
+   * Looks up a `Player` by its public `slug` — backs the slug-or-uuid
+   * resolution `GET /players/:playerId/public-profile` does before calling
+   * the service (see `public-profile.controller.ts`). `null` for an unknown
+   * slug.
+   */
+  findBySlug(slug: string): Promise<Player | null>;
   /** Creates a brand new guest `Player` (`userId: null`) — never reused across groups. */
   createGuest(input: { name: string; phone?: string | null }): Promise<Player>;
   /**
@@ -77,7 +90,11 @@ export interface PlayersRepository {
    * `userId` can both pass the `findFirst` check before either `create`
    * lands, so the loser's `create` gets a P2002 instead of a second row.
    * Caught below and turned into a re-`findFirst` for the winner's row,
-   * rather than surfacing a 500.
+   * rather than surfacing a 500. `Player.slug` (Task 1, share-carta) added a
+   * SECOND unique constraint the same P2002 can come from (a 4-hex suffix
+   * collision) — `createLinkedPlayer` tells the two apart by re-`findFirst`ing
+   * on `userId` first and only retrying with a fresh slug when that comes up
+   * empty (see its own comment).
    */
   findOrCreateForUser(userId: string): Promise<Player>;
   /**
@@ -100,14 +117,22 @@ export function createPlayersRepository(db: PrismaLike): PlayersRepository {
       return row ? toDomainPlayer(row) : null;
     },
 
+    async findBySlug(slug) {
+      const row = await db.player.findUnique({ where: { slug } });
+      return row ? toDomainPlayer(row) : null;
+    },
+
     async createGuest(input) {
-      const row = await db.player.create({
-        data: {
-          userId: null,
-          name: input.name,
-          phone: input.phone ?? null,
-        },
-      });
+      const row = await retryOnSlugCollision(() =>
+        db.player.create({
+          data: {
+            userId: null,
+            name: input.name,
+            phone: input.phone ?? null,
+            slug: generateSlug(input.name, randomHex4),
+          },
+        }),
+      );
       return toDomainPlayer(row);
     },
 
@@ -155,20 +180,53 @@ export function createPlayersRepository(db: PrismaLike): PlayersRepository {
   };
 }
 
+/**
+ * Retries `attemptCreate` up to `MAX_SLUG_ATTEMPTS` whenever it throws a
+ * P2002 (unique violation) — `attemptCreate` must generate a FRESH slug on
+ * each call (via `generateSlug`/`randomHex4`) so a retry actually stands a
+ * chance. Guards `createGuest`'s `slug` insert against the vanishingly rare
+ * 4-hex collision (1/65536) rather than surfacing it as a 500.
+ */
+async function retryOnSlugCollision<T>(attemptCreate: () => Promise<T>): Promise<T> {
+  for (let attempt = 1; attempt <= MAX_SLUG_ATTEMPTS; attempt++) {
+    try {
+      return await attemptCreate();
+    } catch (error) {
+      const isUniqueViolation =
+        error instanceof Prisma.PrismaClientKnownRequestError && error.code === "P2002";
+      if (!isUniqueViolation || attempt === MAX_SLUG_ATTEMPTS) throw error;
+    }
+  }
+  // Unreachable (the loop always returns or throws), but keeps `tsc` happy
+  // about every code path returning a value.
+  throw new Error("retryOnSlugCollision: exhausted attempts without returning or throwing");
+}
+
 /** Shared body of `findOrCreateForUser`'s create path (kept race-safe, see interface doc). */
 async function createLinkedPlayer(db: PrismaLike, userId: string, name: string): Promise<Player> {
-  try {
-    const row = await db.player.create({ data: { userId, name, phone: null } });
-    return toDomainPlayer(row);
-  } catch (error) {
-    if (error instanceof Prisma.PrismaClientKnownRequestError && error.code === "P2002") {
-      // `player_user_unique` is the only unique constraint `Player` has
-      // besides its own pkey (see that migration's header) — any P2002 out of
-      // this `create` is exactly the concurrent-provisioning race
-      // `findOrCreateForUser` is documented to tolerate. Re-find the winner.
-      const winner = await db.player.findFirst({ where: { userId } });
-      if (winner) return toDomainPlayer(winner);
+  for (let attempt = 1; attempt <= MAX_SLUG_ATTEMPTS; attempt++) {
+    try {
+      const row = await db.player.create({
+        data: { userId, name, phone: null, slug: generateSlug(name, randomHex4) },
+      });
+      return toDomainPlayer(row);
+    } catch (error) {
+      if (error instanceof Prisma.PrismaClientKnownRequestError && error.code === "P2002") {
+        // Two different unique constraints could be behind this P2002 now:
+        // `player_user_unique` (the userId race this function is documented
+        // to tolerate) or the new `Player_slug_key` (a 4-hex suffix
+        // collision). Re-`findFirst` by `userId` distinguishes them cheaply:
+        // if a row is there, the OTHER concurrent call won the userId race
+        // and this IS its winner — return it. If not, this `create` failed
+        // on a slug collision alone — regenerate and retry.
+        const winner = await db.player.findFirst({ where: { userId } });
+        if (winner) return toDomainPlayer(winner);
+        if (attempt < MAX_SLUG_ATTEMPTS) continue;
+      }
+      throw error;
     }
-    throw error;
   }
+  // Unreachable (the loop always returns or throws), but keeps `tsc` happy
+  // about every code path returning a value.
+  throw new Error("createLinkedPlayer: exhausted attempts without returning or throwing");
 }

@@ -95,7 +95,9 @@ describe("discover e2e", () => {
     // exercised. Done directly in the DB (not via `POST /attendance`) because
     // this group's `request` join policy would reject a stranger's confirm
     // (A4) — attendance state is just fixture here, not the behavior under test.
-    const player = await h.prisma.player.create({ data: { name: "Confirmed One" } });
+    const player = await h.prisma.player.create({
+      data: { name: "Confirmed One", slug: "confirmed-one-test" },
+    });
     await h.prisma.attendance.create({
       data: { matchId: nearId, playerId: player.id, status: "confirmed" },
     });
