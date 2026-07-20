@@ -34,6 +34,7 @@ export function buildLandingHtml(input: {
         : `A carta do ${input.playerName}`;
   const title = escapeHtml(rawTitle);
   const desc = "Veja no Camisa7 — o app dos peladeiros.";
+  const webUrl = escapeHtml(input.webUrl);
   return `<!doctype html>
 <html lang="pt-BR">
 <head>
@@ -51,6 +52,11 @@ export function buildLandingHtml(input: {
 </head>
 <body>
 <p>${title}</p>
+<!-- Always-working fallback: works even if the redirect script below never
+runs (JS disabled, or a CSP that doesn't allow it) — see share.controller.ts's
+route-scoped CSP override for /j/:slug that allows the inline script. -->
+<p><a href="${webUrl}">Abrir no Camisa7</a></p>
+<noscript><p><a href="${webUrl}">Abrir no Camisa7</a></p></noscript>
 <script>
 (function () {
   var ua = navigator.userAgent || "";

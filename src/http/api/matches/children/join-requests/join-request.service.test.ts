@@ -48,26 +48,26 @@ const aGroup = (overrides: Partial<Group> = {}): Group => ({
   ...overrides,
 });
 
-const aPlayer = (overrides: Partial<Player> = {}): Player =>
-  ({
-    id: "p2",
-    userId: REQUESTER,
-    name: "Requester",
-    phone: null,
-    avatarUrl: null,
-    affinity: {},
-    attributes: {},
-    skills: [],
-    dominantFoot: null,
-    weakFoot: null,
-    skillMoves: null,
-    heightCm: null,
-    weightKg: null,
-    birthYear: null,
-    preferredTeam: null,
-    nationality: null,
-    ...overrides,
-  }) as Player;
+const aPlayer = (overrides: Partial<Player> = {}): Player => ({
+  id: "p2",
+  userId: REQUESTER,
+  name: "Requester",
+  slug: "requester-0001",
+  phone: null,
+  avatarUrl: null,
+  affinity: {},
+  attributes: {},
+  skills: [],
+  dominantFoot: null,
+  weakFoot: null,
+  skillMoves: null,
+  heightCm: null,
+  weightKg: null,
+  birthYear: null,
+  preferredTeam: null,
+  nationality: null,
+  ...overrides,
+});
 
 const aRequest = (overrides: Partial<JoinRequest> = {}): JoinRequest => ({
   id: "jr1",

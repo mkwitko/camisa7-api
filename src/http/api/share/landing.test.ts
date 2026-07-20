@@ -26,6 +26,12 @@ describe("buildLandingHtml", () => {
     expect(html).toContain(common.webUrl);
   });
 
+  it("always renders a visible <a href> fallback to the web URL, plus a <noscript> copy", () => {
+    const html = buildLandingHtml({ ...common, subject: { kind: "carta" } });
+    expect(html).toContain(`<a href="${common.webUrl}">`);
+    expect(html).toMatch(new RegExp(`<noscript>.*<a href="${common.webUrl}">.*</noscript>`, "s"));
+  });
+
   it("titles a conquista subject with the achievement label", () => {
     const html = buildLandingHtml({
       ...common,

@@ -302,6 +302,40 @@ describe("share image routes (/og/*)", () => {
       expect(res.body).toContain("twitter:card");
     });
 
+    it("always has a visible <a href> fallback link, even without JS", async () => {
+      const { slug } = await seedRegisteredPlayerWithCareer(h, "landing5@x.com", "Maurício");
+
+      const res = await h.app.inject({ method: "GET", url: `/j/${slug}` });
+
+      expect(res.body).toMatch(/<a href="https?:\/\/[^"]+"/);
+    });
+
+    it("scopes the CSP to allow the inline redirect script on this route only", async () => {
+      const { slug, groupId, playerId } = await seedRegisteredPlayerWithCareer(
+        h,
+        "landing6@x.com",
+        "Maurício",
+      );
+
+      const landingRes = await h.app.inject({ method: "GET", url: `/j/${slug}` });
+      const otherRouteRes = await h.app.inject({
+        method: "GET",
+        url: `/og/ranking/${groupId}/${playerId}.png`,
+      });
+      const landingCsp = landingRes.headers["content-security-policy"] as string;
+      const otherRouteCsp = otherRouteRes.headers["content-security-policy"] as string;
+
+      expect(landingCsp).toMatch(/script-src[^;]*'unsafe-inline'/);
+      // Every other route keeps the global `@fastify/helmet` default
+      // `script-src 'self'` (no `unsafe-inline` on THAT directive — helmet's
+      // default `style-src` legitimately carries its own 'unsafe-inline',
+      // which is why this checks `script-src` specifically, not the whole
+      // header) — proving the override is scoped to `/j/:slug` and doesn't
+      // weaken the app-wide CSP.
+      expect(otherRouteCsp).not.toMatch(/script-src[^;]*'unsafe-inline'/);
+      expect(landingCsp).not.toEqual(otherRouteCsp);
+    });
+
     it("404s an unknown slug", async () => {
       const res = await h.app.inject({ method: "GET", url: "/j/does-not-exist" });
 

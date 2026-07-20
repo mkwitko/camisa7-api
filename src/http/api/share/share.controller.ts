@@ -55,6 +55,7 @@ function sendPng(reply: FastifyReply, req: FastifyRequest, etag: string, png: Bu
     void reply
       .header("Cache-Control", "public, max-age=300, s-maxage=86400")
       .header("ETag", etag)
+      .header("Cross-Origin-Resource-Policy", "cross-origin")
       .code(304)
       .send();
     return;
@@ -63,6 +64,10 @@ function sendPng(reply: FastifyReply, req: FastifyRequest, etag: string, png: Bu
     .header("Content-Type", "image/png")
     .header("Cache-Control", "public, max-age=300, s-maxage=86400")
     .header("ETag", etag)
+    // futebol-web may embed this as an `<img src>` from a different origin
+    // than the API — helmet's global default CORP (`same-origin`) would
+    // block that cross-origin embed, so this route opts into `cross-origin`.
+    .header("Cross-Origin-Resource-Policy", "cross-origin")
     .code(200)
     .send(png);
 }
@@ -82,7 +87,16 @@ export const shareRoutes: FastifyPluginAsync = async (app) => {
     },
     async (req, reply) => {
       const profile = await loadProfileBySlug(req.params.slug);
-      const etag = etagFor(["carta", profile.playerId, profile.bestOverall, profile.matchesPlayed]);
+      // Include every field `renderCarta` actually draws (goals/wins, not
+      // just bestOverall/matchesPlayed) so a stat update busts the cached PNG.
+      const etag = etagFor([
+        "carta",
+        profile.playerId,
+        profile.bestOverall,
+        profile.matchesPlayed,
+        profile.goals,
+        profile.wins,
+      ]);
       let png = cache.get(etag);
       if (!png) {
         png = await renderCarta(profile);
@@ -153,7 +167,9 @@ export const shareRoutes: FastifyPluginAsync = async (app) => {
       const row = ranking.goals[idx];
       if (!row) throw ERRORS.PLR.NOT_FOUND();
 
-      const etag = etagFor(["rank", groupId, playerId, idx, row.value]);
+      // `group.name` is organizer-editable — include it so a rename busts
+      // the cached PNG (it's rendered into the card by `renderRanking`).
+      const etag = etagFor(["rank", groupId, playerId, idx, row.value, group.name]);
       let png = cache.get(etag);
       if (!png) {
         png = await renderRanking({
@@ -186,6 +202,20 @@ export const shareRoutes: FastifyPluginAsync = async (app) => {
         querystring: z.object({ a: z.string().optional(), r: z.uuid().optional() }),
       },
       config: { public: true },
+      // The global `@fastify/helmet` registration (`src/app.ts`) sends the
+      // library default CSP (`script-src 'self'`), which silently blocks
+      // `landing.ts`'s inline smart-link `<script>` in every real browser —
+      // it would never run and the tap-to-open-app/store/web redirect would
+      // be dead. `@fastify/helmet` merges this route-level `helmet` option
+      // over the global config (see its `onRoute`/`onRequest` hooks), so only
+      // `/j/:slug` gets `'unsafe-inline'` added to `script-src` — every other
+      // route keeps the strict global CSP untouched. The visible `<a href>`
+      // fallback in `landing.ts` still works even if this were ever removed.
+      helmet: {
+        contentSecurityPolicy: {
+          directives: { "script-src": ["'self'", "'unsafe-inline'"] },
+        },
+      },
     },
     async (req, reply) => {
       const profile = await loadProfileBySlug(req.params.slug);
