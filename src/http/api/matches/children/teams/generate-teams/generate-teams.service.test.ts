@@ -172,7 +172,14 @@ describe("createGenerateTeamsService", () => {
       voleio: 99,
       penalti: 99,
     });
-    const p1Career = aCareer("p1", { attributes: p1Attributes, affinity: { campo_atacante: 60 } });
+    // Deliberately DIFFERENT from p1's own `affinity` (60) above: the service
+    // reads two distinct affinity sources — `affinityFor(player.affinity,
+    // member.affinity)` (which position `resolveOverall` selects) vs
+    // `career.affinity` (fed into `overallByPositionFrom` for the effective
+    // value) — so this fixture must keep them apart or a regression that
+    // swapped the two sources in the `overallByPositionFrom` call would go
+    // undetected (both would still land on the same expected number).
+    const p1Career = aCareer("p1", { attributes: p1Attributes, affinity: { campo_atacante: 45 } });
 
     const p2Attributes = withAttributeDefaults({
       interceptacao: 90,
@@ -198,6 +205,17 @@ describe("createGenerateTeamsService", () => {
     // would have produced exactly 60 here) — otherwise the assertions below
     // could pass by coincidence even if the service still read raw affinity.
     expect(expectedP1Overall).not.toBe(60);
+    // Discriminates WHICH affinity source feeds `overallByPositionFrom`: if
+    // the service accidentally passed p1's own declared `affinity` (60,
+    // used for `resolveOverall`'s position selection) instead of
+    // `career.affinity` (45) into that call, it would produce this value
+    // instead — proving the two fixtures being different values is load-
+    // bearing for this test, not incidental.
+    const overallIfPlayerAffinityWereUsedInstead = overallByPositionFrom(
+      p1Attributes,
+      p1.affinity,
+    ).campo_atacante;
+    expect(expectedP1Overall).not.toBe(overallIfPlayerAffinityWereUsedInstead);
 
     const deps = buildDeps({
       attendanceRepo: fakeAttendanceRepo([anAttendance(p1), anAttendance(p2)]),
