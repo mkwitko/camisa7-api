@@ -1,5 +1,6 @@
 import type { FastifyPluginAsync } from "fastify";
 import type { ZodTypeProvider } from "fastify-type-provider-zod";
+import { createPlayerCareerRepository } from "@/http/api/players/children/career/career.repository";
 import { createPlayersRepository } from "@/http/api/players/players.repository";
 import { requireUser } from "@/http/hooks/auth";
 import { prisma } from "@/infra/db/client";
@@ -27,7 +28,8 @@ export const myPlayerRoute: FastifyPluginAsync = async (app) => {
       const service = createMyPlayerService({ playersRepo: createPlayersRepository(prisma) });
       const { userId } = requireUser(req);
       const player = await service(userId);
-      void reply.code(200).send(presentMyPlayer(player));
+      const career = await createPlayerCareerRepository(prisma).findByPlayer(player.id);
+      void reply.code(200).send(presentMyPlayer(player, career));
     },
   );
 };
@@ -61,7 +63,8 @@ export const updateMyPlayerRoute: FastifyPluginAsync = async (app) => {
         preferredTeam: req.body.preferredTeam,
         nationality: req.body.nationality,
       });
-      void reply.code(200).send(presentMyPlayer(player));
+      const career = await createPlayerCareerRepository(prisma).findByPlayer(player.id);
+      void reply.code(200).send(presentMyPlayer(player, career));
     },
   );
 };
