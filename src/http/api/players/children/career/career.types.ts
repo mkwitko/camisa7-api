@@ -23,7 +23,9 @@ export type PlayerLevel = "bronze" | "prata" | "ouro";
 export type PlayerCareer = {
   id: string;
   playerId: string;
-  overall: Partial<Record<FieldPosition, number>>;
+  /** Evolved attribute map (declared base + career-earned growth), 0-99 per key. Drives every overall. */
+  attributes: Record<string, number>;
+  /** The player's declared position affinity at last recompute — for deriving the overall map. */
   affinity: Partial<Record<FieldPosition, number>>;
   level: PlayerLevel;
   matchesPlayed: number;
@@ -47,6 +49,7 @@ export type MatchOutcome = "win" | "draw" | "loss";
  * `PlayerCareerRepository`'s `gatherPerformances` from `MatchStat` +
  * `MatchResult` + `Vote` + the player's declared `affinity` at recompute
  * time — see that file's doc comment for how each field is derived.
+ * Base attributes are supplied once by the repository (not per-match).
  * `computeCareer` itself sorts this list chronologically (by `datetime`,
  * ties broken by `matchId`) — the caller doesn't need to pre-sort, which is
  * what makes a re-run order-independent (idempotent) regardless of the
@@ -68,14 +71,6 @@ export type MatchPerformance = {
    * NOW, for every match in their history alike.
    */
   affinity: Partial<Record<FieldPosition, number>>;
-  /**
-   * The player's self-declared attribute map (`players.catalog.ts`). When
-   * present, a position's starting overall bootstraps from the
-   * attribute-derived `effectiveBase` (attributes × affinity); absent, it falls
-   * back to the raw affinity value. `Player.attributes` for a registered
-   * player; a guest (no `Player.attributes` surface) omits it.
-   */
-  attributes?: Record<string, number> | undefined;
   /** The player's own team's result — `"draw"` when it can't be resolved (no `MatchResult`, or the stat row carries no `team`). */
   outcome: MatchOutcome;
   goals: number;
@@ -93,7 +88,8 @@ export type MatchPerformance = {
  * untouched by the engine — see `PlayerCareer`'s doc comment).
  */
 export type ComputedCareer = {
-  overall: Partial<Record<FieldPosition, number>>;
+  attributes: Record<string, number>;
+  affinity: Partial<Record<FieldPosition, number>>;
   level: PlayerLevel;
   matchesPlayed: number;
   wins: number;
