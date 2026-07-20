@@ -95,7 +95,7 @@ describe("GET /api/growth/metrics", () => {
 
     // goals: a logged MatchStat for the match created above (goals = sum of
     // logged per-player MatchStat.goals for matches created in the window).
-    const player = await h.prisma.player.create({ data: { name: "Striker" } });
+    const player = await h.prisma.player.create({ data: { name: "Striker", slug: "striker-test" } });
     await h.prisma.matchStat.create({
       data: { matchId, playerId: player.id, goals: 3 },
     });

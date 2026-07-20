@@ -326,6 +326,10 @@ model Player {
   name  String
   phone String?
 
+  /// Slug público único para URLs compartilháveis (`/j/:slug`) — ver
+  /// `player-slug.ts`. Backfill na migração para os players existentes.
+  slug String @unique
+
   /// Avatar (foto de perfil) — URL pública no R2. `null` = sem foto (usa
   /// monograma). Enviada pelo próprio jogador via presigned upload.
   avatarUrl String?

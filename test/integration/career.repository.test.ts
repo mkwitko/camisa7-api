@@ -6,6 +6,7 @@ import { createMatchStatsRepository } from "../../src/http/api/matches/children/
 import { createVotesRepository } from "../../src/http/api/matches/children/votes/votes.repository";
 import { createMatchesRepository } from "../../src/http/api/matches/matches.repository";
 import { createPlayerCareerRepository } from "../../src/http/api/players/children/career/career.repository";
+import { generateSlug, randomHex4 } from "../../src/http/api/players/player-slug";
 import type { Player } from "../../src/http/api/players/players.types";
 import { buildGroupInput, createOwner } from "../builders/group.builder";
 import { startTestDb, type TestDb } from "./helpers/db";
@@ -107,11 +108,14 @@ describe("playerCareerRepository (integration)", () => {
 
   /** A guest `Player` (`userId: null`) — `resolveAffinity` falls back to that match's `GroupMember.affinity` for these. */
   async function seedPlayer(name: string): Promise<Player> {
-    const row = await testDb.prisma.player.create({ data: { name } });
+    const row = await testDb.prisma.player.create({
+      data: { name, slug: generateSlug(name, randomHex4) },
+    });
     return {
       id: row.id,
       userId: row.userId,
       name: row.name,
+      slug: row.slug,
       phone: row.phone,
       avatarUrl: row.avatarUrl,
       affinity: (row.affinity ?? {}) as Record<string, number>,
@@ -134,11 +138,14 @@ describe("playerCareerRepository (integration)", () => {
     userId: string,
     affinity: Record<string, number>,
   ): Promise<Player> {
-    const row = await testDb.prisma.player.create({ data: { name, userId, affinity } });
+    const row = await testDb.prisma.player.create({
+      data: { name, userId, affinity, slug: generateSlug(name, randomHex4) },
+    });
     return {
       id: row.id,
       userId: row.userId,
       name: row.name,
+      slug: row.slug,
       phone: row.phone,
       avatarUrl: row.avatarUrl,
       affinity: (row.affinity ?? {}) as Record<string, number>,

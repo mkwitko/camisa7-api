@@ -50,6 +50,9 @@ const CardFields = {
 export const MyPlayerResponse = z.object({
   id: z.uuid(),
   name: z.string(),
+  // Public unique slug for the caller to build their OWN shareable card link
+  // (`/j/:slug`, futebol-web/app Fase 3) — see `player-slug.ts`.
+  slug: z.string(),
   phone: z.string().nullable(),
   userId: z.string().nullable(),
   avatarUrl: z.string().nullable(),

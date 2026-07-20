@@ -18,6 +18,7 @@ type MemberRow = {
     id: string;
     userId: string | null;
     name: string;
+    slug: string;
     phone: string | null;
     affinity: unknown;
     attributes: unknown;
@@ -33,6 +34,7 @@ function toDomainMember(row: MemberRow): GroupMember {
       id: row.player.id,
       userId: row.player.userId,
       name: row.player.name,
+      slug: row.player.slug,
       phone: row.player.phone,
       avatarUrl: null,
       affinity: (row.player.affinity ?? {}) as Record<string, number>,

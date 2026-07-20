@@ -26,6 +26,7 @@ export function presentMyPlayer(player: Player): MyPlayerResponse {
   return {
     id: player.id,
     name: player.name,
+    slug: player.slug,
     phone: player.phone,
     userId: player.userId,
     avatarUrl: player.avatarUrl,
