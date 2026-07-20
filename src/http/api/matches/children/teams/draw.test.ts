@@ -43,6 +43,26 @@ describe("drawTeams", () => {
     expect(teams.map((t) => t.playerIds.length).sort()).toEqual([2, 2]);
   });
 
+  it("places every goalkeeper even when they outnumber the teams", () => {
+    const players = [
+      mk("g1", 50, true),
+      mk("g2", 50, true),
+      mk("g3", 50, true),
+      mk("g4", 50, true),
+      mk("g5", 50, true),
+      mk("o1", 60),
+      mk("o2", 60),
+      mk("o3", 60),
+    ];
+    const { teams } = drawTeams(players, 2, identity);
+    // every input player appears exactly once across teams
+    const all = teams.flatMap((t) => t.playerIds).sort();
+    expect(all).toEqual(["g1", "g2", "g3", "g4", "g5", "o1", "o2", "o3"]);
+    // team sizes differ by at most 1
+    const sizes = teams.map((t) => t.playerIds.length).sort((a, b) => a - b);
+    expect(sizes[1]! - sizes[0]!).toBeLessThanOrEqual(1);
+  });
+
   it("computes overallByTeam as the sum of each team's players", () => {
     const players = [mk("a", 50), mk("b", 60), mk("c", 70), mk("d", 80)];
     const { teams, overallByTeam } = drawTeams(players, 2, identity);
