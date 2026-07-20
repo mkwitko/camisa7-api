@@ -1,6 +1,6 @@
 import { describe, expect, it } from "vitest";
 import { ATTRIBUTE_BASELINE, withAttributeDefaults } from "./players.catalog";
-import { categoryOverall, effectiveBase, generalOverall, positionOverall } from "./players.rating";
+import { categoryOverall, effectiveBase, generalOverall, positionOverall, overallByPositionFrom, generalOverallFrom } from "./players.rating";
 
 const baseline = withAttributeDefaults({});
 
@@ -45,5 +45,32 @@ describe("effectiveBase", () => {
     const attrs = baseline; // positionOverall = 50 for any position
     expect(effectiveBase(attrs, "campo_atacante", 100)).toBe(50);
     expect(effectiveBase(attrs, "campo_atacante", 25)).toBe(31); // 50 * (0.5 + 0.125) = 31.25 -> 31
+  });
+});
+
+describe("overallByPositionFrom / generalOverallFrom", () => {
+  const attrs = withAttributeDefaults({ finalizacao: 90, posicionamento: 88 });
+  const affinity = { campo_atacante: 100, campo_meia: 50 };
+
+  it("maps each declared position to its effectiveBase", () => {
+    const map = overallByPositionFrom(attrs, affinity);
+    expect(map.campo_atacante).toBe(effectiveBase(attrs, "campo_atacante", 100));
+    expect(map.campo_meia).toBe(effectiveBase(attrs, "campo_meia", 50));
+  });
+
+  it("ignores keys that are not real positions", () => {
+    const map = overallByPositionFrom(attrs, { not_a_pos: 100, campo_atacante: 100 });
+    expect(Object.keys(map)).toEqual(["campo_atacante"]);
+  });
+
+  it("generalOverallFrom returns the highest declared position overall", () => {
+    expect(generalOverallFrom(attrs, affinity)).toBe(
+      Math.max(effectiveBase(attrs, "campo_atacante", 100), effectiveBase(attrs, "campo_meia", 50)),
+    );
+  });
+
+  it("returns 0 / empty when no positions declared", () => {
+    expect(generalOverallFrom(attrs, {})).toBe(0);
+    expect(overallByPositionFrom(attrs, {})).toEqual({});
   });
 });
