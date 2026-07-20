@@ -74,3 +74,32 @@ export function effectiveBase(
   const factor = 0.5 + 0.5 * (Math.max(0, Math.min(100, affinity)) / 100);
   return Math.min(99, round(positionOverall(attrs, position) * factor));
 }
+
+/**
+ * The per-position overall map for a `(attributes, affinity)` pair — one entry
+ * per DECLARED position (key of `affinity` that is a real `FieldPosition`),
+ * each the affinity-modulated `effectiveBase`. The single derivation every
+ * presenter (`me`, `career`, `public-profile`) shares so the displayed overall
+ * can never diverge between screens.
+ */
+export function overallByPositionFrom(
+  attrs: Record<string, number>,
+  affinity: Partial<Record<string, number>>,
+): Partial<Record<FieldPosition, number>> {
+  const out: Partial<Record<FieldPosition, number>> = {};
+  for (const key of Object.keys(affinity)) {
+    if (!(key in POSITION_WEIGHTS)) continue;
+    out[key as FieldPosition] = effectiveBase(attrs, key as FieldPosition, affinity[key] ?? 0);
+  }
+  return out;
+}
+
+/** The highest `overallByPositionFrom` value — `0` when no position is declared. */
+export function generalOverallFrom(
+  attrs: Record<string, number>,
+  affinity: Partial<Record<string, number>>,
+): number {
+  let best = 0;
+  for (const v of Object.values(overallByPositionFrom(attrs, affinity))) best = Math.max(best, v ?? 0);
+  return best;
+}

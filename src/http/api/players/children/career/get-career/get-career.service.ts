@@ -1,4 +1,5 @@
 import type { PlayersRepository } from "@/http/api/players/players.repository";
+import type { Player } from "@/http/api/players/players.types";
 import { ERRORS } from "@/shared/errors/catalog";
 import type { PlayerCareerRepository } from "../career.repository";
 import type { PlayerCareer } from "../career.types";
@@ -23,10 +24,11 @@ export type GetCareerDeps = {
  * profile page is F1-6, out of this task's scope.
  */
 export function createGetCareerService(deps: GetCareerDeps) {
-  return async (playerId: string): Promise<PlayerCareer | null> => {
+  return async (playerId: string): Promise<{ player: Player; career: PlayerCareer | null }> => {
     const player = await deps.playersRepo.findById(playerId);
     if (!player) throw ERRORS.PLR.NOT_FOUND();
 
-    return deps.careerRepo.findByPlayer(playerId);
+    const career = await deps.careerRepo.findByPlayer(playerId);
+    return { player, career };
   };
 }

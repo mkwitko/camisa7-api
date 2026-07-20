@@ -8,5 +8,6 @@ export type GenerateTeamsParams = z.infer<typeof GenerateTeamsParams>;
 // applies before coercion runs into trouble on an absent value.
 export const GenerateTeamsQuery = z.object({
   teamCount: z.coerce.number().int().min(2).default(2),
+  mode: z.enum(["balanced", "random"]).default("balanced"),
 });
 export type GenerateTeamsQuery = z.infer<typeof GenerateTeamsQuery>;

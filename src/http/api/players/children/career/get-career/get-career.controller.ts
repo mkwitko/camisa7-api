@@ -26,8 +26,8 @@ export const getCareerRoute: FastifyPluginAsync = async (app) => {
         careerRepo: createPlayerCareerRepository(prisma),
       });
       requireUser(req);
-      const career = await service(req.params.playerId);
-      void reply.code(200).send(presentPlayerCareer(req.params.playerId, career));
+      const result = await service(req.params.playerId);
+      void reply.code(200).send(presentPlayerCareer(result.player, result.career));
     },
   );
 };

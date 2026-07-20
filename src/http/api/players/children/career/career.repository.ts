@@ -19,10 +19,24 @@ import type {
 } from "./career.types";
 import { computeCareer } from "./career-engine";
 
+/** Merge a guest's per-group affinities into one profile (max per position) — a guest has no single self-declared affinity, so their strongest declared value across groups seeds growth. */
+function mergeMaxAffinity(
+  perfs: MatchPerformance[],
+): Partial<Record<FieldPosition, number>> {
+  const out: Partial<Record<FieldPosition, number>> = {};
+  for (const p of perfs)
+    for (const [pos, aff] of Object.entries(p.affinity)) {
+      if (!aff) continue;
+      const key = pos as FieldPosition;
+      out[key] = Math.max(out[key] ?? 0, aff);
+    }
+  return out;
+}
+
 type PlayerCareerRow = {
   id: string;
   playerId: string;
-  overall: unknown;
+  attributes: unknown;
   affinity: unknown;
   level: string;
   matchesPlayed: number;
@@ -42,7 +56,7 @@ function toDomainCareer(row: PlayerCareerRow): PlayerCareer {
   return {
     id: row.id,
     playerId: row.playerId,
-    overall: (row.overall ?? {}) as Partial<Record<FieldPosition, number>>,
+    attributes: (row.attributes ?? {}) as Record<string, number>,
     affinity: (row.affinity ?? {}) as Partial<Record<FieldPosition, number>>,
     level: row.level as PlayerLevel,
     matchesPlayed: row.matchesPlayed,
@@ -111,7 +125,7 @@ export interface PlayerCareerRepository {
    */
   recomputeForPlayer(playerId: string): Promise<PlayerCareer>;
   findByPlayer(playerId: string): Promise<PlayerCareer | null>;
-  /** Upsert keyed by `playerId` — `affinity` is intentionally left untouched by the engine (player-declared, see `PlayerCareer`'s doc comment) and defaults to `{}` only on first creation. */
+  /** Upsert keyed by `playerId` — `affinity` is now WRITTEN by the engine on every recompute (the player's declared profile resolved at that moment: their own `Player.affinity` if registered, else `mergeMaxAffinity` over their guest performances — see `recomputeForPlayer`), not left untouched. */
   upsert(playerId: string, computed: ComputedCareer): Promise<PlayerCareer>;
 }
 
@@ -169,9 +183,6 @@ export function createPlayerCareerRepository(db: PrismaLike): PlayerCareerReposi
         matchId: match.id,
         datetime: match.datetime,
         affinity: resolveAffinity(player, member),
-        // Registered player: bootstrap positions from attribute-derived overall.
-        // Guest (no attributes surface): omit → falls back to raw affinity.
-        attributes: player?.userId != null ? player.attributes : undefined,
         outcome: deriveOutcome(result, stat.team),
         goals: stat.goals,
         assists: stat.assists,
@@ -188,8 +199,16 @@ export function createPlayerCareerRepository(db: PrismaLike): PlayerCareerReposi
 
   const repo: PlayerCareerRepository = {
     async recomputeForPlayer(playerId) {
-      const performances = await gatherPerformances(playerId);
-      const computed = computeCareer(performances);
+      const [performances, player] = await Promise.all([
+        gatherPerformances(playerId),
+        playersRepo.findById(playerId),
+      ]);
+      const baseAttributes = player?.userId != null ? player.attributes : undefined;
+      const affinity =
+        player?.userId != null
+          ? (player.affinity as Partial<Record<FieldPosition, number>>)
+          : mergeMaxAffinity(performances);
+      const computed = computeCareer({ baseAttributes, affinity, performances });
       return repo.upsert(playerId, computed);
     },
 
@@ -199,42 +218,27 @@ export function createPlayerCareerRepository(db: PrismaLike): PlayerCareerReposi
     },
 
     async upsert(playerId, computed) {
-      const overallJson = computed.overall as unknown as Prisma.InputJsonValue;
+      const attributesJson = computed.attributes as unknown as Prisma.InputJsonValue;
+      const affinityJson = computed.affinity as unknown as Prisma.InputJsonValue;
+      const data = {
+        attributes: attributesJson,
+        affinity: affinityJson,
+        level: computed.level,
+        matchesPlayed: computed.matchesPlayed,
+        wins: computed.wins,
+        draws: computed.draws,
+        losses: computed.losses,
+        goals: computed.goals,
+        assists: computed.assists,
+        cleanSheets: computed.cleanSheets,
+        mvpCount: computed.mvpCount,
+        currentStreak: computed.currentStreak,
+        bestStreak: computed.bestStreak,
+      };
       const row = await db.playerCareer.upsert({
         where: { playerId },
-        create: {
-          playerId,
-          overall: overallJson,
-          affinity: {},
-          level: computed.level,
-          matchesPlayed: computed.matchesPlayed,
-          wins: computed.wins,
-          draws: computed.draws,
-          losses: computed.losses,
-          goals: computed.goals,
-          assists: computed.assists,
-          cleanSheets: computed.cleanSheets,
-          mvpCount: computed.mvpCount,
-          currentStreak: computed.currentStreak,
-          bestStreak: computed.bestStreak,
-        },
-        update: {
-          overall: overallJson,
-          level: computed.level,
-          matchesPlayed: computed.matchesPlayed,
-          wins: computed.wins,
-          draws: computed.draws,
-          losses: computed.losses,
-          goals: computed.goals,
-          assists: computed.assists,
-          cleanSheets: computed.cleanSheets,
-          mvpCount: computed.mvpCount,
-          currentStreak: computed.currentStreak,
-          bestStreak: computed.bestStreak,
-          // `affinity` intentionally omitted from `update` — player-declared
-          // data the growth engine never touches (see `PlayerCareer`'s doc
-          // comment), preserved as-is across every recompute.
-        },
+        create: { playerId, ...data },
+        update: data,
       });
       return toDomainCareer(row);
     },

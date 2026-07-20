@@ -89,8 +89,13 @@ const EnvSchema = z.object({
   // hex) — empty default omits it, since a wrong fingerprint would just make
   // Android reject the association (fails safe, same "default to a
   // real-looking placeholder" convention as the other share-carta vars above).
-  IOS_APP_ID: z.string().default("TEAMID.app.camisa7"),
-  ANDROID_PACKAGE: z.string().default("app.camisa7"),
+  // NOTE: the app's real bundle id / applicationId (both platforms) is
+  // `com.mauriciooliveira.futebolapp` (see futebol-app `app.config.ts`). The
+  // iOS `<TeamID>.` prefix and the Android release-cert `ANDROID_SHA256` are
+  // still deploy-time secrets — production MUST override IOS_APP_ID with the
+  // real Team ID and set ANDROID_SHA256, or universal/app links won't verify.
+  IOS_APP_ID: z.string().default("TEAMID.com.mauriciooliveira.futebolapp"),
+  ANDROID_PACKAGE: z.string().default("com.mauriciooliveira.futebolapp"),
   ANDROID_SHA256: z.string().default(""),
 });
 

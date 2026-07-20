@@ -4,6 +4,7 @@ import type { GroupsRepository } from "@/http/api/groups/groups.repository";
 import { assertMatchOwner } from "@/http/api/matches/matches.authz";
 import type { MatchesRepository } from "@/http/api/matches/matches.repository";
 import type { PlayerCareerRepository } from "@/http/api/players/children/career/career.repository";
+import { overallByPositionFrom } from "@/http/api/players/players.rating";
 import { ERRORS } from "@/shared/errors/catalog";
 import type { AttendanceRepository } from "../../attendance/attendance.repository";
 import { affinityFor, resolveOverall } from "../resolve-overall";
@@ -70,7 +71,10 @@ export function createUpdateTeamsService(deps: UpdateTeamsDeps) {
       confirmed.map((a) => deps.careerRepo.findByPlayer(a.player.id)),
     );
     const careerOverallByPlayerId = new Map(
-      confirmed.map((a, i) => [a.player.id, careers[i]?.overall]),
+      confirmed.map((a, i) => {
+        const c = careers[i];
+        return [a.player.id, c ? overallByPositionFrom(c.attributes, c.affinity) : undefined];
+      }),
     );
     const overallByConfirmedId = new Map(
       confirmed.map((a) => {
