@@ -14,6 +14,9 @@ importers:
       '@aws-sdk/s3-request-presigner':
         specifier: ^3.1089.0
         version: 3.1089.0
+      '@expo-google-fonts/saira-condensed':
+        specifier: ^0.4.1
+        version: 0.4.1
       '@fastify/cors':
         specifier: ^11.3.0
         version: 11.3.0
@@ -96,9 +99,6 @@ importers:
       '@biomejs/biome':
         specifier: ^2.5.3
         version: 2.5.3
-      '@expo-google-fonts/saira-condensed':
-        specifier: ^0.4.1
-        version: 0.4.1
       '@testcontainers/postgresql':
         specifier: ^12.0.4
         version: 12.0.4

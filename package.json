@@ -28,6 +28,7 @@
   "dependencies": {
     "@aws-sdk/client-s3": "^3.1089.0",
     "@aws-sdk/s3-request-presigner": "^3.1089.0",
+    "@expo-google-fonts/saira-condensed": "^0.4.1",
     "@fastify/cors": "^11.3.0",
     "@fastify/helmet": "^13.1.0",
     "@fastify/sensible": "^6.0.4",
@@ -57,7 +58,6 @@
   },
   "devDependencies": {
     "@biomejs/biome": "^2.5.3",
-    "@expo-google-fonts/saira-condensed": "^0.4.1",
     "@testcontainers/postgresql": "^12.0.4",
     "@types/node": "^26.1.1",
     "@types/node-cron": "^3.0.11",
