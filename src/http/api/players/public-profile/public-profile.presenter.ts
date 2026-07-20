@@ -1,4 +1,5 @@
 import type { FieldPosition } from "@/http/api/groups/children/members/members.types";
+import { overallByPositionFrom } from "@/http/api/players/players.rating";
 import type { PlayerCareer } from "../children/career/career.types";
 import { unlockedAchievements } from "../children/career/achievements";
 import type { Player } from "../players.types";
@@ -8,14 +9,21 @@ import type { PublicProfileResponse } from "./public-profile.schema";
  * Flattens `Player` + `PlayerCareer | null` into the public-safe card. When
  * `career` is `null` (registered player, no finalized match yet) synthesizes
  * the same zeroed/bootstrap-default numbers `career.presenter.ts` uses:
- * empty `overallByPosition`, `level: "bronze"`, every counter at 0,
- * `bestOverall: 0`, `bestPosition: null`, `winRate: 0`.
+ * `level: "bronze"`, every counter at 0, `bestPosition: null`, `winRate: 0`.
+ * `overallByPosition` is NEVER stored — like `career.presenter.ts` and
+ * `me.presenter.ts`, it's always derived via `overallByPositionFrom` from the
+ * evolved `attributes`/`affinity` (career's, or the player's own base ones
+ * when no career row exists yet), so a brand-new player with declared
+ * positions already sees a non-empty, non-zero `bestOverall` here — matching
+ * home/sidebar instead of a flat zero.
  */
 export function presentPublicProfile(
   player: Player,
   career: PlayerCareer | null,
 ): PublicProfileResponse {
-  const overallByPosition = career?.overall ?? {};
+  const attributes = career?.attributes ?? player.attributes;
+  const affinity = career?.affinity ?? (player.affinity as PlayerCareer["affinity"]);
+  const overallByPosition = overallByPositionFrom(attributes, affinity);
 
   let bestOverall = 0;
   let bestPosition: FieldPosition | null = null;
