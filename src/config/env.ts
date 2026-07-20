@@ -79,6 +79,19 @@ const EnvSchema = z.object({
   APP_UNIVERSAL_HOST: z.string().default("camisa7.app"),
   IOS_APP_STORE_URL: z.string().url().default("https://apps.apple.com/app/id000000000"),
   ANDROID_STORE_URL: z.string().url().default("https://play.google.com/store/apps/details?id=app.camisa7"),
+
+  // Universal/app-link domain association (Fase 1 Task 6): `.well-known/
+  // apple-app-site-association` (iOS) and `.well-known/assetlinks.json`
+  // (Android) — read by the OS, not a browser, to let `/j/:slug` open the app
+  // instead of (or alongside) the web fallback. `IOS_APP_ID` is
+  // `<TeamID>.<bundle id>`; `ANDROID_PACKAGE` the app's applicationId;
+  // `ANDROID_SHA256` the release signing cert fingerprint (colon-separated
+  // hex) — empty default omits it, since a wrong fingerprint would just make
+  // Android reject the association (fails safe, same "default to a
+  // real-looking placeholder" convention as the other share-carta vars above).
+  IOS_APP_ID: z.string().default("TEAMID.app.camisa7"),
+  ANDROID_PACKAGE: z.string().default("app.camisa7"),
+  ANDROID_SHA256: z.string().default(""),
 });
 
 export type EnvConfig = z.infer<typeof EnvSchema>;

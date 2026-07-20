@@ -16,6 +16,7 @@ import { playersRoutes } from "@/http/api/players/index";
 import { rankingsRoutes } from "@/http/api/rankings/global.controller";
 import { seriesRoutes } from "@/http/api/series/index";
 import { shareRoutes } from "@/http/api/share/share.controller";
+import { wellKnownRoutes } from "@/http/api/share/well-known.controller";
 import { venuesRoutes } from "@/http/api/venues/index";
 import { authHook } from "@/http/hooks/auth";
 
@@ -60,4 +61,5 @@ export const httpRoutes: FastifyPluginAsync = async (app) => {
   await app.register(bookingsRoutes);
   await app.register(growthRoutes);
   await app.register(shareRoutes);
+  await app.register(wellKnownRoutes);
 };
