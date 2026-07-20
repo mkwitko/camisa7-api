@@ -47,7 +47,7 @@ function compareForSort(a: BalancerPlayer, b: BalancerPlayer): number {
  * team's fair-share quota under this same first-N-teams-get-the-remainder
  * convention).
  */
-function targetSizes(total: number, teamCount: number): number[] {
+export function targetSizes(total: number, teamCount: number): number[] {
   const base = Math.floor(total / teamCount);
   const extra = total % teamCount;
   return Array.from({ length: teamCount }, (_, i) => base + (i < extra ? 1 : 0));
