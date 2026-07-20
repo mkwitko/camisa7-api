@@ -289,4 +289,54 @@ describe("share image routes (/og/*)", () => {
       expect(res.headers["content-type"]).toContain("image/png");
     });
   });
+
+  describe("GET /j/:slug", () => {
+    it("serves an HTML shell with the carta OG image and twitter card meta", async () => {
+      const { slug } = await seedRegisteredPlayerWithCareer(h, "landing1@x.com", "Maurício");
+
+      const res = await h.app.inject({ method: "GET", url: `/j/${slug}` });
+
+      expect(res.statusCode).toBe(200);
+      expect(res.headers["content-type"]).toContain("text/html");
+      expect(res.body).toContain(`/og/carta/${slug}.png`);
+      expect(res.body).toContain("twitter:card");
+    });
+
+    it("404s an unknown slug", async () => {
+      const res = await h.app.inject({ method: "GET", url: "/j/does-not-exist" });
+
+      expect(res.statusCode).toBe(404);
+    });
+
+    it("swaps to the conquista OG image when ?a= is an unlocked achievement", async () => {
+      const { slug } = await seedRegisteredPlayerWithCareer(h, "landing2@x.com", "Maurício");
+
+      const res = await h.app.inject({ method: "GET", url: `/j/${slug}?a=primeiro_gol` });
+
+      expect(res.statusCode).toBe(200);
+      expect(res.body).toContain(`/og/conquista/${slug}/primeiro_gol.png`);
+    });
+
+    it("falls back to the carta OG image when ?a= is locked/unknown", async () => {
+      const { slug } = await seedRegisteredPlayerWithCareer(h, "landing3@x.com", "Maurício");
+
+      const res = await h.app.inject({ method: "GET", url: `/j/${slug}?a=nao-existe` });
+
+      expect(res.statusCode).toBe(200);
+      expect(res.body).toContain(`/og/carta/${slug}.png`);
+    });
+
+    it("swaps to the ranking OG image when ?r=<groupId> is given", async () => {
+      const { groupId, playerId, slug } = await seedRegisteredPlayerWithCareer(
+        h,
+        "landing4@x.com",
+        "Maurício",
+      );
+
+      const res = await h.app.inject({ method: "GET", url: `/j/${slug}?r=${groupId}` });
+
+      expect(res.statusCode).toBe(200);
+      expect(res.body).toContain(`/og/ranking/${groupId}/${playerId}.png`);
+    });
+  });
 });

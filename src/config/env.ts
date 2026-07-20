@@ -64,6 +64,21 @@ const EnvSchema = z.object({
   // pipeline). Optional/config-gated, same convention as R2/Stripe: unset ->
   // the route 503s instead of running unauthenticated.
   GROWTH_SERVICE_TOKEN: z.string().optional(),
+
+  // Share-carta smart-link shell (`/j/:slug`, Fase 1 Task 5): `PUBLIC_WEB_URL`
+  // is the futebol-web origin the redirect/OG `og:url` fall back to,
+  // `PUBLIC_API_URL` is this API's own public origin used to build the
+  // `/og/*` image URLs embedded in the page's meta tags. `APP_UNIVERSAL_HOST`
+  // reserved for the future universal-link host; `IOS_APP_STORE_URL`/
+  // `ANDROID_STORE_URL` are the store fallbacks the smart-link script opens
+  // when the app isn't installed. All default to real-looking placeholders
+  // so boot/tests never fail on a missing var — same convention as
+  // `APP_DEEPLINK_SCHEME`/`WEB_BASE_URL` above.
+  PUBLIC_WEB_URL: z.string().url().default("https://camisa7.app"),
+  PUBLIC_API_URL: z.string().url().default("https://camisa7.app"),
+  APP_UNIVERSAL_HOST: z.string().default("camisa7.app"),
+  IOS_APP_STORE_URL: z.string().url().default("https://apps.apple.com/app/id000000000"),
+  ANDROID_STORE_URL: z.string().url().default("https://play.google.com/store/apps/details?id=app.camisa7"),
 });
 
 export type EnvConfig = z.infer<typeof EnvSchema>;

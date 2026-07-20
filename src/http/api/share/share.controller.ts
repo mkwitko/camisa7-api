@@ -1,6 +1,7 @@
 import type { FastifyPluginAsync, FastifyReply, FastifyRequest } from "fastify";
 import type { ZodTypeProvider } from "fastify-type-provider-zod";
 import { z } from "zod/v4";
+import { env } from "@/config/env";
 import { aggregateRanking } from "@/http/api/groups/children/ranking/ranking.repository";
 import { createPlayerCareerRepository } from "@/http/api/players/children/career/career.repository";
 import { createPlayersRepository } from "@/http/api/players/players.repository";
@@ -8,6 +9,7 @@ import { presentPublicProfile } from "@/http/api/players/public-profile/public-p
 import { createGetPublicProfileService } from "@/http/api/players/public-profile/public-profile.service";
 import { prisma } from "@/infra/db/client";
 import { ERRORS } from "@/shared/errors/catalog";
+import { buildLandingHtml, type ShareSubject } from "./landing";
 import { renderCarta } from "./render/carta";
 import { renderConquista } from "./render/conquista";
 import { renderRanking } from "./render/ranking";
@@ -164,6 +166,53 @@ export const shareRoutes: FastifyPluginAsync = async (app) => {
         cache.set(etag, png);
       }
       sendPng(reply, req, etag, png);
+    },
+  );
+
+  // Smart-link HTML shell: crawlers (WhatsApp/IG/Twitter) read the OG meta
+  // without executing JS, while a real device runs the redirect script in
+  // `landing.ts` to try the app first and fall back to the store/web. Subject
+  // defaults to the carta; `?a=<achievementKey>` swaps it to a conquista
+  // (only if unlocked — an unknown/locked key silently falls back to carta
+  // rather than 404ing the whole share link) and `?r=<groupId>` to a ranking
+  // card. Takes precedence in that order, matching the `/og/*` PNG variants.
+  typed.get(
+    "/j/:slug",
+    {
+      schema: {
+        operationId: "shareLanding",
+        tags: ["share"],
+        params: z.object({ slug: z.string().min(1) }),
+        querystring: z.object({ a: z.string().optional(), r: z.uuid().optional() }),
+      },
+      config: { public: true },
+    },
+    async (req, reply) => {
+      const profile = await loadProfileBySlug(req.params.slug);
+      let subject: ShareSubject = { kind: "carta" };
+      let ogImageUrl = `${env.PUBLIC_API_URL}/og/carta/${req.params.slug}.png`;
+      if (req.query.a) {
+        const a = profile.achievements.find((x) => x.key === req.query.a && x.unlocked);
+        if (a) {
+          subject = { kind: "conquista", key: a.key, label: a.label };
+          ogImageUrl = `${env.PUBLIC_API_URL}/og/conquista/${req.params.slug}/${a.key}.png`;
+        }
+      } else if (req.query.r) {
+        subject = { kind: "ranking", groupId: req.query.r };
+        ogImageUrl = `${env.PUBLIC_API_URL}/og/ranking/${req.query.r}/${profile.playerId}.png`;
+      }
+      const webUrl = `${env.PUBLIC_WEB_URL}/j/${req.params.slug}`;
+      const html = buildLandingHtml({
+        slug: req.params.slug,
+        playerName: profile.name,
+        subject,
+        ogImageUrl,
+        webUrl,
+        appLink: webUrl,
+        iosStore: env.IOS_APP_STORE_URL,
+        androidStore: env.ANDROID_STORE_URL,
+      });
+      void reply.header("Content-Type", "text/html; charset=utf-8").code(200).send(html);
     },
   );
 };
