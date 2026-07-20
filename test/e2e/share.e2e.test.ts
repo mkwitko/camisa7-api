@@ -256,5 +256,37 @@ describe("share image routes (/og/*)", () => {
 
       expect(res.statusCode).toBe(404);
     });
+
+    it("404s a private group (IDOR guard: no groupId enumeration)", async () => {
+      const { groupId, playerId } = await seedRegisteredPlayerWithCareer(
+        h,
+        "rank4@x.com",
+        "Maurício",
+      );
+      await h.prisma.group.update({ where: { id: groupId }, data: { isPublic: false } });
+
+      const res = await h.app.inject({
+        method: "GET",
+        url: `/og/ranking/${groupId}/${playerId}.png`,
+      });
+
+      expect(res.statusCode).toBe(404);
+    });
+
+    it("200s a public group", async () => {
+      const { groupId, playerId } = await seedRegisteredPlayerWithCareer(
+        h,
+        "rank5@x.com",
+        "Maurício",
+      );
+
+      const res = await h.app.inject({
+        method: "GET",
+        url: `/og/ranking/${groupId}/${playerId}.png`,
+      });
+
+      expect(res.statusCode).toBe(200);
+      expect(res.headers["content-type"]).toContain("image/png");
+    });
   });
 });

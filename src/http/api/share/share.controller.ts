@@ -50,7 +50,11 @@ async function loadProfileBySlug(slug: string) {
 /** Sends a cached PNG with `ETag`/`Cache-Control`, or a bare 304 on a matching `If-None-Match`. */
 function sendPng(reply: FastifyReply, req: FastifyRequest, etag: string, png: Buffer) {
   if (req.headers["if-none-match"] === etag) {
-    void reply.code(304).send();
+    void reply
+      .header("Cache-Control", "public, max-age=300, s-maxage=86400")
+      .header("ETag", etag)
+      .code(304)
+      .send();
     return;
   }
   void reply
@@ -122,9 +126,13 @@ export const shareRoutes: FastifyPluginAsync = async (app) => {
       const { groupId, playerId } = req.params;
       const group = await prisma.group.findUnique({
         where: { id: groupId },
-        select: { name: true },
+        select: { name: true, isPublic: true },
       });
-      if (!group) throw ERRORS.GRP.NOT_FOUND();
+      // Same conceal-existence posture as `ranking.service.ts`'s
+      // owner-or-member gate: a private group's ranking never leaves the
+      // group, so an unauthenticated `/og/ranking` share link 404s exactly
+      // like an unknown group would, rather than leaking name/rank/existence.
+      if (!group || !group.isPublic) throw ERRORS.GRP.NOT_FOUND();
 
       const matches = await prisma.match.findMany({
         where: { groupId, status: { in: ["closed", "finished"] } },
