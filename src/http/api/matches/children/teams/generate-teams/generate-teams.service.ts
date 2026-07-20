@@ -11,6 +11,7 @@ import { overallByPositionFrom } from "@/http/api/players/players.rating";
 import { ERRORS } from "@/shared/errors/catalog";
 import type { AttendanceRepository } from "../../attendance/attendance.repository";
 import { type BalancerPlayer, balanceTeams } from "../balancer";
+import { drawTeams } from "../draw";
 import { affinityFor, resolveOverall } from "../resolve-overall";
 import type { TeamsRepository } from "../teams.repository";
 import type { TeamAssignment, TeamSplit } from "../teams.types";
@@ -28,6 +29,7 @@ export type GenerateTeamsInput = {
   matchId: string;
   userId: string;
   teamCount: number;
+  mode?: "balanced" | "random";
 };
 
 /**
@@ -82,7 +84,10 @@ export function createGenerateTeamsService(deps: GenerateTeamsDeps) {
     });
     const infoById = new Map(balancerPlayers.map((p) => [p.playerId, p]));
 
-    const { teams, overallByTeam } = balanceTeams(balancerPlayers, input.teamCount);
+    const { teams, overallByTeam } =
+      input.mode === "random"
+        ? drawTeams(balancerPlayers, input.teamCount)
+        : balanceTeams(balancerPlayers, input.teamCount);
     const teamSplits: TeamSplit[] = teams.map((t) => ({
       team: t.team,
       overallTotal: overallByTeam[t.team] ?? 0, // unreachable: one entry per team, indexed by team number

@@ -39,6 +39,7 @@ export const generateTeamsRoute: FastifyPluginAsync = async (app) => {
         matchId: req.params.id,
         userId,
         teamCount: req.query.teamCount,
+        mode: req.query.mode,
       });
       void reply.code(200).send(presentTeamAssignment(assignment));
     },

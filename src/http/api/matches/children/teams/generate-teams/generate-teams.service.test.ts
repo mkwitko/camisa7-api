@@ -261,4 +261,49 @@ describe("createGenerateTeamsService", () => {
     expect(allPlayers.find((p) => p.playerId === "p1")?.overall).toBe(70);
     expect(allPlayers.find((p) => p.playerId === "p2")?.overall).toBe(55);
   });
+
+  it("random mode assigns every confirmed player exactly once across teams", async () => {
+    const players = [
+      aPlayer({ id: "p1", userId: "u1", slug: "player-1-0001" }),
+      aPlayer({ id: "p2", userId: "u2", name: "Player 2", slug: "player-2-0001" }),
+      aPlayer({ id: "p3", userId: "u3", name: "Player 3", slug: "player-3-0001" }),
+      aPlayer({ id: "p4", userId: "u4", name: "Player 4", slug: "player-4-0001" }),
+    ];
+    const deps = buildDeps({
+      attendanceRepo: fakeAttendanceRepo(players.map((p) => anAttendance(p))),
+    });
+
+    const result = await createGenerateTeamsService(deps)({
+      matchId: "m1",
+      userId: OWNER,
+      teamCount: 2,
+      mode: "random",
+    });
+
+    const ids = result.teams.flatMap((t) => t.players.map((p) => p.playerId)).sort();
+    expect(ids).toEqual(["p1", "p2", "p3", "p4"]);
+    const sizes = result.teams.map((t) => t.players.length).sort();
+    expect(Math.max(...sizes) - Math.min(...sizes)).toBeLessThanOrEqual(1);
+  });
+
+  it("defaults to balanced mode when mode is omitted (back-compat)", async () => {
+    const players = [
+      aPlayer({ id: "p1", userId: "u1", slug: "player-1-0001" }),
+      aPlayer({ id: "p2", userId: "u2", name: "Player 2", slug: "player-2-0001" }),
+      aPlayer({ id: "p3", userId: "u3", name: "Player 3", slug: "player-3-0001" }),
+      aPlayer({ id: "p4", userId: "u4", name: "Player 4", slug: "player-4-0001" }),
+    ];
+    const deps = buildDeps({
+      attendanceRepo: fakeAttendanceRepo(players.map((p) => anAttendance(p))),
+    });
+
+    const result = await createGenerateTeamsService(deps)({
+      matchId: "m1",
+      userId: OWNER,
+      teamCount: 2,
+    });
+
+    const ids = result.teams.flatMap((t) => t.players.map((p) => p.playerId)).sort();
+    expect(ids).toEqual(["p1", "p2", "p3", "p4"]);
+  });
 });
