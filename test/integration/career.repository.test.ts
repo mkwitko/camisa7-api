@@ -6,10 +6,41 @@ import { createMatchStatsRepository } from "../../src/http/api/matches/children/
 import { createVotesRepository } from "../../src/http/api/matches/children/votes/votes.repository";
 import { createMatchesRepository } from "../../src/http/api/matches/matches.repository";
 import { createPlayerCareerRepository } from "../../src/http/api/players/children/career/career.repository";
+import { computeCareer } from "../../src/http/api/players/children/career/career-engine";
+import type { MatchPerformance } from "../../src/http/api/players/children/career/career.types";
 import { generateSlug, randomHex4 } from "../../src/http/api/players/player-slug";
+import { withAttributeDefaults } from "../../src/http/api/players/players.catalog";
 import type { Player } from "../../src/http/api/players/players.types";
 import { buildGroupInput, createOwner } from "../builders/group.builder";
 import { startTestDb, type TestDb } from "./helpers/db";
+
+/**
+ * Builds one `MatchPerformance` matching what `gatherPerformances` would
+ * assemble for a single-match scenario, so a test can independently derive
+ * the SAME `computeCareer` output the repository is expected to persist —
+ * the pure attribute-growth arithmetic is unit-tested exhaustively in
+ * `career-engine.test.ts`; this file only needs to prove the repository
+ * wires the right base/affinity/performances into that engine and round-trips
+ * the result through Prisma.
+ */
+function perf(
+  affinity: Partial<Record<string, number>>,
+  over: Partial<MatchPerformance> = {},
+): MatchPerformance {
+  return {
+    matchId: over.matchId ?? "m1",
+    datetime: over.datetime ?? "2026-08-01T20:00:00.000Z",
+    affinity,
+    outcome: over.outcome ?? "win",
+    goals: over.goals ?? 0,
+    assists: over.assists ?? 0,
+    ownGoals: over.ownGoals ?? 0,
+    cleanSheet: over.cleanSheet ?? false,
+    mvpVotes: over.mvpVotes ?? 0,
+    craqueVotes: over.craqueVotes ?? 0,
+    melhorGoleiroVotes: over.melhorGoleiroVotes ?? 0,
+  };
+}
 
 describe("playerCareerRepository (integration)", () => {
   let testDb: TestDb;
@@ -163,7 +194,7 @@ describe("playerCareerRepository (integration)", () => {
   }
 
   describe("recomputeForPlayer", () => {
-    it("bootstraps a guest's overall from their group's affinity and trends up on a win with a goal", async () => {
+    it("bootstraps a guest's attributes from their group's affinity and trends up on a win with a goal", async () => {
       const groupId = await seedGroup();
       const player = await seedPlayer("Player"); // guest — no `userId`, so `resolveAffinity` reads `GroupMember.affinity`.
       const opponent = await seedPlayer("Opponent");
@@ -191,16 +222,25 @@ describe("playerCareerRepository (integration)", () => {
 
       const career = await repo.recomputeForPlayer(player.id);
 
+      // Guest: `affinity` is `mergeMaxAffinity` over performances — here just
+      // this match's `GroupMember.affinity`.
+      const affinity = { campo_atacante: 60 };
+      const expected = computeCareer({
+        baseAttributes: withAttributeDefaults({}),
+        affinity,
+        performances: [perf(affinity, { goals: 2, outcome: "win" })],
+      });
+
       expect(career.playerId).toBe(player.id);
       expect(career.matchesPlayed).toBe(1);
       expect(career.wins).toBe(1);
       expect(career.goals).toBe(2);
-      // guest: no attributes -> bootstrap falls back to raw group affinity 60; +3 -> 63.
-      expect(career.overall.campo_atacante).toBe(63);
-      expect(career.level).toBe("bronze");
+      expect(career.affinity).toEqual(affinity);
+      expect(career.attributes).toEqual(expected.attributes);
+      expect(career.level).toBe(expected.level);
     });
 
-    it("bootstraps a registered player's overall from their OWN Player.affinity, ignoring the group's affinity", async () => {
+    it("bootstraps a registered player's attributes from their OWN Player.affinity, ignoring the group's affinity", async () => {
       const groupId = await seedGroup();
       const ownerUserId = await createOwner(testDb.prisma);
       const player = await seedRegisteredPlayer("Player", ownerUserId, { campo_meia: 60 });
@@ -232,13 +272,21 @@ describe("playerCareerRepository (integration)", () => {
 
       const career = await repo.recomputeForPlayer(player.id);
 
-      // base = effectiveBase(baseline attrs=50, campo_meia, aff 60%) = 40; +3 step cap -> 43.
-      expect(career.overall.campo_meia).toBe(43);
-      // The group's `campo_atacante` affinity never applied — it belongs to a guest-only fallback.
-      expect(career.overall.campo_atacante).toBeUndefined();
+      // Registered: `affinity` is the player's OWN declared profile, not the
+      // group's — the group's `campo_atacante: 10` never applies.
+      const affinity = { campo_meia: 60 };
+      const expected = computeCareer({
+        baseAttributes: withAttributeDefaults({}),
+        affinity,
+        performances: [perf(affinity, { goals: 2, outcome: "win" })],
+      });
+
+      expect(career.affinity).toEqual(affinity);
+      expect(career.attributes).toEqual(expected.attributes);
+      expect(career.level).toBe(expected.level);
     });
 
-    it("counts MVP votes toward mvpCount and nudges overall, without letting fair_play affect overall", async () => {
+    it("counts MVP votes toward mvpCount and nudges attributes, without letting fair_play affect them", async () => {
       const groupId = await seedGroup();
       const player = await seedPlayer("Player"); // guest — reads `GroupMember.affinity`.
       const opponent = await seedPlayer("Opponent");
@@ -267,10 +315,17 @@ describe("playerCareerRepository (integration)", () => {
 
       const career = await repo.recomputeForPlayer(player.id);
 
+      const affinity = { campo_meia: 50 };
+      const expected = computeCareer({
+        baseAttributes: withAttributeDefaults({}),
+        affinity,
+        performances: [perf(affinity, { goals: 0, outcome: "draw", mvpVotes: 1 })],
+      });
+
       expect(career.mvpCount).toBe(1);
       expect(career.draws).toBe(1);
-      // draw(1) + mvp vote(4) = 5, * 50% affinity = 2.5, rounds to +3: 50 -> 53. fair_play contributes nothing.
-      expect(career.overall.campo_meia).toBe(53);
+      // fair_play contributes nothing to growth — only reflected via mvpVotes above.
+      expect(career.attributes).toEqual(expected.attributes);
     });
 
     it("only replays matches with a logged MatchStat row for this player", async () => {
@@ -299,7 +354,9 @@ describe("playerCareerRepository (integration)", () => {
       const career = await repo.recomputeForPlayer(player.id);
 
       expect(career.matchesPlayed).toBe(0);
-      expect(career.overall).toEqual({});
+      // No performances to replay: attributes stay at the guest baseline, affinity has nothing to merge.
+      expect(career.attributes).toEqual(withAttributeDefaults({}));
+      expect(career.affinity).toEqual({});
     });
 
     it("is idempotent — recomputing twice from the same match history yields the same values", async () => {
@@ -322,15 +379,16 @@ describe("playerCareerRepository (integration)", () => {
       const first = await repo.recomputeForPlayer(player.id);
       const second = await repo.recomputeForPlayer(player.id);
 
-      expect(second.overall).toEqual(first.overall);
+      expect(second.attributes).toEqual(first.attributes);
+      expect(second.affinity).toEqual(first.affinity);
       expect(second.matchesPlayed).toBe(first.matchesPlayed);
       expect(second.wins).toBe(first.wins);
       expect(second.level).toBe(first.level);
     });
 
-    it("preserves affinity (player-declared) across a recompute — the engine never writes it", async () => {
+    it("overwrites any previously-stored affinity with the freshly-resolved declared profile — the engine now writes affinity, it's no longer preserved verbatim", async () => {
       const groupId = await seedGroup();
-      const player = await seedPlayer("Player");
+      const player = await seedPlayer("Player"); // guest, no `GroupMember` row created below — `resolveAffinity` resolves to `{}`.
       const opponent = await seedPlayer("Opponent");
       await testDb.prisma.playerCareer.create({
         data: { playerId: player.id, affinity: { campo_atacante: 80 } },
@@ -350,7 +408,9 @@ describe("playerCareerRepository (integration)", () => {
 
       const career = await repo.recomputeForPlayer(player.id);
 
-      expect(career.affinity).toEqual({ campo_atacante: 80 });
+      // No `GroupMember` row for this guest -> `resolveAffinity` yields `{}` for
+      // the match -> `mergeMaxAffinity` yields `{}` -> the stale `{ campo_atacante: 80 }` is gone.
+      expect(career.affinity).toEqual({});
     });
   });
 
