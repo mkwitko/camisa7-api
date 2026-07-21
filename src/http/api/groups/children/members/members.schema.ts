@@ -44,7 +44,10 @@ export const GroupMemberResponse = z.object({
   role: MemberRoleSchema,
   primaryPos: PositionSchema.nullable(),
   secondaryPos: z.array(PositionSchema),
-  affinity: z.partialRecord(FieldPositionSchema, AffinityValueSchema),
+  // Organizer's per-group rating, keyed by legacy `Position` — matches the
+  // write path (`UpdateMemberBody.affinity`). Distinct from the player's OWN
+  // self-declared `PlayerResponse.affinity`, which uses `FieldPositionSchema`.
+  affinity: z.partialRecord(PositionSchema, AffinityValueSchema),
   seedOverall: z.partialRecord(PositionSchema, SeedOverallValueSchema),
   billingMode: BillingModeSchema,
   monthlyFeeCentsOverride: z.number().int().nullable(),
