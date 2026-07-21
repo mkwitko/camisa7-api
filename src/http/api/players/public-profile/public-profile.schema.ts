@@ -43,5 +43,14 @@ export const PublicProfileResponse = z.object({
       unlocked: z.boolean(),
     }),
   ),
+  // Aggregate reputation-tag counts RECEIVED by this player (all-time), one
+  // per `REPUTATION_DIMENSIONS` key, never who gave them — see
+  // `reputation.types.ts`'s `ReputationCounts`. Public-safe: only the totals.
+  reputation: z.object({
+    pontualidade: z.number().int().min(0),
+    educacao: z.number().int().min(0),
+    compromisso: z.number().int().min(0),
+    respeito: z.number().int().min(0),
+  }),
 });
 export type PublicProfileResponse = z.infer<typeof PublicProfileResponse>;

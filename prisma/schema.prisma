@@ -366,13 +366,15 @@ model Player {
   createdAt DateTime @default(now()) @db.Timestamptz(3)
   updatedAt DateTime @updatedAt @db.Timestamptz(3)
 
-  memberships   GroupMember[]
-  attendances   Attendance[]
-  stats         MatchStat[]
-  votesCast     Vote[]        @relation("VoteVoter")
-  votesReceived Vote[]        @relation("VoteVoted")
-  career        PlayerCareer?
-  joinRequests  JoinRequest[]
+  memberships        GroupMember[]
+  attendances        Attendance[]
+  stats              MatchStat[]
+  votesCast          Vote[]          @relation("VoteVoter")
+  votesReceived      Vote[]          @relation("VoteVoted")
+  career             PlayerCareer?
+  joinRequests       JoinRequest[]
+  reputationGiven    ReputationTag[] @relation("ReputationVoter")
+  reputationReceived ReputationTag[] @relation("ReputationVoted")
 
   @@index([userId])
 }
@@ -579,6 +581,7 @@ model Match {
   stats          MatchStat[]
   votes          Vote[]
   joinRequests   JoinRequest[]
+  reputationTags ReputationTag[]
 
   @@index([groupId, datetime])
   @@unique([seriesId, datetime])
@@ -808,6 +811,40 @@ model Vote {
   @@unique([matchId, voterPlayerId, category])
   @@index([matchId])
   @@index([votedPlayerId])
+}
+
+/// Fase 1 (reputação): the 4 positive-only dimensions a voter can tag a
+/// teammate with, post-match (`set-reputation`). No downvote — see
+/// `ReputationTag`.
+enum ReputationDimension {
+  pontualidade
+  educacao
+  compromisso
+  respeito
+}
+
+/// Reputação positiva (só tags, sem downvote): um presente confirmado marca um
+/// companheiro numa dimensão. Contagem de tags recebidas = a reputação. Regras
+/// de janela/participante iguais às de `Vote` (ver reputation/set-reputation).
+model ReputationTag {
+  id String @id @default(uuid()) @db.Uuid
+
+  matchId String @db.Uuid
+  match   Match  @relation(fields: [matchId], references: [id])
+
+  voterPlayerId String @db.Uuid
+  voter         Player @relation("ReputationVoter", fields: [voterPlayerId], references: [id])
+
+  votedPlayerId String @db.Uuid
+  voted         Player @relation("ReputationVoted", fields: [votedPlayerId], references: [id])
+
+  dimension ReputationDimension
+
+  createdAt DateTime @default(now()) @db.Timestamptz(3)
+
+  @@unique([matchId, voterPlayerId, votedPlayerId, dimension])
+  @@index([votedPlayerId])
+  @@index([matchId])
 }
 
 /// Task 17 (Fase 1, F1-4): a player's GLOBAL, cross-group identity — 1:1 with

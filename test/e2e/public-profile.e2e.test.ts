@@ -248,5 +248,64 @@ describe("public-profile e2e", () => {
 
       expect(res.statusCode).toBe(200);
     });
+
+    it("returns all-zero reputation counts for a player with no received tags", async () => {
+      const owner = await registerAndGetToken(h, "owner-rep-zero@x.com", "No Tags Player");
+      const group = await createGroup(h, owner.token, { name: "Team A" });
+      const created = await createMatch(h, owner.token, group.json().id);
+      const { playerId } = await confirmPresence(h, owner.token, created.json().id);
+
+      const res = await getPublicProfile(h, playerId);
+
+      expect(res.statusCode).toBe(200);
+      expect(res.json().reputation).toEqual({
+        pontualidade: 0,
+        educacao: 0,
+        compromisso: 0,
+        respeito: 0,
+      });
+    });
+
+    it("returns the per-dimension reputation counts for a player with received tags", async () => {
+      const owner = await registerAndGetToken(h, "owner-rep-tags@x.com", "Tagged Player");
+      const group = await createGroup(h, owner.token, { name: "Team A" });
+      const created = await createMatch(h, owner.token, group.json().id);
+      const matchId = created.json().id as string;
+      const { playerId } = await confirmPresence(h, owner.token, matchId);
+
+      const voterA = await h.prisma.player.create({
+        data: { userId: null, name: "Voter A", slug: "voter-a-rep-test" },
+      });
+      const voterB = await h.prisma.player.create({
+        data: { userId: null, name: "Voter B", slug: "voter-b-rep-test" },
+      });
+      await h.prisma.reputationTag.createMany({
+        data: [
+          {
+            matchId,
+            voterPlayerId: voterA.id,
+            votedPlayerId: playerId,
+            dimension: "pontualidade",
+          },
+          {
+            matchId,
+            voterPlayerId: voterB.id,
+            votedPlayerId: playerId,
+            dimension: "pontualidade",
+          },
+          { matchId, voterPlayerId: voterA.id, votedPlayerId: playerId, dimension: "educacao" },
+        ],
+      });
+
+      const res = await getPublicProfile(h, playerId);
+
+      expect(res.statusCode).toBe(200);
+      expect(res.json().reputation).toEqual({
+        pontualidade: 2,
+        educacao: 1,
+        compromisso: 0,
+        respeito: 0,
+      });
+    });
   });
 });
