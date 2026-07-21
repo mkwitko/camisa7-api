@@ -30,12 +30,17 @@ export type FeatureKey = (typeof FEATURE_KEYS)[number];
 export const PLANS = {
   organizer: {
     priceEnv: "STRIPE_PRICE_ORGANIZER",
-    features: ["public_groups", "organizer_ai", "seasons"],
+    // Organizador é o tier superior: engloba as features do Jogador.
+    features: ["public_groups", "organizer_ai", "seasons", "advanced_stats", "cosmetics"],
+    includes: "player",
   },
   player: {
     priceEnv: "STRIPE_PRICE_PLAYER",
     features: ["advanced_stats", "cosmetics"],
   },
-} as const satisfies Record<string, { priceEnv: keyof EnvConfig; features: readonly FeatureKey[] }>;
+} as const satisfies Record<
+  string,
+  { priceEnv: keyof EnvConfig; features: readonly FeatureKey[]; includes?: string }
+>;
 
 export type PlanKey = keyof typeof PLANS;

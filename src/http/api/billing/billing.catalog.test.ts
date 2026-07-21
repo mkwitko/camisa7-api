@@ -22,9 +22,7 @@ describe("billing.catalog", () => {
     }
   });
 
-  it("plans partition the features across organizer and player", () => {
-    expect([...PLANS.organizer.features]).toEqual(["public_groups", "organizer_ai", "seasons"]);
-    expect([...PLANS.player.features]).toEqual(["advanced_stats", "cosmetics"]);
+  it("all feature keys are offered across the plans", () => {
     const all = [...PLANS.organizer.features, ...PLANS.player.features];
     expect(new Set(all)).toEqual(new Set(FEATURE_KEYS));
   });
@@ -32,5 +30,24 @@ describe("billing.catalog", () => {
   it("each plan points at a Stripe price env var", () => {
     expect(PLANS.organizer.priceEnv).toBe("STRIPE_PRICE_ORGANIZER");
     expect(PLANS.player.priceEnv).toBe("STRIPE_PRICE_PLAYER");
+  });
+});
+
+describe("PLANS superset", () => {
+  it("organizer engloba todas as features do player", () => {
+    for (const f of PLANS.player.features) {
+      expect(PLANS.organizer.features).toContain(f);
+    }
+  });
+
+  it("organizer mantém as próprias features de organizador", () => {
+    expect(PLANS.organizer.features).toEqual(
+      expect.arrayContaining(["public_groups", "organizer_ai", "seasons"]),
+    );
+  });
+
+  it("organizer marca includes=player; player não inclui ninguém", () => {
+    expect(PLANS.organizer.includes).toBe("player");
+    expect((PLANS.player as { includes?: string }).includes).toBeUndefined();
   });
 });
