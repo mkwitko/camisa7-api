@@ -16,6 +16,7 @@
   "MTC-T0002": "This match can no longer be edited.",
   "MTC-T0003": "Finish the match before recording its result.",
   "MTC-T0004": "Finish the match and record its result before finalizing it.",
+  "MTC-T0005": "Pick the match location on the map so it can be discovered.",
   "ATT-T0001": "You are already confirmed or waitlisted for this match.",
   "ATT-T0002": "Attendance not found.",
   "ATT-T0003": "You do not have permission over this attendance.",

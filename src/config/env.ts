@@ -44,6 +44,14 @@ const EnvSchema = z.object({
   STRIPE_PRICE_ORGANIZER: z.string().optional(),
   STRIPE_PRICE_PLAYER: z.string().optional(),
   REVIEWER_EMAILS: z.string().default(""),
+  // Destrava TODAS as features de entitlement pra qualquer usuário — só pra
+  // teste/dev (ex. validar o Descobrir sem Stripe configurado). Em produção
+  // fica `false`: aí `public_groups` etc. seguem pagos e o app mostra o
+  // paywall pra quem não tem o plano. Aceita "true"/"1".
+  ENTITLEMENTS_UNLOCK_ALL: z
+    .enum(["true", "false", "1", "0"])
+    .default("false")
+    .transform((v) => v === "true" || v === "1"),
   APP_DEEPLINK_SCHEME: z.string().default("futebolapp"),
 
   // Marketplace V2 (booking + Stripe Connect): a platform fee cobrada em cima
@@ -78,7 +86,10 @@ const EnvSchema = z.object({
   PUBLIC_API_URL: z.string().url().default("https://camisa7.app"),
   APP_UNIVERSAL_HOST: z.string().default("camisa7.app"),
   IOS_APP_STORE_URL: z.string().url().default("https://apps.apple.com/app/id000000000"),
-  ANDROID_STORE_URL: z.string().url().default("https://play.google.com/store/apps/details?id=app.camisa7"),
+  ANDROID_STORE_URL: z
+    .string()
+    .url()
+    .default("https://play.google.com/store/apps/details?id=app.camisa7"),
 
   // Universal/app-link domain association (Fase 1 Task 6): `.well-known/
   // apple-app-site-association` (iOS) and `.well-known/assetlinks.json`

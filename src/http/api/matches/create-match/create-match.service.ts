@@ -1,6 +1,6 @@
-import { assertGroupOwner } from "@/http/api/groups/groups.authz";
 import type { BookingRepository } from "@/http/api/bookings/booking.repository";
 import type { CourtRepository } from "@/http/api/courts/court.repository";
+import { assertGroupOwner } from "@/http/api/groups/groups.authz";
 import type { GroupsRepository } from "@/http/api/groups/groups.repository";
 import type { VenueRepository } from "@/http/api/venues/venue.repository";
 import { ERRORS } from "@/shared/errors/catalog";
@@ -87,6 +87,13 @@ export function createCreateMatchService(deps: CreateMatchDeps) {
         address: input.address ?? null,
         venueId: null,
       };
+    }
+
+    // Coords são obrigatórias — sem lat/lng a partida nunca apareceria no
+    // Descobrir (o feed filtra por `latitude/longitude IS NOT NULL` + raio).
+    // Venue/booking sempre resolvem coords; a criação manual precisa do mapa.
+    if (location.latitude === null || location.longitude === null) {
+      throw ERRORS.MTC.COORDS_REQUIRED();
     }
 
     return deps.matchesRepo.insert({

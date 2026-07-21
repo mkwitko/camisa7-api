@@ -225,6 +225,21 @@ describe("createCreateMatchService", () => {
     expect(match).toMatchObject({ venueId: null, latitude: -10, longitude: -20, city: "Rio" });
   });
 
+  it("rejects with MTC-T0005 when creating manually without coords (would be undiscoverable)", async () => {
+    const matchesRepo = makeMatchesRepo();
+    const service = createCreateMatchService({
+      matchesRepo,
+      groupsRepo: makeGroupsRepo(aGroup()),
+      venueRepo: makeVenueRepo(null),
+      bookingRepo: makeBookingRepo(null),
+      courtRepo: makeCourtRepo(null),
+    });
+
+    // baseBody has no venue/booking and no lat/lng → coords resolve to null.
+    await expect(service(baseBody)).rejects.toMatchObject({ code: "MTC-T0005" });
+    expect(matchesRepo.insert).not.toHaveBeenCalled();
+  });
+
   describe("bookingId (Marketplace V2)", () => {
     it("copies the booking's court's venue coords and links bookingId, taking precedence over venueId", async () => {
       const matchesRepo = makeMatchesRepo();

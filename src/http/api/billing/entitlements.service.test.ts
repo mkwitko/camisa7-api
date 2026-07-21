@@ -7,12 +7,13 @@ import { FEATURE_KEYS } from "./billing.catalog";
 const h = vi.hoisted(() => ({
   reviewerEmails: "",
   billingConfigured: true,
+  unlockAll: false,
   list: vi.fn(),
 }));
 
 vi.mock("@/config/env", () => ({
   get env() {
-    return { REVIEWER_EMAILS: h.reviewerEmails };
+    return { REVIEWER_EMAILS: h.reviewerEmails, ENTITLEMENTS_UNLOCK_ALL: h.unlockAll };
   },
 }));
 
@@ -64,6 +65,7 @@ function makeAuthRepo(user: User | null): AuthRepository {
 beforeEach(() => {
   h.reviewerEmails = "";
   h.billingConfigured = true;
+  h.unlockAll = false;
   h.list.mockReset();
 });
 
@@ -79,6 +81,15 @@ describe("createEntitlementsService", () => {
     expect(await svc.hasFeature("u1", "public_groups")).toBe(true);
     expect(await svc.hasFeature("u1", "cosmetics")).toBe(true);
     expect(await svc.paymentsEnabled("u1")).toBe(false);
+    expect(h.list).not.toHaveBeenCalled();
+  });
+
+  it("ENTITLEMENTS_UNLOCK_ALL grants ALL features to any user, without Stripe (test/dev)", async () => {
+    h.unlockAll = true;
+    h.billingConfigured = false; // sem Stripe: mesmo assim libera tudo
+    const svc = createEntitlementsService({ authRepo: makeAuthRepo(aUser()) });
+
+    expect(await svc.activeFeatures("u1")).toEqual(new Set(FEATURE_KEYS));
     expect(h.list).not.toHaveBeenCalled();
   });
 

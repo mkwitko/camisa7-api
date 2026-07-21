@@ -165,6 +165,14 @@ export const ERRORS = {
       status: 409,
       internalMessage: "match_not_finalizable",
     }),
+    // A pelada precisa de coordenadas (lat/lng) pra aparecer no Descobrir. Ao
+    // criar sem venue/booking, o organizador tem que escolher um local no mapa
+    // (LocationPicker) — texto livre sozinho deixaria a partida invisível.
+    COORDS_REQUIRED: defineError({
+      code: "MTC-T0005",
+      status: 400,
+      internalMessage: "match_coords_required",
+    }),
   },
   ATT: {
     // T0001 first (not T0002) because it's the one the brief names explicitly

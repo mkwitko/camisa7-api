@@ -52,6 +52,9 @@ export function createEntitlementsService(deps: { authRepo: AuthRepository }): E
     const user = await deps.authRepo.findById(userId);
     if (!user) return new Set<string>();
 
+    // Destrava-tudo por env (teste/dev): concede todas as features sem Stripe,
+    // pra validar fluxos pagos como o grupo público/Descobrir. Off em produção.
+    if (env.ENTITLEMENTS_UNLOCK_ALL) return new Set<string>(FEATURE_KEYS);
     if (reviewerEmails().includes(user.email)) return new Set<string>(FEATURE_KEYS);
     if (!isBillingConfigured) return new Set<string>();
 
