@@ -1,4 +1,5 @@
 import type { FieldPosition } from "@/http/api/groups/children/members/members.types";
+import { zeroCounts, type ReputationCounts } from "@/http/api/matches/children/reputation/reputation.types";
 import { overallByPositionFrom } from "@/http/api/players/players.rating";
 import type { PlayerCareer } from "../children/career/career.types";
 import { unlockedAchievements } from "../children/career/achievements";
@@ -16,10 +17,17 @@ import type { PublicProfileResponse } from "./public-profile.schema";
  * when no career row exists yet), so a brand-new player with declared
  * positions already sees a non-empty, non-zero `bestOverall` here — matching
  * home/sidebar instead of a flat zero.
+ *
+ * `counts` is the aggregate reputation-tag totals this player has RECEIVED
+ * (`ReputationRepository.countsByPlayer` — Task 1), one number per
+ * `REPUTATION_DIMENSIONS` key. Optional here (defaults to `zeroCounts()`)
+ * so callers that don't fetch it (or a bare unit test) never crash; every
+ * production caller passes it through from `public-profile.service.ts`.
  */
 export function presentPublicProfile(
   player: Player,
   career: PlayerCareer | null,
+  counts?: ReputationCounts,
 ): PublicProfileResponse {
   const attributes = career?.attributes ?? player.attributes;
   const affinity = career?.affinity ?? (player.affinity as PlayerCareer["affinity"]);
@@ -65,5 +73,6 @@ export function presentPublicProfile(
       mvpCount: career?.mvpCount ?? 0,
       bestStreak: career?.bestStreak ?? 0,
     }),
+    reputation: counts ?? zeroCounts(),
   };
 }

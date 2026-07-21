@@ -21,6 +21,7 @@ const profile: PublicProfileResponse = {
   currentStreak: 2,
   bestStreak: 4,
   achievements: [],
+  reputation: { pontualidade: 0, educacao: 0, compromisso: 0, respeito: 0 },
 };
 
 const PNG_MAGIC = Buffer.from([0x89, 0x50, 0x4e, 0x47]);

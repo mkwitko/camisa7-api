@@ -1,6 +1,7 @@
 import type { FastifyPluginAsync } from "fastify";
 import type { ZodTypeProvider } from "fastify-type-provider-zod";
 import { z } from "zod/v4";
+import { createReputationRepository } from "@/http/api/matches/children/reputation/reputation.repository";
 import { createPlayerCareerRepository } from "@/http/api/players/children/career/career.repository";
 import { createPlayersRepository } from "@/http/api/players/players.repository";
 import { prisma } from "@/infra/db/client";
@@ -44,9 +45,10 @@ export const publicProfileRoute: FastifyPluginAsync = async (app) => {
       const service = createGetPublicProfileService({
         playersRepo,
         careerRepo: createPlayerCareerRepository(prisma),
+        reputationRepo: createReputationRepository(prisma),
       });
-      const { player, career } = await service(id);
-      void reply.code(200).send(presentPublicProfile(player, career));
+      const { player, career, counts } = await service(id);
+      void reply.code(200).send(presentPublicProfile(player, career, counts));
     },
   );
 };

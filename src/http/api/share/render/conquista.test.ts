@@ -7,6 +7,7 @@ const base = {
   overallByPosition: {}, bestOverall: 80, bestPosition: null,
   matchesPlayed: 0, wins: 0, draws: 0, losses: 0, winRate: 0,
   goals: 0, assists: 0, cleanSheets: 0, mvpCount: 0, currentStreak: 0, bestStreak: 0,
+  reputation: { pontualidade: 0, educacao: 0, compromisso: 0, respeito: 0 },
 } as const;
 const profile: PublicProfileResponse = {
   ...base,

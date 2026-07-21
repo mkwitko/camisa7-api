@@ -2,14 +2,21 @@ import type { PlayerCareerRepository } from "@/http/api/players/children/career/
 import type { PlayerCareer } from "@/http/api/players/children/career/career.types";
 import type { PlayersRepository } from "@/http/api/players/players.repository";
 import type { Player } from "@/http/api/players/players.types";
+import type { ReputationRepository } from "@/http/api/matches/children/reputation/reputation.repository";
+import type { ReputationCounts } from "@/http/api/matches/children/reputation/reputation.types";
 import { ERRORS } from "@/shared/errors/catalog";
 
 export type PublicProfileDeps = {
   playersRepo: PlayersRepository;
   careerRepo: PlayerCareerRepository;
+  reputationRepo: ReputationRepository;
 };
 
-export type PublicProfileResult = { player: Player; career: PlayerCareer | null };
+export type PublicProfileResult = {
+  player: Player;
+  career: PlayerCareer | null;
+  counts: ReputationCounts;
+};
 
 /**
  * `GET /players/:playerId/public-profile` (F1-6) — the shareable "Strava
@@ -44,6 +51,7 @@ export function createGetPublicProfileService(deps: PublicProfileDeps) {
     if (player.userId === null) throw ERRORS.PLR.NOT_PUBLIC();
 
     const career = await deps.careerRepo.findByPlayer(playerId);
-    return { player, career };
+    const counts = await deps.reputationRepo.countsByPlayer(playerId);
+    return { player, career, counts };
   };
 }

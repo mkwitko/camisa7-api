@@ -3,6 +3,7 @@ import type { ZodTypeProvider } from "fastify-type-provider-zod";
 import { z } from "zod/v4";
 import { env } from "@/config/env";
 import { aggregateRanking } from "@/http/api/groups/children/ranking/ranking.repository";
+import { createReputationRepository } from "@/http/api/matches/children/reputation/reputation.repository";
 import { createPlayerCareerRepository } from "@/http/api/players/children/career/career.repository";
 import { createPlayersRepository } from "@/http/api/players/players.repository";
 import { presentPublicProfile } from "@/http/api/players/public-profile/public-profile.presenter";
@@ -44,9 +45,10 @@ async function loadProfileBySlug(slug: string) {
   const service = createGetPublicProfileService({
     playersRepo,
     careerRepo: createPlayerCareerRepository(prisma),
+    reputationRepo: createReputationRepository(prisma),
   });
-  const { player: p, career } = await service(player.id);
-  return presentPublicProfile(p, career);
+  const { player: p, career, counts } = await service(player.id);
+  return presentPublicProfile(p, career, counts);
 }
 
 /** Sends a cached PNG with `ETag`/`Cache-Control`, or a bare 304 on a matching `If-None-Match`. */
