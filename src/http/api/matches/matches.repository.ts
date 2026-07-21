@@ -85,6 +85,11 @@ export type UpdateMatchPatch = {
   priceCents?: number | undefined;
   slots?: number | undefined;
   pixKey?: string | null | undefined;
+  modality?: Modality | undefined;
+  latitude?: number | undefined;
+  longitude?: number | undefined;
+  city?: string | null | undefined;
+  address?: string | null | undefined;
   detached?: boolean | undefined;
 };
 
@@ -194,6 +199,11 @@ export function createMatchesRepository(db: PrismaLike): MatchesRepository {
           ...(patch.priceCents !== undefined ? { priceCents: patch.priceCents } : {}),
           ...(patch.slots !== undefined ? { slots: patch.slots } : {}),
           ...(patch.pixKey !== undefined ? { pixKey: patch.pixKey } : {}),
+          ...(patch.modality !== undefined ? { modality: patch.modality } : {}),
+          ...(patch.latitude !== undefined ? { latitude: patch.latitude } : {}),
+          ...(patch.longitude !== undefined ? { longitude: patch.longitude } : {}),
+          ...(patch.city !== undefined ? { city: patch.city } : {}),
+          ...(patch.address !== undefined ? { address: patch.address } : {}),
           ...(patch.detached !== undefined ? { detached: patch.detached } : {}),
         },
       });
