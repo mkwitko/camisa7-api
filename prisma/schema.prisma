@@ -369,12 +369,12 @@ model Player {
   memberships        GroupMember[]
   attendances        Attendance[]
   stats              MatchStat[]
-  votesCast          Vote[]           @relation("VoteVoter")
-  votesReceived      Vote[]           @relation("VoteVoted")
+  votesCast          Vote[]          @relation("VoteVoter")
+  votesReceived      Vote[]          @relation("VoteVoted")
   career             PlayerCareer?
   joinRequests       JoinRequest[]
-  reputationGiven    ReputationTag[]  @relation("ReputationVoter")
-  reputationReceived ReputationTag[]  @relation("ReputationVoted")
+  reputationGiven    ReputationTag[] @relation("ReputationVoter")
+  reputationReceived ReputationTag[] @relation("ReputationVoted")
 
   @@index([userId])
 }
