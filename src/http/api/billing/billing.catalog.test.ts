@@ -50,4 +50,8 @@ describe("PLANS superset", () => {
     expect(PLANS.organizer.includes).toBe("player");
     expect((PLANS.player as { includes?: string }).includes).toBeUndefined();
   });
+
+  it("player.features é exatamente [advanced_stats, cosmetics]", () => {
+    expect([...PLANS.player.features]).toEqual(["advanced_stats", "cosmetics"]);
+  });
 });
