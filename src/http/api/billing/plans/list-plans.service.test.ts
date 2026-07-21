@@ -69,4 +69,27 @@ describe("createBillingPlansService", () => {
     expect(plans.find((p) => p.key === "organizer")?.price).toBeNull();
     expect(plans.find((p) => p.key === "player")?.price?.amountCents).toBe(990);
   });
+
+  it("cacheia: 2ª chamada dentro do TTL não rebate no Stripe", async () => {
+    h.retrieve.mockResolvedValue({ unit_amount: 1990, currency: "brl", recurring: { interval: "month" } });
+    const svc = createBillingPlansService();
+    await svc.list();
+    await svc.list();
+    expect(h.retrieve).toHaveBeenCalledTimes(2); // 2 planos numa rodada só, não 4
+  });
+
+  it("não envenena o cache: falha transitória do retrieve é re-tentada na próxima chamada", async () => {
+    let calls = 0;
+    h.retrieve.mockImplementation(async () => {
+      calls++;
+      if (calls === 1) throw new Error("blip");
+      return { unit_amount: 1990, currency: "brl", recurring: { interval: "month" } };
+    });
+    const svc = createBillingPlansService();
+    const first = await svc.list();
+    expect(first.some((p) => p.price === null)).toBe(true); // 1 plano falhou nessa rodada
+    const second = await svc.list();
+    expect(second.every((p) => p.price !== null)).toBe(true); // re-tentou (não cacheou o erro)
+    expect(h.retrieve).toHaveBeenCalledTimes(4);
+  });
 });

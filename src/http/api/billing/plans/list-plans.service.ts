@@ -25,27 +25,35 @@ const CACHE_TTL_MS = 60_000;
 export function createBillingPlansService(): BillingPlansService {
   let cache: { plans: BillingPlan[]; exp: number } | undefined;
 
-  async function resolvePrice(plan: PlanKey): Promise<PlanPrice | null> {
-    if (!isBillingConfigured) return null;
-    const priceId = env[PLANS[plan].priceEnv];
-    if (!priceId) return null;
-    try {
-      const price = await stripe().prices.retrieve(priceId);
-      if (price.unit_amount == null) return null;
-      return {
-        amountCents: price.unit_amount,
-        currency: price.currency,
-        interval: price.recurring?.interval ?? "month",
-      };
-    } catch {
-      return null;
-    }
-  }
-
   return {
     async list() {
       const now = Date.now();
       if (cache && cache.exp > now) return cache.plans;
+
+      // Só marca `hadLiveError` quando um `prices.retrieve` de fato lança (ex.: instabilidade
+      // do Stripe). Nulls "de configuração" (billing off, price env ausente) não contam —
+      // são estáveis e podem ficar no cache normalmente. Uma falha transitória, porém, não
+      // deve esconder o preço por todo o TTL: pulamos o cache para essa rodada e tentamos
+      // de novo na próxima chamada.
+      let hadLiveError = false;
+
+      async function resolvePrice(plan: PlanKey): Promise<PlanPrice | null> {
+        if (!isBillingConfigured) return null;
+        const priceId = env[PLANS[plan].priceEnv];
+        if (!priceId) return null;
+        try {
+          const price = await stripe().prices.retrieve(priceId);
+          if (price.unit_amount == null) return null;
+          return {
+            amountCents: price.unit_amount,
+            currency: price.currency,
+            interval: price.recurring?.interval ?? "month",
+          };
+        } catch {
+          hadLiveError = true;
+          return null;
+        }
+      }
 
       const keys = Object.keys(PLANS) as PlanKey[];
       const plans = await Promise.all(
@@ -56,7 +64,7 @@ export function createBillingPlansService(): BillingPlansService {
           price: await resolvePrice(key),
         })),
       );
-      cache = { plans, exp: now + CACHE_TTL_MS };
+      if (!hadLiveError) cache = { plans, exp: now + CACHE_TTL_MS };
       return plans;
     },
   };
