@@ -191,4 +191,26 @@ describe("createSetReputationService", () => {
       { votedPlayerId: CANDIDATE_PLAYER.id, dimensions: ["pontualidade", "respeito"] },
     ]);
   });
+
+  it("merges two tags sharing the same votedPlayerId into one deduped tag (no P2002)", async () => {
+    const replaceForVoter = vi.fn().mockResolvedValue(undefined);
+    const svc = createSetReputationService(
+      buildDeps({ reputationRepo: fakeReputationRepo({ replaceForVoter }) }),
+    );
+
+    await expect(
+      svc({
+        matchId: "m1",
+        userId: VOTER_USER,
+        tags: [
+          { votedPlayerId: CANDIDATE_PLAYER.id, dimensions: ["pontualidade"] },
+          { votedPlayerId: CANDIDATE_PLAYER.id, dimensions: ["pontualidade", "respeito"] },
+        ],
+      }),
+    ).resolves.toEqual([{ votedPlayerId: CANDIDATE_PLAYER.id, dimensions: ["pontualidade", "respeito"] }]);
+
+    expect(replaceForVoter).toHaveBeenCalledWith("m1", VOTER_PLAYER.id, [
+      { votedPlayerId: CANDIDATE_PLAYER.id, dimensions: ["pontualidade", "respeito"] },
+    ]);
+  });
 });

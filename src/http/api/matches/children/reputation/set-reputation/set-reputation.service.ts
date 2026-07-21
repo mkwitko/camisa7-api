@@ -35,12 +35,16 @@ const VOTING_WINDOW_MS = 48 * 60 * 60 * 1000;
  *    (409) otherwise. Checked LAST, after every tag has been validated —
  *    same position as in `cast-vote.service.ts`.
  *
- * Each tag's `dimensions` are deduped (`[...new Set(...)]`) before being
- * handed to `reputationRepo.replaceForVoter` — `ReputationTag` has a unique
- * constraint on `(matchId, voterPlayerId, votedPlayerId, dimension)`, so a
- * duplicate dimension in the request would otherwise hit a P2002 error.
+ * Tags are merged by `votedPlayerId` BEFORE validation: every tag targeting
+ * the same player is collapsed into a single entry whose `dimensions` is the
+ * union (deduped) of all dimensions given for that player across the whole
+ * request. This handles both a duplicate dimension within one tag AND
+ * multiple tags naming the same `votedPlayerId` — `ReputationTag` has a
+ * unique constraint on `(matchId, voterPlayerId, votedPlayerId, dimension)`,
+ * so either shape would otherwise hit a P2002 error when handed to
+ * `reputationRepo.replaceForVoter`.
  *
- * Returns the deduped tag set that was actually stored, so the controller
+ * Returns the merged tag set that was actually stored, so the controller
  * can echo it back without a second repo round-trip.
  */
 export function createSetReputationService(deps: SetReputationDeps) {
@@ -58,10 +62,20 @@ export function createSetReputationService(deps: SetReputationDeps) {
     const voterPlayerId = voterAttendance.player.id;
 
     const confirmedIds = new Set(confirmed.map((a) => a.player.id));
-    const dedupedTags: VoterTag[] = input.tags.map((tag) => ({
-      votedPlayerId: tag.votedPlayerId,
-      dimensions: [...new Set(tag.dimensions)],
-    }));
+
+    // Merge ALL input tags by votedPlayerId first — collapses both duplicate
+    // targets and duplicate dimensions into one canonical set per player, so
+    // `replaceForVoter`'s createMany never sees two rows for the same
+    // (matchId, voterPlayerId, votedPlayerId, dimension) tuple.
+    const mergedByTarget = new Map<string, Set<VoterTag["dimensions"][number]>>();
+    for (const tag of input.tags) {
+      const dimensions = mergedByTarget.get(tag.votedPlayerId) ?? new Set();
+      for (const dimension of tag.dimensions) dimensions.add(dimension);
+      mergedByTarget.set(tag.votedPlayerId, dimensions);
+    }
+    const dedupedTags: VoterTag[] = [...mergedByTarget.entries()].map(
+      ([votedPlayerId, dimensions]) => ({ votedPlayerId, dimensions: [...dimensions] }),
+    );
 
     for (const tag of dedupedTags) {
       if (!confirmedIds.has(tag.votedPlayerId)) throw ERRORS.VOTE.INVALID_CANDIDATE();

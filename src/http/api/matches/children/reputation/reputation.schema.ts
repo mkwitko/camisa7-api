@@ -10,7 +10,7 @@ export const VoterTagSchema = z.object({
   dimensions: z.array(ReputationDimensionSchema).max(REPUTATION_DIMENSIONS.length),
 });
 
-export const SetReputationBody = z.object({ tags: z.array(VoterTagSchema) });
+export const SetReputationBody = z.object({ tags: z.array(VoterTagSchema).max(64) });
 export type SetReputationBody = z.infer<typeof SetReputationBody>;
 
 export const ReputationResponse = z.object({ tags: z.array(VoterTagSchema) });
