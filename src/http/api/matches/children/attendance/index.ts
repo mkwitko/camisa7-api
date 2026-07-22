@@ -4,6 +4,7 @@ import { confirmPaymentRoute } from "./confirm-payment/confirm-payment.controlle
 import { confirmPresenceRoute } from "./confirm-presence/confirm-presence.controller";
 import { listAttendanceRoute } from "./list-attendance/list-attendance.controller";
 import { markPaidRoute } from "./mark-paid/mark-paid.controller";
+import { payAttendanceRoute } from "./pay/pay-attendance.controller";
 
 /** Registers the `attendance` child-resource routes under `/matches/:id/attendance`. */
 export const attendanceRoutes: FastifyPluginAsync = async (app) => {
@@ -12,4 +13,5 @@ export const attendanceRoutes: FastifyPluginAsync = async (app) => {
   await app.register(listAttendanceRoute);
   await app.register(markPaidRoute);
   await app.register(confirmPaymentRoute);
+  await app.register(payAttendanceRoute);
 };
