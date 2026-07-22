@@ -158,10 +158,13 @@ describe("createHandleWooviWebhook", () => {
     expect(attendanceRepo.setPayment).not.toHaveBeenCalled();
   });
 
-  it("already-completed payment (status already completed): no-op without calling markCompleted", async () => {
-    const payment = aPayment({ status: "completed" });
+  it("already-completed payment (replay): re-applies the paid effect idempotently — the invariant is that it ends paid, not that the write is skipped", async () => {
+    const payment = aPayment({ status: "completed", kind: "match_fee", attendanceId: "att1" });
     const paymentsRepo = fakePaymentsRepo({
       findByCorrelationId: vi.fn().mockResolvedValue(payment),
+      // Already completed → the guarded `updateMany` (`status: "pending"`)
+      // matches nothing on a replay.
+      markCompleted: vi.fn().mockResolvedValue({ count: 0 }),
     });
     const attendanceRepo = fakeAttendanceRepo();
     const rawBody = chargeCompletedBody({ correlationID: "pay1" });
@@ -170,11 +173,16 @@ describe("createHandleWooviWebhook", () => {
     const result = await handle({ rawBody, signature: sign(rawBody) });
 
     expect(result).toEqual({ ok: true });
-    expect(paymentsRepo.markCompleted).not.toHaveBeenCalled();
-    expect(attendanceRepo.setPayment).not.toHaveBeenCalled();
+    expect(paymentsRepo.markCompleted).toHaveBeenCalledWith("pay1", expect.any(Date));
+    // This is the key behavior change from the old (buggy) version: a
+    // replay of a CHARGE_COMPLETED for an already-`completed` Payment must
+    // still (re)apply the paid effect — it's idempotent, and re-running it
+    // is what recovers a prior delivery that committed `markCompleted` but
+    // then crashed before this write (see the partial-failure test below).
+    expect(attendanceRepo.setPayment).toHaveBeenCalledWith("att1", "paid", null);
   });
 
-  it("idempotent race: markCompleted count 0 does NOT re-apply the effect", async () => {
+  it("concurrent race: markCompleted count 0 (lost the flip) still (re)applies the effect", async () => {
     const payment = aPayment({ status: "pending" });
     const paymentsRepo = fakePaymentsRepo({
       findByCorrelationId: vi.fn().mockResolvedValue(payment),
@@ -188,7 +196,67 @@ describe("createHandleWooviWebhook", () => {
 
     expect(result).toEqual({ ok: true });
     expect(paymentsRepo.markCompleted).toHaveBeenCalledWith("pay1", expect.any(Date));
-    expect(attendanceRepo.setPayment).not.toHaveBeenCalled();
+    expect(attendanceRepo.setPayment).toHaveBeenCalledWith("att1", "paid", null);
+  });
+
+  it("partial-failure recovery: effect throws after markCompleted commits on delivery 1 → delivery 2 still ends the attendance paid", async () => {
+    // Delivery 1: the Payment is still "pending" when this delivery is
+    // processed. `markCompleted` commits (count: 1) but the effect write
+    // then throws (e.g. a transient DB error) — before the fix, this left
+    // the attendance stuck "pending" forever, because a retry would see
+    // `payment.status === "completed"` and short-circuit before reapplying
+    // the effect.
+    const pendingPayment = aPayment({
+      status: "pending",
+      kind: "match_fee",
+      attendanceId: "att1",
+      membershipDueId: null,
+    });
+    const failingAttendanceRepo = fakeAttendanceRepo({
+      setPayment: vi.fn().mockRejectedValue(new Error("transient failure")),
+    });
+    const paymentsRepoDelivery1 = fakePaymentsRepo({
+      findByCorrelationId: vi.fn().mockResolvedValue(pendingPayment),
+      markCompleted: vi.fn().mockResolvedValue({ count: 1 }),
+    });
+    const rawBody = chargeCompletedBody({ correlationID: "pay1" });
+
+    const handle1 = createHandleWooviWebhook(
+      buildDeps({ paymentsRepo: paymentsRepoDelivery1, attendanceRepo: failingAttendanceRepo }),
+    );
+    await expect(handle1({ rawBody, signature: sign(rawBody) })).rejects.toThrow(
+      "transient failure",
+    );
+    expect(paymentsRepoDelivery1.markCompleted).toHaveBeenCalledWith("pay1", expect.any(Date));
+    expect(failingAttendanceRepo.setPayment).toHaveBeenCalledWith("att1", "paid", null);
+
+    // Delivery 2 (Woovi's retry, since delivery 1 never returned a 2xx):
+    // `findByCorrelationId` now returns the Payment as "completed" (delivery
+    // 1's `markCompleted` did commit before the effect threw). The fixed
+    // handler does NOT short-circuit on that — it proceeds, `markCompleted`
+    // is a no-op (count: 0), and the effect is reapplied, this time
+    // succeeding — recovering the attendance to "paid".
+    const completedPayment = aPayment({
+      status: "completed",
+      kind: "match_fee",
+      attendanceId: "att1",
+      membershipDueId: null,
+    });
+    const succeedingAttendanceRepo = fakeAttendanceRepo();
+    const paymentsRepoDelivery2 = fakePaymentsRepo({
+      findByCorrelationId: vi.fn().mockResolvedValue(completedPayment),
+      markCompleted: vi.fn().mockResolvedValue({ count: 0 }),
+    });
+
+    const handle2 = createHandleWooviWebhook(
+      buildDeps({ paymentsRepo: paymentsRepoDelivery2, attendanceRepo: succeedingAttendanceRepo }),
+    );
+    const result2 = await handle2({ rawBody, signature: sign(rawBody) });
+
+    expect(result2).toEqual({ ok: true });
+    // The invariant proven here: the linked attendance is never left
+    // "pending" after a completed Payment — it does end up "paid".
+    expect(succeedingAttendanceRepo.setPayment).toHaveBeenCalledWith("att1", "paid", null);
   });
 
   it("ignores events that aren't CHARGE_COMPLETED", async () => {

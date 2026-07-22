@@ -46,16 +46,31 @@ function isChargeCompletedEvent(value: unknown): value is ChargeCompletedEvent {
  *
  * Only `*:CHARGE_COMPLETED` events with `charge.status === "COMPLETED"` do
  * anything: `findByCorrelationId` resolves the `Payment` this charge belongs
- * to. Missing, or already `completed` (a retried delivery) → no-op. Otherwise
- * `markCompleted` (itself guarded on `status: "pending"`, see
- * `payments.repository.ts`) — its `count` is checked too, so a race against a
- * concurrent delivery of the same event (both pass the `findByCorrelationId`
- * check before either commits) still only applies the side effect once: the
- * loser sees `count: 0` and stops there. The winner applies the effect by
- * `payment.kind` — `match_fee` marks the `Attendance` paid
- * (`attendanceRepo.setPayment(..., "paid", null)`, `null` because no human
- * confirmed it — Woovi did), `membership_due` marks the `MembershipDue` paid
- * (`duesRepo.setStatus(..., "paid", null)`).
+ * to. Missing → no-op (unknown `correlationID`, nothing to apply).
+ * Otherwise `markCompleted` (itself guarded on `status: "pending"`, see
+ * `payments.repository.ts`) flips the status — its `count` is informational
+ * only (logged when 0, meaning this delivery didn't win the flip: either a
+ * concurrent delivery of the same event raced it, or this is a Woovi retry
+ * of an already-completed charge).
+ *
+ * Critically, the paid effect below is applied UNCONDITIONALLY whenever
+ * `payment` exists, regardless of `count` or `payment.status` — it is NOT
+ * gated behind "this delivery was the one that flipped the status". Both
+ * `attendanceRepo.setPayment(..., "paid", null)` and
+ * `duesRepo.setStatus(..., "paid", null)` are idempotent writes (setting an
+ * already-`"paid"` row to `"paid"` again is a harmless no-op), so
+ * re-applying them on every replay is safe. This is what closes the
+ * exactly-once gap `markCompleted`+effect used to have as two separate
+ * non-transactional writes: if the effect write throws AFTER `markCompleted`
+ * already committed, the `Payment` is left `"completed"` while the
+ * attendance/due is still `"pending"`. Because there is no early-return on
+ * `payment.status === "completed"`, Woovi's automatic retry of that same
+ * `CHARGE_COMPLETED` delivery reaches this code again, `markCompleted` is a
+ * no-op (`count: 0`, already completed), but the effect IS re-run and
+ * recovers the stuck `"pending"` row. Net invariant: after any successful
+ * (2xx) processing of a `CHARGE_COMPLETED` for a known `Payment`, the linked
+ * attendance/due ends up `"paid"` — never permanently stuck `"pending"`.
+ * `null` in both effect calls because no human confirmed it — Woovi did.
  */
 export function createHandleWooviWebhook(deps: WooviWebhookDeps) {
   return async ({ rawBody, signature }: WooviWebhookInput): Promise<WooviWebhookResult> => {
@@ -76,11 +91,18 @@ export function createHandleWooviWebhook(deps: WooviWebhookDeps) {
     }
 
     const payment = await deps.paymentsRepo.findByCorrelationId(charge.correlationID);
-    if (!payment || payment.status === "completed") return { ok: true };
+    if (!payment) return { ok: true };
 
     const { count } = await deps.paymentsRepo.markCompleted(payment.correlationID, new Date());
-    if (count === 0) return { ok: true };
+    if (count === 0) {
+      logger.info(
+        { correlationID: payment.correlationID },
+        "woovi-webhook: CHARGE_COMPLETED replay (Payment already completed) — reapplying paid effect idempotently to recover any partial failure",
+      );
+    }
 
+    // Unconditional (not gated on `count`/`payment.status`) — see the
+    // exactly-once invariant explained above.
     if (payment.kind === "match_fee" && payment.attendanceId) {
       await deps.attendanceRepo.setPayment(payment.attendanceId, "paid", null);
     } else if (payment.kind === "membership_due" && payment.membershipDueId) {
