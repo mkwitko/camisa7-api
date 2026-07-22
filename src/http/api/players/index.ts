@@ -6,6 +6,7 @@ import { myPlayerRoute, updateMyPlayerRoute } from "./me/me.controller";
 import { upcomingMatchesRoute } from "./me/upcoming-matches/upcoming-matches.controller";
 import { publicProfileRoute } from "./public-profile/public-profile.controller";
 import { searchPlayersRoute } from "./search/search.controller";
+import { getSuggestionsRoute } from "./suggestions/get-suggestions.controller";
 
 /**
  * Registers all `players` resource routes. Fase 1 (F1-4) added the `career`
@@ -22,7 +23,10 @@ import { searchPlayersRoute } from "./search/search.controller";
  * shareable card; F1-7 adds `GET /players/me`, letting the app resolve its
  * own canonical player without an already-known `playerId`. `Player` still
  * has no top-level CRUD routes of its own (created only as a side effect of
- * other flows, see `players.repository.ts`).
+ * other flows, see `players.repository.ts`). `GET /players/suggestions`
+ * (nearby, similar-level players) is a static path registered explicitly
+ * here — Fastify tells it apart from `:playerId`-shaped routes on its own,
+ * but it's still listed alongside the others rather than left implicit.
  */
 export const playersRoutes: FastifyPluginAsync = async (app) => {
   await app.register(careerRoutes);
@@ -33,4 +37,5 @@ export const playersRoutes: FastifyPluginAsync = async (app) => {
   await app.register(searchPlayersRoute);
   await app.register(upcomingMatchesRoute);
   await app.register(publicProfileRoute);
+  await app.register(getSuggestionsRoute);
 };
