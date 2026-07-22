@@ -31,6 +31,13 @@ describe("billing.catalog", () => {
     expect(PLANS.organizer.priceEnv).toBe("STRIPE_PRICE_ORGANIZER");
     expect(PLANS.player.priceEnv).toBe("STRIPE_PRICE_PLAYER");
   });
+
+  it("each plan carries a Woovi PIX Automático monthly priceCents + dayGenerateCharge", () => {
+    expect(PLANS.organizer.priceCents).toBe(1990);
+    expect(PLANS.organizer.dayGenerateCharge).toBe(5);
+    expect(PLANS.player.priceCents).toBe(990);
+    expect(PLANS.player.dayGenerateCharge).toBe(5);
+  });
 });
 
 describe("PLANS superset", () => {

@@ -21,11 +21,14 @@ export const FEATURE_KEYS = [
 export type FeatureKey = (typeof FEATURE_KEYS)[number];
 
 /**
- * Subscription plans (Stripe products with features attached). `priceEnv` names
- * the env var holding the plan's Stripe price id — resolved at checkout time,
- * so a deploy without that price simply can't offer the plan. `features` are
- * the entitlement keys the plan grants (informational/UX; the real grant comes
- * from Stripe once the subscription is active).
+ * Subscription plans. `priceCents` is the plan's fixed monthly price (BRL,
+ * cents) charged via Woovi PIX Automático; `dayGenerateCharge` is the day of
+ * the month Woovi generates the recurring charge (`subscriptions.create`'s
+ * `dayGenerateCharge`). `priceEnv` (legacy Stripe price env var) is kept
+ * alongside it only because `billing-checkout.controller.ts` still reads it —
+ * Task 6 (checkout removal) deletes `priceEnv` for good. `features` are the
+ * entitlement keys the plan grants; once a Woovi `Subscription` is `active`,
+ * `entitlements.service.ts` resolves them from `PLANS[sub.plan].features`.
  */
 export const PLANS = {
   organizer: {
@@ -33,14 +36,24 @@ export const PLANS = {
     // Organizador é o tier superior: engloba as features do Jogador.
     features: ["public_groups", "organizer_ai", "seasons", "advanced_stats", "cosmetics"],
     includes: "player",
+    priceCents: 1990,
+    dayGenerateCharge: 5,
   },
   player: {
     priceEnv: "STRIPE_PRICE_PLAYER",
     features: ["advanced_stats", "cosmetics"],
+    priceCents: 990,
+    dayGenerateCharge: 5,
   },
 } as const satisfies Record<
   string,
-  { priceEnv: keyof EnvConfig; features: readonly FeatureKey[]; includes?: string }
+  {
+    priceEnv: keyof EnvConfig;
+    features: readonly FeatureKey[];
+    includes?: string;
+    priceCents: number;
+    dayGenerateCharge: number;
+  }
 >;
 
 export type PlanKey = keyof typeof PLANS;

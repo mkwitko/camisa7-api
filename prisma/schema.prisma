@@ -47,10 +47,18 @@ model User {
   googleSub      String? @unique
   expoPushToken  String?
 
-  /// Correlation to the Stripe customer (billing/entitlements). The ONLY
-  /// billing state in our DB — entitlements are resolved live via the Stripe
-  /// Entitlements API (+ short in-memory cache), never persisted here.
+  /// Correlation to the Stripe customer (billing/entitlements). Legacy —
+  /// Woovi PIX Automático (see `Subscription` below) is replacing Stripe
+  /// billing/entitlements; kept only until Task 6 removes checkout/portal.
   stripeCustomerId String?
+
+  /// CPF do assinante, exigido pela Woovi pro `customer.taxID` do PIX
+  /// Automático (`subscriptions.create`). Coletado e persistido no fluxo de
+  /// assinar (`POST /billing/subscribe`) pra reuso em futuras assinaturas.
+  billingTaxId String?
+  /// Telefone do assinante, pro `customer.phone` da Woovi (mesmo fluxo de
+  /// `billingTaxId`).
+  phone String?
 
   /// Marketplace V2: correlation to the Stripe CONNECTED account (Express) of
   /// a `quadra` owner — the only Connect state persisted in our DB.
@@ -66,10 +74,11 @@ model User {
   createdAt DateTime @default(now()) @db.Timestamptz(3)
   updatedAt DateTime @updatedAt @db.Timestamptz(3)
 
-  ownedGroups Group[]
-  players     Player[]
-  venues      Venue[]
-  bookings    Booking[]
+  ownedGroups   Group[]
+  players       Player[]
+  venues        Venue[]
+  bookings      Booking[]
+  subscriptions Subscription[]
 }
 
 /// Marketplace V1: uma quadra (arena física) gerida por um `User` com role
@@ -1025,4 +1034,40 @@ model Payment {
 
   @@index([attendanceId])
   @@index([membershipDueId])
+}
+
+/// Woovi Fase 3 (assinaturas via PIX Automático). `pending` = subscription
+/// criada na Woovi, aguardando o assinante aprovar o QR no app do banco;
+/// `active` = webhook `PIX_AUTOMATIC_APPROVED`; `expired` = parcela expirada
+/// (`EXPIRED`); `canceled` = cancelada pelo usuário ou substituída por uma
+/// nova assinatura (`INACTIVE`).
+enum SubscriptionStatus {
+  pending
+  active
+  expired
+  canceled
+}
+
+/// Uma assinatura de plano (`PlanKey` — "organizer" | "player") via Woovi PIX
+/// Automático. `id` doubles as `wooviCorrelationID` (sent to Woovi's
+/// `subscriptions.create`, comes back unchanged on webhook events — same
+/// correlation-id convention as `Payment`). `recurrencyId` is Woovi's
+/// `pixRecurring.recurrencyId`, filled in once the create call responds.
+/// `currentPeriodEnd` is null until the first installment is confirmed paid,
+/// then advances ~1 month per renewal; "assinatura ativa" = the most recent
+/// row with `status = active` AND (`currentPeriodEnd` null OR in the future).
+model Subscription {
+  id                 String             @id @default(uuid()) @db.Uuid
+  userId             String             @db.Uuid
+  user               User               @relation(fields: [userId], references: [id])
+  plan               String
+  status             SubscriptionStatus @default(pending)
+  wooviCorrelationID String             @unique
+  recurrencyId       String?
+  currentPeriodEnd   DateTime?          @db.Timestamptz(3)
+
+  createdAt DateTime @default(now()) @db.Timestamptz(3)
+  updatedAt DateTime @updatedAt @db.Timestamptz(3)
+
+  @@index([userId])
 }
