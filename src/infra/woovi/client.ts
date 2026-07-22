@@ -42,6 +42,43 @@ export async function createCharge(input: {
   };
 }
 
+/** Cria assinatura PIX Automático; retorna o EMV (copia-e-cola) que o cliente aprova no app do banco. */
+export async function createSubscription(input: {
+  correlationID: string;
+  value: number;
+  customer: { name: string; taxID: string; email: string; phone: string };
+  dayGenerateCharge: number;
+}): Promise<{ emv: string; recurrencyId: string | null; globalID: string | null }> {
+  const out = await wooviFetch<{
+    pixRecurring?: { emv?: string; recurrencyId?: string };
+    emv?: string;
+    globalID?: string;
+  }>("/subscriptions", input);
+  const emv = out.pixRecurring?.emv ?? out.emv;
+  if (!emv) throw new Error("woovi_subscription_missing_emv");
+  return {
+    emv,
+    recurrencyId: out.pixRecurring?.recurrencyId ?? null,
+    globalID: out.globalID ?? null,
+  };
+}
+
+/**
+ * Cancela assinatura PIX Automático.
+ * TODO(A confirmar): path/verbo exato de cancelamento não está confirmado na doc
+ * disponível no momento da implementação; assumido `DELETE /subscriptions/:id`
+ * (id = globalID ou correlationID aceito pela Woovi). Revalidar contra a doc oficial
+ * da Woovi antes de depender disso em produção.
+ */
+export async function cancelSubscription(id: string): Promise<void> {
+  if (!env.WOOVI_API_KEY) throw new Error("woovi_not_configured");
+  const res = await fetch(`${env.WOOVI_BASE_URL}/subscriptions/${encodeURIComponent(id)}`, {
+    method: "DELETE",
+    headers: { Authorization: env.WOOVI_API_KEY },
+  });
+  if (!res.ok) throw new Error(`woovi_http_${res.status}`);
+}
+
 /** GET status de uma cobrança por correlationID (polling opcional; webhook é a fonte). */
 export async function getCharge(correlationID: string): Promise<{ status: string } | null> {
   if (!env.WOOVI_API_KEY) throw new Error("woovi_not_configured");
