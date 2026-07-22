@@ -49,6 +49,13 @@ function presentPayment(payment: Payment): PayAttendanceResponse {
  * `createCharge` is called with that `correlationID`, and the response
  * (`brCode`/`qrCodeImage`/`paymentLinkUrl`) is persisted back via
  * `attachCharge`.
+ *
+ * create→charge is a critical section: if `createCharge` (or `attachCharge`)
+ * throws — e.g. a Woovi outage — the just-inserted `Payment` is deleted
+ * (`deleteById`) before rethrowing, so no broken `pending` row with an empty
+ * `brCode`/`qrCodeImage` is left for `findPendingByAttendance` to return
+ * forever. `pay-due` (Task 6) mirrors this same create-then-charge-with-
+ * cleanup pattern.
  */
 export function createPayAttendanceService(deps: PayAttendanceDeps) {
   return async (
@@ -80,14 +87,19 @@ export function createPayAttendanceService(deps: PayAttendanceDeps) {
       attendanceId: attendance.id,
     });
 
-    const charge = await createCharge({
-      correlationID: payment.correlationID,
-      value: match.priceCents,
-      subaccount: group.wooviPixKey,
-      comment: `Pelada ${group.name}`,
-    });
+    try {
+      const charge = await createCharge({
+        correlationID: payment.correlationID,
+        value: match.priceCents,
+        subaccount: group.wooviPixKey,
+        comment: `Pelada ${group.name}`,
+      });
 
-    const saved = await deps.paymentsRepo.attachCharge(payment.id, charge);
-    return presentPayment(saved);
+      const saved = await deps.paymentsRepo.attachCharge(payment.id, charge);
+      return presentPayment(saved);
+    } catch (err) {
+      await deps.paymentsRepo.deleteById(payment.id);
+      throw err;
+    }
   };
 }

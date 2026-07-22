@@ -73,6 +73,13 @@ export interface PaymentsRepository {
   create(input: CreatePaymentInput): Promise<Payment>;
   /** Fills in the charge details once Woovi's `createCharge` responds. */
   attachCharge(id: string, charge: AttachChargeInput): Promise<Payment>;
+  /**
+   * Hard-deletes a `Payment` row — used to undo a `create()` when the
+   * follow-up `createCharge` call fails, so a broken (empty `brCode`/
+   * `qrCodeImage`) `pending` row never lingers to be reused by
+   * `findPendingByAttendance`/`findPendingByDue`.
+   */
+  deleteById(id: string): Promise<void>;
   findByCorrelationId(correlationID: string): Promise<Payment | null>;
   /** The live (`pending`) charge for an attendance, if any — feeds `pay-attendance`'s idempotency (reuse instead of minting a duplicate). */
   findPendingByAttendance(attendanceId: string): Promise<Payment | null>;
@@ -123,6 +130,10 @@ export function createPaymentsRepository(db: PrismaLike): PaymentsRepository {
         },
       });
       return toDomainPayment(row);
+    },
+
+    async deleteById(id) {
+      await db.payment.delete({ where: { id } });
     },
 
     async findByCorrelationId(correlationID) {

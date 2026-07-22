@@ -129,6 +129,7 @@ function fakePaymentsRepo(overrides: Partial<PaymentsRepository> = {}): Payments
   return {
     create: vi.fn().mockResolvedValue(aPayment()),
     attachCharge: vi.fn().mockImplementation(async (_id, charge) => aPayment({ ...charge })),
+    deleteById: vi.fn().mockResolvedValue(undefined),
     findPendingByAttendance: vi.fn().mockResolvedValue(null),
     findByCorrelationId: vi.fn(),
     findPendingByDue: vi.fn(),
@@ -295,5 +296,21 @@ describe("createPayAttendanceService", () => {
       code: "ATT-T0002",
       statusCode: 404,
     });
+  });
+
+  it("deletes the just-created Payment and rethrows when createCharge fails, leaving nothing to reuse", async () => {
+    const wooviError = new Error("Woovi is down");
+    h.createCharge.mockReset().mockRejectedValue(wooviError);
+    const paymentsRepo = fakePaymentsRepo({
+      create: vi
+        .fn()
+        .mockResolvedValue(aPayment({ id: "pay-broken", correlationID: "pay-broken" })),
+    });
+    const service = createPayAttendanceService(buildDeps({ paymentsRepo }));
+
+    await expect(service("m1", "att1", SELF_USER)).rejects.toThrow(wooviError);
+
+    expect(paymentsRepo.deleteById).toHaveBeenCalledWith("pay-broken");
+    expect(paymentsRepo.attachCharge).not.toHaveBeenCalled();
   });
 });
