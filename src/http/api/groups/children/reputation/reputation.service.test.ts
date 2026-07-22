@@ -5,8 +5,8 @@ import type { PlayersRepository } from "@/http/api/players/players.repository";
 import type { Player } from "@/http/api/players/players.types";
 import type { GroupsRepository } from "../../groups.repository";
 import type { Group } from "../../groups.types";
-import type { GroupMember } from "../members/members.types";
 import type { MembersRepository } from "../members/members.repository";
+import type { GroupMember } from "../members/members.types";
 import { createGroupReputationService } from "./reputation.service";
 
 const OWNER_USER = "user-owner";
@@ -21,6 +21,7 @@ const aGroup = (overrides: Partial<Group> = {}): Group => ({
   monthlyFeeCents: null,
   isPublic: false,
   joinPolicy: "open",
+  wooviPixKey: null,
   createdAt: new Date().toISOString(),
   ...overrides,
 });
@@ -100,16 +101,30 @@ function fakePlayersRepo(player: Player): PlayersRepository {
   };
 }
 
-function fakeReputationRepo(countsByPlayerId: Record<string, ReputationCounts>): ReputationRepository {
+function fakeReputationRepo(
+  countsByPlayerId: Record<string, ReputationCounts>,
+): ReputationRepository {
   return {
     replaceForVoter: vi.fn(),
     listByVoter: vi.fn(),
-    countsByPlayer: vi.fn().mockImplementation(async (playerId: string) => countsByPlayerId[playerId]),
+    countsByPlayer: vi
+      .fn()
+      .mockImplementation(async (playerId: string) => countsByPlayerId[playerId]),
   };
 }
 
-const COUNTS_MEMBER: ReputationCounts = { pontualidade: 3, educacao: 2, compromisso: 1, respeito: 0 };
-const COUNTS_OTHER: ReputationCounts = { pontualidade: 0, educacao: 0, compromisso: 0, respeito: 4 };
+const COUNTS_MEMBER: ReputationCounts = {
+  pontualidade: 3,
+  educacao: 2,
+  compromisso: 1,
+  respeito: 0,
+};
+const COUNTS_OTHER: ReputationCounts = {
+  pontualidade: 0,
+  educacao: 0,
+  compromisso: 0,
+  respeito: 4,
+};
 
 describe("createGroupReputationService", () => {
   it("throws GRP-T0001 (conceal) when the group doesn't exist", async () => {

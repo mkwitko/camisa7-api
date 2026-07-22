@@ -1,5 +1,11 @@
 import type { PrismaLike } from "@/infra/db/client";
-import type { Group, GroupNextMatch, GroupStatsMode, GroupWithMeta, JoinPolicy } from "./groups.types";
+import type {
+  Group,
+  GroupNextMatch,
+  GroupStatsMode,
+  GroupWithMeta,
+  JoinPolicy,
+} from "./groups.types";
 
 type GroupRow = {
   id: string;
@@ -9,6 +15,7 @@ type GroupRow = {
   monthlyFeeCents: number | null;
   isPublic: boolean;
   joinPolicy: JoinPolicy;
+  wooviPixKey: string | null;
   createdAt: Date;
 };
 
@@ -21,6 +28,7 @@ function toDomainGroup(row: GroupRow): Group {
     monthlyFeeCents: row.monthlyFeeCents,
     isPublic: row.isPublic,
     joinPolicy: row.joinPolicy,
+    wooviPixKey: row.wooviPixKey,
     createdAt: row.createdAt.toISOString(),
   };
 }
@@ -37,6 +45,12 @@ export type UpdateGroupPatch = {
   isPublic?: boolean | undefined;
   /** Geo G3: how strangers join this group's public matches. */
   joinPolicy?: JoinPolicy | undefined;
+  /**
+   * Task 4 (Woovi onboarding): the organizer's PIX key registered as a Woovi
+   * subaccount. `undefined` (not provided) leaves it untouched — same
+   * `!== undefined` convention as the other patch fields.
+   */
+  wooviPixKey?: string | undefined;
 };
 
 export interface GroupsRepository {
@@ -85,6 +99,7 @@ export function createGroupsRepository(db: PrismaLike): GroupsRepository {
             : {}),
           ...(patch.isPublic !== undefined ? { isPublic: patch.isPublic } : {}),
           ...(patch.joinPolicy !== undefined ? { joinPolicy: patch.joinPolicy } : {}),
+          ...(patch.wooviPixKey !== undefined ? { wooviPixKey: patch.wooviPixKey } : {}),
         },
       });
       return toDomainGroup(row);

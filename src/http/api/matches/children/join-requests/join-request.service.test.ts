@@ -44,6 +44,7 @@ const aGroup = (overrides: Partial<Group> = {}): Group => ({
   monthlyFeeCents: null,
   isPublic: true,
   joinPolicy: "request",
+  wooviPixKey: null,
   createdAt: new Date().toISOString(),
   ...overrides,
 });

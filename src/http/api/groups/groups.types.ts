@@ -34,6 +34,12 @@ export type Group = {
    * `GroupMember.monthlyFeeCentsOverride`.
    */
   monthlyFeeCents: number | null;
+  /**
+   * Task 4 (Woovi onboarding): the organizer's PIX key registered as a Woovi
+   * subaccount for this group (`POST /groups/:id/woovi/subaccount`). `null`
+   * until the organizer completes onboarding.
+   */
+  wooviPixKey: string | null;
   createdAt: string;
 };
 

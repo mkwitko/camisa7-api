@@ -47,6 +47,7 @@ const aGroup = (overrides: Partial<Group> = {}): Group => ({
   isPublic: false,
   joinPolicy: "request",
   monthlyFeeCents: null,
+  wooviPixKey: null,
   createdAt: new Date().toISOString(),
   ...overrides,
 });
@@ -121,7 +122,9 @@ function fakeMembersRepo(members: GroupMember[] = []): MembersRepository {
 
 function fakeCareerRepo(byPlayerId: Record<string, PlayerCareer | null>): PlayerCareerRepository {
   return {
-    findByPlayer: vi.fn().mockImplementation(async (playerId: string) => byPlayerId[playerId] ?? null),
+    findByPlayer: vi
+      .fn()
+      .mockImplementation(async (playerId: string) => byPlayerId[playerId] ?? null),
   } as unknown as PlayerCareerRepository;
 }
 
@@ -223,8 +226,12 @@ describe("createUpdateTeamsService", () => {
 
     const team0 = result.teams.find((t) => t.team === 0);
     const team1 = result.teams.find((t) => t.team === 1);
-    expect(team0?.players).toEqual([{ playerId: "p1", name: "Player", overall: expectedP1Overall }]);
-    expect(team1?.players).toEqual([{ playerId: "p2", name: "Player 2", overall: expectedP2Overall }]);
+    expect(team0?.players).toEqual([
+      { playerId: "p1", name: "Player", overall: expectedP1Overall },
+    ]);
+    expect(team1?.players).toEqual([
+      { playerId: "p2", name: "Player 2", overall: expectedP2Overall },
+    ]);
     expect(team0?.overallTotal).toBe(expectedP1Overall);
     expect(team1?.overallTotal).toBe(expectedP2Overall);
   });

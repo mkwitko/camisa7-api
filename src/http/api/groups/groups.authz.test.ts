@@ -10,6 +10,7 @@ const aGroup = (overrides: Partial<Group> = {}): Group => ({
   monthlyFeeCents: null,
   isPublic: false,
   joinPolicy: "open",
+  wooviPixKey: null,
   createdAt: new Date().toISOString(),
   ...overrides,
 });

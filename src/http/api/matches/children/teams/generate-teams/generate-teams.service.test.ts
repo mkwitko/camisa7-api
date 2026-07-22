@@ -47,6 +47,7 @@ const aGroup = (overrides: Partial<Group> = {}): Group => ({
   isPublic: false,
   joinPolicy: "request",
   monthlyFeeCents: null,
+  wooviPixKey: null,
   createdAt: new Date().toISOString(),
   ...overrides,
 });
@@ -121,7 +122,9 @@ function fakeMembersRepo(members: GroupMember[] = []): MembersRepository {
 
 function fakeCareerRepo(byPlayerId: Record<string, PlayerCareer | null>): PlayerCareerRepository {
   return {
-    findByPlayer: vi.fn().mockImplementation(async (playerId: string) => byPlayerId[playerId] ?? null),
+    findByPlayer: vi
+      .fn()
+      .mockImplementation(async (playerId: string) => byPlayerId[playerId] ?? null),
   } as unknown as PlayerCareerRepository;
 }
 
