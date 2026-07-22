@@ -24,8 +24,9 @@ export type UpdateGroupInput = {
  * consumption point of the `public_groups` entitlement — the owner must hold
  * that feature or the update is rejected with `GRP.PUBLIC_REQUIRES_PLAN`
  * (403). Setting `isPublic` back to `false` (or leaving it untouched) is never
- * gated. Without Stripe configured the entitlements service grants nothing, so
- * this path is a hard 403 unless the account is a reviewer (bypass grants all).
+ * gated. Entitlements come from the DB (an `active` Woovi subscription — see
+ * `entitlements.service.ts`); without one, this path is a hard 403 unless the
+ * account is a reviewer (bypass grants all).
  */
 export function createUpdateGroupService(deps: UpdateGroupDeps) {
   return async (input: UpdateGroupInput): Promise<Group> => {

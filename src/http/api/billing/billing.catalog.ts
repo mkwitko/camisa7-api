@@ -1,12 +1,13 @@
 import type { EnvConfig } from "@/config/env";
 
 /**
- * Feature catalog — the single source of truth for entitlement keys, mirroring
- * the `lookup_key` of the features configured in the Stripe dashboard.
+ * Feature catalog — the single source of truth for entitlement keys.
  *
- * Stripe is the source of truth for WHO has a feature (via the Entitlements
- * API); this constant is just the closed set of keys the app knows about, so
- * `GET /billing/me` and the reviewer bypass have a canonical list to hand back.
+ * The DB is the source of truth for WHO has a feature: a `Subscription` row
+ * (Woovi PIX Automático) with `status === "active"` grants `PLANS[plan]
+ * .features` — see `entitlements.service.ts`. This constant is just the
+ * closed set of keys the app knows about, so `GET /billing/me` and the
+ * reviewer bypass have a canonical list to hand back.
  */
 export const FEATURE_KEYS = [
   // Organizer plan
@@ -24,9 +25,9 @@ export type FeatureKey = (typeof FEATURE_KEYS)[number];
  * Subscription plans. `priceCents` is the plan's fixed monthly price (BRL,
  * cents) charged via Woovi PIX Automático; `dayGenerateCharge` is the day of
  * the month Woovi generates the recurring charge (`subscriptions.create`'s
- * `dayGenerateCharge`). `priceEnv` (legacy Stripe price env var) is kept
- * alongside it only because `billing-checkout.controller.ts` still reads it —
- * Task 6 (checkout removal) deletes `priceEnv` for good. `features` are the
+ * `dayGenerateCharge`). `priceEnv` (legacy Stripe price env var) has no
+ * reader left in code since Task 6 removed the Stripe checkout route that
+ * used it — kept only as historical metadata. `features` are the
  * entitlement keys the plan grants; once a Woovi `Subscription` is `active`,
  * `entitlements.service.ts` resolves them from `PLANS[sub.plan].features`.
  */
