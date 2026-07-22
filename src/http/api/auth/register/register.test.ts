@@ -33,6 +33,7 @@ function makeFakeRepo(overrides: Partial<AuthRepository> = {}): AuthRepository {
     setLocation: vi.fn(),
     setStripeCustomerId: vi.fn(),
     setStripeAccountId: vi.fn(),
+    setBillingIdentity: vi.fn(),
     ...overrides,
   };
 }

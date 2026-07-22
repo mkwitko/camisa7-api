@@ -24,16 +24,23 @@ export const billingMeRoute: FastifyPluginAsync = async (app) => {
       },
     },
     async (req, reply) => {
+      const subscriptionsRepo = createSubscriptionsRepository(prisma);
       const service = createEntitlementsService({
         authRepo: createAuthRepository(prisma),
-        subscriptionsRepo: createSubscriptionsRepository(prisma),
+        subscriptionsRepo,
       });
       const { userId } = requireUser(req);
-      const [features, paymentsEnabled] = await Promise.all([
+      const [features, paymentsEnabled, latest] = await Promise.all([
         service.activeFeatures(userId),
         service.paymentsEnabled(userId),
+        subscriptionsRepo.findLatestByUser(userId),
       ]);
-      void reply.code(200).send({ features: [...features], paymentsEnabled });
+      void reply.code(200).send({
+        features: [...features],
+        paymentsEnabled,
+        plan: latest?.plan ?? null,
+        status: latest?.status ?? null,
+      });
     },
   );
 };

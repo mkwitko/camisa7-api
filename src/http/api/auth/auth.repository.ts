@@ -115,6 +115,12 @@ export interface AuthRepository {
    * store; `charges_enabled`/etc. are resolved live from Stripe.
    */
   setStripeAccountId(id: string, stripeAccountId: string): Promise<void>;
+  /**
+   * Woovi Fase 3: persists the subscriber's `billingTaxId` (CPF, digits only)
+   * and `phone` — collected on `POST /billing/subscribe` and reused for
+   * future resubscribes so the user never re-enters them.
+   */
+  setBillingIdentity(id: string, input: { taxId: string; phone: string }): Promise<void>;
 }
 
 /** Factory `createAuthRepository(db: PrismaLike)` — composes inside a tx or standalone. */
@@ -175,6 +181,13 @@ export function createAuthRepository(db: PrismaLike): AuthRepository {
 
     async setStripeAccountId(id, stripeAccountId) {
       await db.user.update({ where: { id }, data: { stripeAccountId } });
+    },
+
+    async setBillingIdentity(id, input) {
+      await db.user.update({
+        where: { id },
+        data: { billingTaxId: input.taxId, phone: input.phone },
+      });
     },
 
     async insert(input) {

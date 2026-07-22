@@ -71,5 +71,7 @@
   "GRW-T0002": "Missing or invalid service token.",
   "WOO-T0001": "PIX payment is unavailable right now.",
   "WOO-T0002": "The organizer hasn't set up PIX payouts yet.",
-  "WOO-T0003": "This charge can't be created."
+  "WOO-T0003": "This charge can't be created.",
+  "SUB-T0001": "You don't have a subscription to cancel.",
+  "SUB-T0002": "Invalid CPF."
 }

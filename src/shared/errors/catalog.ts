@@ -22,8 +22,9 @@ function defineError({ code, status, internalMessage }: ErrorDefinition) {
 // SER (match series, Motor de Recorrência), SYS (cross-cutting), BIL
 // (billing/entitlements), JRQ (join request, Geo G3), VEN (venue, Marketplace
 // V1), CON (Stripe Connect, Marketplace V2), CRT (court, Marketplace V2), BKG
-// (booking, Marketplace V2), GRW (growth metrics, server-to-server). Uma
-// sigla só ganha entradas quando o módulo correspondente nasce.
+// (booking, Marketplace V2), GRW (growth metrics, server-to-server), SUB
+// (subscription, Woovi PIX Automático billing). Uma sigla só ganha entradas
+// quando o módulo correspondente nasce.
 export const ERRORS = {
   AUTH: {
     INVALID_TOKEN: defineError({
@@ -619,6 +620,23 @@ export const ERRORS = {
       code: "WOO-T0003",
       status: 409,
       internalMessage: "woovi_not_payable",
+    }),
+  },
+  // Woovi PIX Automático subscriptions (Woovi Fase 3). NOT_FOUND (404) is
+  // thrown by `POST /billing/cancel` when the caller has no active/pending
+  // `Subscription` to cancel. INVALID_TAXID (400) is thrown by
+  // `POST /billing/subscribe` when the given `taxId` (CPF), stripped of
+  // non-digit characters, isn't 11 digits long.
+  SUB: {
+    NOT_FOUND: defineError({
+      code: "SUB-T0001",
+      status: 404,
+      internalMessage: "subscription_not_found",
+    }),
+    INVALID_TAXID: defineError({
+      code: "SUB-T0002",
+      status: 400,
+      internalMessage: "subscription_invalid_taxid",
     }),
   },
   SYS: {

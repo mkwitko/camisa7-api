@@ -48,6 +48,7 @@ function makeAuthRepo(user: User | null): AuthRepository {
     setLocation: vi.fn(),
     setStripeCustomerId: vi.fn(),
     setStripeAccountId: vi.fn(),
+    setBillingIdentity: vi.fn(),
   };
 }
 

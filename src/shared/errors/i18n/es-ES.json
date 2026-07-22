@@ -71,5 +71,7 @@
   "GRW-T0002": "Token de servicio inválido o ausente.",
   "WOO-T0001": "El pago por PIX no está disponible ahora.",
   "WOO-T0002": "El organizador aún no configuró el cobro por PIX.",
-  "WOO-T0003": "Este cobro no se puede generar."
+  "WOO-T0003": "Este cobro no se puede generar.",
+  "SUB-T0001": "No tienes una suscripción para cancelar.",
+  "SUB-T0002": "CPF inválido."
 }

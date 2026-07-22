@@ -5,8 +5,9 @@ import { createBillingPlansService } from "./list-plans.service";
 
 /**
  * `GET /billing/plans` (público) — planos vendáveis com features (união pro
- * organizador), marcador `includes` e preço ao vivo do Stripe. Nunca 503:
- * billing off ⇒ preços `null`, a lista continua vindo pra montar a tela.
+ * organizador), marcador `includes` e preço do catálogo (Woovi PIX
+ * Automático, não mais resolvido ao vivo do Stripe). Nunca 503: sem chamada
+ * externa, a lista sempre vem completa pra montar a tela.
  */
 export const billingPlansRoute: FastifyPluginAsync = async (app) => {
   const service = createBillingPlansService();
