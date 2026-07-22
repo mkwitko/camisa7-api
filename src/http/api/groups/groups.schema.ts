@@ -15,6 +15,7 @@ export const GroupResponse = z.object({
   monthlyFeeCents: z.number().int().nullable(),
   isPublic: z.boolean(),
   joinPolicy: JoinPolicySchema,
+  wooviPixKey: z.string().nullable(),
   createdAt: z.string(),
 });
 export type GroupResponse = z.infer<typeof GroupResponse>;
