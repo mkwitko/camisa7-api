@@ -47,6 +47,7 @@ describe("woovi client", () => {
     // isWooviConfigured é avaliado no import; reimporta com knob off:
     const mod = await import("./client");
     // com a config lida por getter, a checagem em runtime deve barrar:
-    await expect(mod.createCharge({ correlationID: "c", value: 1, subaccount: "x" })).rejects.toThrow();
+    await expect(mod.createCharge({ correlationID: "c", value: 1, subaccount: "x" })).rejects.toThrow(/not_configured/);
+    expect(fetch).not.toHaveBeenCalled();
   });
 });
