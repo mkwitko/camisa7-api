@@ -32,7 +32,6 @@ function fakeEntitlements(hasFeature: boolean): EntitlementsService {
     activeFeatures: vi.fn(),
     hasFeature: vi.fn().mockResolvedValue(hasFeature),
     paymentsEnabled: vi.fn(),
-    invalidate: vi.fn(),
   };
 }
 

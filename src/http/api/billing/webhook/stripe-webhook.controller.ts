@@ -2,27 +2,13 @@ import type { FastifyPluginAsync } from "fastify";
 import type { ZodTypeProvider } from "fastify-type-provider-zod";
 import { z } from "zod/v4";
 import { env } from "@/config/env";
-import { createAuthRepository } from "@/http/api/auth/auth.repository";
 import { createBookingRepository } from "@/http/api/bookings/booking.repository";
 import { prisma } from "@/infra/db/client";
 import { logger } from "@/infra/observability/logger";
 import { isBillingConfigured, stripe } from "@/infra/stripe/client";
 import { ERRORS } from "@/shared/errors/catalog";
-import { getEntitlementsService } from "../entitlements.service";
 
 const StripeWebhookResponse = z.object({ received: z.boolean() });
-
-/** Pulls a customer id from an event's object (string, expanded object, or absent). */
-function customerIdFrom(object: unknown): string | undefined {
-  if (typeof object !== "object" || object === null) return undefined;
-  const customer = (object as { customer?: unknown }).customer;
-  if (typeof customer === "string") return customer;
-  if (typeof customer === "object" && customer !== null && "id" in customer) {
-    const id = (customer as { id?: unknown }).id;
-    return typeof id === "string" ? id : undefined;
-  }
-  return undefined;
-}
 
 /** Pulls the PaymentIntent id from a `payment_intent.*` event's object. */
 function paymentIntentIdFrom(object: unknown): string | undefined {
@@ -33,9 +19,7 @@ function paymentIntentIdFrom(object: unknown): string | undefined {
 
 /**
  * `POST /webhooks/stripe` — public (bypasses `authHook`), consumes the RAW body
- * so the Stripe signature can be verified. On entitlement/subscription changes
- * it invalidates the cached entitlements for the affected customer so the next
- * `GET /billing/me` re-fetches from Stripe. On `payment_intent.*` (Marketplace
+ * so the Stripe signature can be verified. On `payment_intent.*` (Marketplace
  * V2) it moves the correlated `Booking` through its payment lifecycle —
  * `succeeded` → `confirmed`, `payment_failed`/`canceled` → `expired` (frees
  * the slot) — via the guarded, idempotent `transitionStatus`. Always acks
@@ -75,16 +59,6 @@ export const stripeWebhookRoute: FastifyPluginAsync = async (app) => {
         return reply.code(400).send({ received: false });
       }
 
-      if (
-        event.type === "entitlements.active_entitlement_summary.updated" ||
-        event.type.startsWith("customer.subscription.")
-      ) {
-        const customerId = customerIdFrom(event.data.object);
-        if (customerId) {
-          getEntitlementsService(createAuthRepository(prisma)).invalidate(customerId);
-        }
-      }
-
       // Marketplace V2: booking payment lifecycle. `stripePaymentIntentId` is
       // set on the booking when the PaymentIntent is created (`create-booking`
       // for instant/deposit, `approve-booking` for request mode) — an unknown
@@ -109,7 +83,10 @@ export const stripeWebhookRoute: FastifyPluginAsync = async (app) => {
               }
             }
           } catch (error) {
-            logger.error({ err: error, paymentIntentId }, "stripe-webhook: payment_intent handling failed");
+            logger.error(
+              { err: error, paymentIntentId },
+              "stripe-webhook: payment_intent handling failed",
+            );
           }
         }
       }

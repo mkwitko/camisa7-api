@@ -1,13 +1,10 @@
 import { env } from "@/config/env";
 import type { AuthRepository } from "@/http/api/auth/auth.repository";
-import { isBillingConfigured, stripe } from "@/infra/stripe/client";
-import { FEATURE_KEYS } from "./billing.catalog";
-
-/** In-memory cache TTL for a customer's active entitlements. */
-const CACHE_TTL_MS = 60_000;
+import { FEATURE_KEYS, PLANS } from "./billing.catalog";
+import type { SubscriptionsRepository } from "./subscription.repository";
 
 export type EntitlementsService = {
-  /** The set of feature `lookup_key`s the user is currently entitled to. */
+  /** The set of feature keys the user is currently entitled to. */
   activeFeatures(userId: string): Promise<Set<string>>;
   /** True when the user has the given feature (reviewer bypass grants all). */
   hasFeature(userId: string, key: string): Promise<boolean>;
@@ -17,26 +14,23 @@ export type EntitlementsService = {
    * purchases (features still resolve as granted).
    */
   paymentsEnabled(userId: string): Promise<boolean>;
-  /** Drops the cached entitlements for a customer (called from the webhook). */
-  invalidate(customerId: string): void;
 };
 
 /**
- * Resolves entitlements from Stripe (the source of truth) with a short
- * in-memory cache, plus the store-reviewer bypass.
+ * Resolves entitlements from our own DB (the source of truth post-Woovi
+ * migration): an `active` `Subscription` row grants `PLANS[plan].features`.
  *
  * Precedence in `activeFeatures`:
- * 1. reviewer email (`REVIEWER_EMAILS`) → ALL features, no Stripe call;
- * 2. billing not configured → none;
- * 3. no Stripe customer yet (free user, never checked out) → none, WITHOUT
- *    creating a customer (reads must have no side effects — customers are
- *    created lazily at checkout/portal via `getOrCreateCustomer`);
- * 4. otherwise → live `entitlements.activeEntitlements.list`, cached per
- *    customer for `CACHE_TTL_MS`, invalidated by the Stripe webhook.
+ * 1. unknown user → none;
+ * 2. reviewer email (`REVIEWER_EMAILS`) → ALL features, no DB lookup;
+ * 3. `env.ENTITLEMENTS_UNLOCK_ALL` (test/dev destrava-tudo) → ALL features;
+ * 4. otherwise → `subscriptionsRepo.findActiveByUser`; `PLANS[sub.plan].features`
+ *    if one is active, none otherwise.
  */
-export function createEntitlementsService(deps: { authRepo: AuthRepository }): EntitlementsService {
-  const cache = new Map<string, { set: Set<string>; exp: number }>();
-
+export function createEntitlementsService(deps: {
+  authRepo: AuthRepository;
+  subscriptionsRepo: SubscriptionsRepository;
+}): EntitlementsService {
   function reviewerEmails(): string[] {
     return env.REVIEWER_EMAILS.split(",")
       .map((email) => email.trim())
@@ -52,23 +46,15 @@ export function createEntitlementsService(deps: { authRepo: AuthRepository }): E
     const user = await deps.authRepo.findById(userId);
     if (!user) return new Set<string>();
 
-    // Destrava-tudo por env (teste/dev): concede todas as features sem Stripe,
-    // pra validar fluxos pagos como o grupo público/Descobrir. Off em produção.
-    if (env.ENTITLEMENTS_UNLOCK_ALL) return new Set<string>(FEATURE_KEYS);
     if (reviewerEmails().includes(user.email)) return new Set<string>(FEATURE_KEYS);
-    if (!isBillingConfigured) return new Set<string>();
 
-    const customerId = user.stripeCustomerId;
-    if (!customerId) return new Set<string>();
+    // Destrava-tudo por env (teste/dev): concede todas as features sem
+    // assinatura, pra validar fluxos pagos como o grupo público/Descobrir.
+    // Off em produção.
+    if (env.ENTITLEMENTS_UNLOCK_ALL) return new Set<string>(FEATURE_KEYS);
 
-    const now = Date.now();
-    const cached = cache.get(customerId);
-    if (cached && cached.exp > now) return cached.set;
-
-    const list = await stripe().entitlements.activeEntitlements.list({ customer: customerId });
-    const set = new Set<string>(list.data.map((entitlement) => entitlement.lookup_key));
-    cache.set(customerId, { set, exp: now + CACHE_TTL_MS });
-    return set;
+    const sub = await deps.subscriptionsRepo.findActiveByUser(userId);
+    return sub ? new Set<string>(PLANS[sub.plan].features) : new Set<string>();
   }
 
   return {
@@ -82,23 +68,5 @@ export function createEntitlementsService(deps: { authRepo: AuthRepository }): E
       // Reviewer → payments hidden. Everyone else (incl. unknown user) → on.
       return !(await isReviewer(userId));
     },
-
-    invalidate(customerId) {
-      cache.delete(customerId);
-    },
   };
-}
-
-/**
- * Process-wide singleton. The in-memory cache only pays off (and webhook
- * invalidation only works) if every request AND the webhook share one service
- * instance — a per-request `createEntitlementsService` would give each its own
- * empty cache. The first-passed `authRepo` wins (they're all stateless wrappers
- * over the shared Prisma client). Tests call `createEntitlementsService`
- * directly for an isolated cache.
- */
-let singleton: EntitlementsService | undefined;
-export function getEntitlementsService(authRepo: AuthRepository): EntitlementsService {
-  singleton ??= createEntitlementsService({ authRepo });
-  return singleton;
 }
