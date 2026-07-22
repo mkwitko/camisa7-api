@@ -174,6 +174,17 @@ describe("subscriptionsRepository (integration)", () => {
       expect(updated.status).toBe("active");
       expect(updated.recurrencyId).toBe("recur-abc");
     });
+
+    it("does NOT null an already-stored recurrencyId when called with recurrencyId: null", async () => {
+      const userId = await createOwner(testDb.prisma);
+      const sub = await repo.create({ userId, plan: "organizer" });
+      await repo.setStatus(sub.id, "pending", { recurrencyId: "rec_1" });
+
+      const updated = await repo.setActive(sub.wooviCorrelationID, { recurrencyId: null });
+
+      expect(updated.status).toBe("active");
+      expect(updated.recurrencyId).toBe("rec_1");
+    });
   });
 
   describe("extendPeriod", () => {

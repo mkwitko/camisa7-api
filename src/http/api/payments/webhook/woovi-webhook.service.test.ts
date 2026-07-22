@@ -351,6 +351,24 @@ describe("createHandleWooviWebhook", () => {
       });
     });
 
+    it("PIX_AUTOMATIC_APPROVED without a recurrencyId in the payload: still calls setActive with recurrencyId: null (the repo, not the service, is what must coalesce that into a no-op on the stored id)", async () => {
+      const sub = aSubscription({ status: "pending" });
+      const subscriptionsRepo = fakeSubscriptionsRepo({
+        findByCorrelationId: vi.fn().mockResolvedValue(sub),
+      });
+      const rawBody = subscriptionEventBody("OPENPIX:PIX_AUTOMATIC_APPROVED", {
+        correlationID: "sub1",
+        // recurrencyId omitted entirely — mirrors a payload without
+        // `pixRecurring.recurrencyId`.
+      });
+
+      const handle = createHandleWooviWebhook(buildDeps({ subscriptionsRepo }));
+      const result = await handle({ rawBody, signature: sign(rawBody) });
+
+      expect(result).toEqual({ ok: true });
+      expect(subscriptionsRepo.setActive).toHaveBeenCalledWith("sub1", { recurrencyId: null });
+    });
+
     it("PIX_AUTOMATIC_APPROVED replay: an already-active Subscription is left untouched (no-op, stays active)", async () => {
       const sub = aSubscription({ status: "active", recurrencyId: "recur-1" });
       const subscriptionsRepo = fakeSubscriptionsRepo({

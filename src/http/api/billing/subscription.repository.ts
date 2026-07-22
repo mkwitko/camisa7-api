@@ -71,7 +71,13 @@ export interface SubscriptionsRepository {
   findLatestByUser(userId: string): Promise<Subscription | null>;
   /** Updates `status`, optionally alongside `recurrencyId`/`currentPeriodEnd` in the same write (see `SetStatusPatch`). */
   setStatus(id: string, status: SubscriptionStatus, patch?: SetStatusPatch): Promise<Subscription>;
-  /** Marks the `Subscription` (looked up by `wooviCorrelationID`) `active` + stores `recurrencyId` — the `PIX_AUTOMATIC_APPROVED` webhook's effect. */
+  /**
+   * Marks the `Subscription` (looked up by `wooviCorrelationID`) `active` —
+   * the `PIX_AUTOMATIC_APPROVED` webhook's effect. `recurrencyId` is only
+   * written when truthy: a `null`/empty value in `input` (the webhook payload
+   * omitting `pixRecurring.recurrencyId`) is coalesced away rather than
+   * clobbering whatever `recurrencyId` was already stored at subscribe time.
+   */
   setActive(
     wooviCorrelationID: string,
     input: { recurrencyId: string | null },
@@ -142,7 +148,10 @@ export function createSubscriptionsRepository(db: PrismaLike): SubscriptionsRepo
     async setActive(wooviCorrelationID, input) {
       const row = await db.subscription.update({
         where: { wooviCorrelationID },
-        data: { status: "active", recurrencyId: input.recurrencyId },
+        data: {
+          status: "active",
+          ...(input.recurrencyId ? { recurrencyId: input.recurrencyId } : {}),
+        },
       });
       return toDomainSubscription(row);
     },
