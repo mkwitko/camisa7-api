@@ -1,6 +1,7 @@
 import type { FastifyPluginAsync } from "fastify";
 import type { ZodTypeProvider } from "fastify-type-provider-zod";
 import { z } from "zod/v4";
+import { createSubscriptionsRepository } from "@/http/api/billing/subscription.repository";
 import { createDuesRepository } from "@/http/api/dues/dues.repository";
 import { createAttendanceRepository } from "@/http/api/matches/children/attendance/attendance.repository";
 import { prisma } from "@/infra/db/client";
@@ -11,8 +12,9 @@ const WooviWebhookResponse = z.object({ received: z.boolean() });
 
 /**
  * `POST /webhooks/woovi` — public (bypasses `authHook`), consumes the RAW
- * body so `verifyWooviSignature` (HMAC-SHA1 over the raw bytes) can validate
- * the `openpix-signature` header. Mirrors `stripe-webhook.controller.ts`:
+ * body so `verifyWooviSignature` (RSA-SHA256 over the raw bytes, OpenPix's
+ * public key) can validate the `x-webhook-signature` header. Mirrors
+ * `stripe-webhook.controller.ts`:
  * thin adapter, all the actual event handling lives in
  * `createHandleWooviWebhook` (`woovi-webhook.service.ts`) so it's testable
  * without an HTTP round-trip. 401 on a bad/missing signature; 200 on every
@@ -33,7 +35,7 @@ export const wooviWebhookRoute: FastifyPluginAsync = async (app) => {
       config: { public: true, rawBody: true },
     },
     async (req, reply) => {
-      const signatureHeader = req.headers["openpix-signature"];
+      const signatureHeader = req.headers["x-webhook-signature"];
       const signature = Array.isArray(signatureHeader) ? signatureHeader[0] : signatureHeader;
       const rawBody = req.rawBody;
 
@@ -45,6 +47,7 @@ export const wooviWebhookRoute: FastifyPluginAsync = async (app) => {
         paymentsRepo: createPaymentsRepository(prisma),
         attendanceRepo: createAttendanceRepository(prisma),
         duesRepo: createDuesRepository(prisma),
+        subscriptionsRepo: createSubscriptionsRepository(prisma),
       });
 
       const result = await handle({ rawBody: rawBody.toString(), signature });

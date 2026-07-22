@@ -1,3 +1,4 @@
+import type { SubscriptionsRepository } from "@/http/api/billing/subscription.repository";
 import type { DuesRepository } from "@/http/api/dues/dues.repository";
 import type { AttendanceRepository } from "@/http/api/matches/children/attendance/attendance.repository";
 import { logger } from "@/infra/observability/logger";
@@ -8,6 +9,7 @@ export type WooviWebhookDeps = {
   paymentsRepo: PaymentsRepository;
   attendanceRepo: AttendanceRepository;
   duesRepo: DuesRepository;
+  subscriptionsRepo: SubscriptionsRepository;
 };
 
 export type WooviWebhookInput = {
@@ -33,12 +35,109 @@ function isChargeCompletedEvent(value: unknown): value is ChargeCompletedEvent {
 }
 
 /**
- * `POST /webhooks/woovi`'s testable core (extracted so the HTTP layer stays a
- * thin adapter — mirrors `stripe-webhook.controller.ts`'s inline handling,
- * but Woovi's simpler single-event-type contract makes a standalone service
- * worth it here).
+ * PIX Automático (subscription) webhook payload — mirrors `createSubscription`'s
+ * response shape (`src/infra/woovi/client.ts`): `subscription.correlationID`
+ * (== our `Subscription.wooviCorrelationID`) and, when relevant,
+ * `subscription.pixRecurring.recurrencyId`.
+ */
+type SubscriptionEvent = {
+  event: string;
+  subscription: {
+    correlationID: string;
+    pixRecurring?: { recurrencyId?: string | null };
+  };
+};
+
+function isSubscriptionEvent(value: unknown): value is SubscriptionEvent {
+  if (typeof value !== "object" || value === null) return false;
+  const { event, subscription } = value as { event?: unknown; subscription?: unknown };
+  if (typeof event !== "string") return false;
+  if (typeof subscription !== "object" || subscription === null) return false;
+  const { correlationID } = subscription as { correlationID?: unknown };
+  return typeof correlationID === "string";
+}
+
+function addOneMonth(date: Date): Date {
+  const until = new Date(date);
+  until.setMonth(until.getMonth() + 1);
+  return until;
+}
+
+/**
+ * PIX Automático lifecycle branch — runs alongside `CHARGE_COMPLETED`
+ * (Fase 1) in the same webhook handler, keyed by `subscription.correlationID`
+ * instead of `charge.correlationID`. Unknown `correlationID` → no-op (not
+ * ours, or a delivery for a `Subscription` we haven't created yet).
  *
- * Verifies the HMAC signature first (`verifyWooviSignature`) — `{ ok: false }`
+ * Event names below: `PIX_AUTOMATIC_APPROVED` is confirmed by the Woovi docs
+ * (design doc `2026-07-22-woovi-fase-3-assinaturas-design.md`). The other
+ * three are NOT confirmed ("A confirmar com Woovi" in that doc) — each is
+ * flagged `TODO(A confirmar)` with the naming convention it was guessed from,
+ * so swapping in the real name later is a one-line change per branch.
+ */
+async function handleSubscriptionEvent(
+  deps: WooviWebhookDeps,
+  { event, subscription }: SubscriptionEvent,
+): Promise<void> {
+  const sub = await deps.subscriptionsRepo.findByCorrelationId(subscription.correlationID);
+  if (!sub) return;
+
+  if (event.endsWith("PIX_AUTOMATIC_APPROVED")) {
+    // Idempotent: only flips from `pending` — a replay (or a delivery that
+    // arrives after a later state change) is a no-op, never downgrades an
+    // already-`active` (or `expired`/`canceled`) Subscription back to active.
+    if (sub.status === "pending") {
+      await deps.subscriptionsRepo.setActive(subscription.correlationID, {
+        recurrencyId: subscription.pixRecurring?.recurrencyId ?? null,
+      });
+    }
+    return;
+  }
+
+  // TODO(A confirmar): exact event name for "installment paid" isn't
+  // confirmed in the docs available at implementation time. Guessed by
+  // mirroring the CHARGE_CREATED → CHARGE_COMPLETED convention already used
+  // for one-off charges: `PIX_AUTOMATIC_COBR_CREATED` is confirmed as
+  // "installment scheduled", so its paid counterpart is assumed to be
+  // `PIX_AUTOMATIC_COBR_COMPLETED`. Revalidate against the real Woovi
+  // payload before relying on this in production.
+  if (event.endsWith("PIX_AUTOMATIC_COBR_COMPLETED")) {
+    // extendPeriod is monotonic-ish/harmless to re-apply (a replay just
+    // re-sets currentPeriodEnd to ~now+1mo again) — no guard needed.
+    await deps.subscriptionsRepo.extendPeriod(subscription.correlationID, addOneMonth(new Date()));
+    return;
+  }
+
+  // TODO(A confirmar): exact event name for "expired" isn't confirmed either
+  // — guessed as `PIX_AUTOMATIC_EXPIRED` (the design doc only names the
+  // underlying state as "EXPIRED", not the webhook event).
+  if (event.endsWith("PIX_AUTOMATIC_EXPIRED")) {
+    if (sub.status !== "expired") await deps.subscriptionsRepo.setStatus(sub.id, "expired");
+    return;
+  }
+
+  // TODO(A confirmar): exact event name for cancel/inactive isn't confirmed
+  // — guessed as `PIX_AUTOMATIC_INACTIVATED`/`PIX_AUTOMATIC_CANCELED` (the
+  // design doc names the underlying state as "INACTIVE (cancelada)").
+  if (event.endsWith("PIX_AUTOMATIC_INACTIVATED") || event.endsWith("PIX_AUTOMATIC_CANCELED")) {
+    if (sub.status !== "canceled") await deps.subscriptionsRepo.setStatus(sub.id, "canceled");
+    return;
+  }
+
+  // Any other PIX_AUTOMATIC_* event (e.g. the confirmed
+  // `PIX_AUTOMATIC_COBR_CREATED` — "installment scheduled", nothing to do
+  // yet) — no-op, ack with 200 like everything else this handler ignores.
+}
+
+/**
+ * `POST /webhooks/woovi`'s testable core (extracted so the HTTP layer stays a
+ * thin adapter — mirrors `stripe-webhook.controller.ts`'s inline handling).
+ * Handles two independent event families in the same handler: one-off PIX
+ * charges (`*:CHARGE_COMPLETED`, Fase 1 — match_fee/membership_due) and PIX
+ * Automático subscription lifecycle (`*:PIX_AUTOMATIC_*`, Fase 3 — see
+ * `handleSubscriptionEvent` above).
+ *
+ * Verifies the RSA signature first (`verifyWooviSignature`) — `{ ok: false }`
  * on failure, which the controller turns into a 401. Anything else acks with
  * `{ ok: true }`, including events this handler doesn't act on (malformed
  * JSON, a different event type, an unknown `correlationID`) — Woovi should
@@ -84,29 +183,38 @@ export function createHandleWooviWebhook(deps: WooviWebhookDeps) {
       return { ok: true };
     }
 
-    if (!isChargeCompletedEvent(parsed)) return { ok: true };
-    const { event, charge } = parsed;
-    if (!event.endsWith("CHARGE_COMPLETED") || charge.status !== "COMPLETED") {
+    if (isChargeCompletedEvent(parsed)) {
+      const { event, charge } = parsed;
+      if (event.endsWith("CHARGE_COMPLETED") && charge.status === "COMPLETED") {
+        const payment = await deps.paymentsRepo.findByCorrelationId(charge.correlationID);
+        if (payment) {
+          const { count } = await deps.paymentsRepo.markCompleted(
+            payment.correlationID,
+            new Date(),
+          );
+          if (count === 0) {
+            logger.info(
+              { correlationID: payment.correlationID },
+              "woovi-webhook: CHARGE_COMPLETED replay (Payment already completed) — reapplying paid effect idempotently to recover any partial failure",
+            );
+          }
+
+          // Unconditional (not gated on `count`/`payment.status`) — see the
+          // exactly-once invariant explained above.
+          if (payment.kind === "match_fee" && payment.attendanceId) {
+            await deps.attendanceRepo.setPayment(payment.attendanceId, "paid", null);
+          } else if (payment.kind === "membership_due" && payment.membershipDueId) {
+            await deps.duesRepo.setStatus(payment.membershipDueId, "paid", null);
+          }
+        }
+      }
       return { ok: true };
     }
 
-    const payment = await deps.paymentsRepo.findByCorrelationId(charge.correlationID);
-    if (!payment) return { ok: true };
-
-    const { count } = await deps.paymentsRepo.markCompleted(payment.correlationID, new Date());
-    if (count === 0) {
-      logger.info(
-        { correlationID: payment.correlationID },
-        "woovi-webhook: CHARGE_COMPLETED replay (Payment already completed) — reapplying paid effect idempotently to recover any partial failure",
-      );
-    }
-
-    // Unconditional (not gated on `count`/`payment.status`) — see the
-    // exactly-once invariant explained above.
-    if (payment.kind === "match_fee" && payment.attendanceId) {
-      await deps.attendanceRepo.setPayment(payment.attendanceId, "paid", null);
-    } else if (payment.kind === "membership_due" && payment.membershipDueId) {
-      await deps.duesRepo.setStatus(payment.membershipDueId, "paid", null);
+    // PIX Automático (subscription) lifecycle — see `handleSubscriptionEvent`
+    // above for the event-name caveats.
+    if (isSubscriptionEvent(parsed)) {
+      await handleSubscriptionEvent(deps, parsed);
     }
 
     return { ok: true };
