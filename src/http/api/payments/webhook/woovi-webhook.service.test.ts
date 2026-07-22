@@ -1,4 +1,4 @@
-import { createSign, generateKeyPairSync } from "node:crypto";
+import { createHmac } from "node:crypto";
 import { beforeEach, describe, expect, it, vi } from "vitest";
 import type { SubscriptionsRepository } from "@/http/api/billing/subscription.repository";
 import type { Subscription } from "@/http/api/billing/subscription.types";
@@ -7,27 +7,17 @@ import type { AttendanceRepository } from "@/http/api/matches/children/attendanc
 import type { Payment } from "@/http/api/payments/payments.types";
 import type { PaymentsRepository } from "../payments.repository";
 
-// Woovi assina com a chave privada; validamos com a pública. Geramos um par
-// só pro teste e injetamos a pública no env — mesma coisa que a chave pública
-// real da OpenPix, só que sob nosso controle pra poder assinar os fixtures.
-const { publicKey, privateKey } = generateKeyPairSync("rsa", {
-  modulusLength: 2048,
-  publicKeyEncoding: { type: "spki", format: "pem" },
-  privateKeyEncoding: { type: "pkcs8", format: "pem" },
-});
+const HMAC_SECRET = "test-secret";
 
 vi.mock("@/config/env", async (importOriginal) => {
   const actual = await importOriginal<typeof import("@/config/env")>();
-  return { ...actual, env: { ...actual.env, WOOVI_WEBHOOK_PUBLIC_KEY: publicKey } };
+  return { ...actual, env: { ...actual.env, WOOVI_WEBHOOK_HMAC: HMAC_SECRET } };
 });
 
 const { createHandleWooviWebhook } = await import("./woovi-webhook.service");
 
 function sign(body: string): string {
-  const signer = createSign("sha256");
-  signer.update(body);
-  signer.end();
-  return signer.sign(privateKey, "base64");
+  return createHmac("sha1", HMAC_SECRET).update(body).digest("base64");
 }
 
 function chargeCompletedBody(overrides: { correlationID?: string; status?: string } = {}): string {

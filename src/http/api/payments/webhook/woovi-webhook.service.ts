@@ -137,7 +137,7 @@ async function handleSubscriptionEvent(
  * Automático subscription lifecycle (`*:PIX_AUTOMATIC_*`, Fase 3 — see
  * `handleSubscriptionEvent` above).
  *
- * Verifies the RSA signature first (`verifyWooviSignature`) — `{ ok: false }`
+ * Verifies the HMAC signature first (`verifyWooviSignature`) — `{ ok: false }`
  * on failure, which the controller turns into a 401. Anything else acks with
  * `{ ok: true }`, including events this handler doesn't act on (malformed
  * JSON, a different event type, an unknown `correlationID`) — Woovi should

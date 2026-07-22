@@ -12,9 +12,8 @@ const WooviWebhookResponse = z.object({ received: z.boolean() });
 
 /**
  * `POST /webhooks/woovi` — public (bypasses `authHook`), consumes the RAW
- * body so `verifyWooviSignature` (RSA-SHA256 over the raw bytes, OpenPix's
- * public key) can validate the `x-webhook-signature` header. Mirrors
- * `stripe-webhook.controller.ts`:
+ * body so `verifyWooviSignature` (HMAC-SHA1 over the raw bytes) can validate
+ * the `openpix-signature` header. Mirrors `stripe-webhook.controller.ts`:
  * thin adapter, all the actual event handling lives in
  * `createHandleWooviWebhook` (`woovi-webhook.service.ts`) so it's testable
  * without an HTTP round-trip. 401 on a bad/missing signature; 200 on every
@@ -35,7 +34,7 @@ export const wooviWebhookRoute: FastifyPluginAsync = async (app) => {
       config: { public: true, rawBody: true },
     },
     async (req, reply) => {
-      const signatureHeader = req.headers["x-webhook-signature"];
+      const signatureHeader = req.headers["openpix-signature"];
       const signature = Array.isArray(signatureHeader) ? signatureHeader[0] : signatureHeader;
       const rawBody = req.rawBody;
 
