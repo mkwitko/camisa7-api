@@ -47,7 +47,14 @@ function keeperOrDefense(profile: Record<AttributeCategory, number>): AttributeC
   return best === "goleiro" ? "goleiro" : "defesa";
 }
 
-function deriveLevel(
+/**
+ * `level` band for a given evolved `(attributes, affinity)` pair — the same
+ * thresholds `computeCareer` persists onto `PlayerCareer.level`. Exported so
+ * callers that only have raw attributes/affinity in hand (no `PlayerCareer`
+ * row to read `.level` off of — e.g. `players/suggestions`'s candidates)
+ * derive the identical band instead of re-encoding `CAREER_CONFIG.levelThresholds`.
+ */
+export function deriveLevel(
   attributes: Record<string, number>,
   affinity: Partial<Record<FieldPosition, number>>,
 ): PlayerLevel {
