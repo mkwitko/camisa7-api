@@ -261,6 +261,13 @@ model Group {
   isPublic   Boolean    @default(false)
   joinPolicy JoinPolicy @default(open)
 
+  /// Woovi Fase 1 (PIX in-app): the organizer's PIX key, registered as a Woovi
+  /// sub-account (`POST /groups/:id/woovi/subaccount`) — the destination of
+  /// every `Payment` charge created for this group's matches/dues. `null` =
+  /// organizer hasn't onboarded yet (the "Pagar" buttons stay disabled/warn in
+  /// the app; the manual "marcar pago" flow keeps working regardless).
+  wooviPixKey String?
+
   createdAt DateTime @default(now()) @db.Timestamptz(3)
   updatedAt DateTime @updatedAt @db.Timestamptz(3)
 
@@ -468,6 +475,11 @@ model MembershipDue {
   createdAt DateTime @default(now()) @db.Timestamptz(3)
   updatedAt DateTime @updatedAt @db.Timestamptz(3)
 
+  /// Woovi Fase 1 (PIX in-app): every `Payment` charge created for this due
+  /// (normally at most one live `pending`/`completed` row — see `pay-due`'s
+  /// idempotency — but never DB-constrained to one).
+  payments Payment[]
+
   @@unique([groupMemberId, competencyMonth])
   @@index([groupMemberId])
 }
@@ -635,6 +647,11 @@ model Attendance {
 
   createdAt DateTime @default(now()) @db.Timestamptz(3)
   updatedAt DateTime @updatedAt @db.Timestamptz(3)
+
+  /// Woovi Fase 1 (PIX in-app): every `Payment` charge created for this
+  /// attendee's match fee (normally at most one live `pending`/`completed` row
+  /// — see `pay-attendance`'s idempotency — but never DB-constrained to one).
+  payments Payment[]
 
   @@index([matchId])
   @@index([playerId])
@@ -940,4 +957,72 @@ model JoinRequest {
 
   @@unique([matchId, playerId])
   @@index([matchId])
+}
+
+/// Woovi Fase 1 (PIX in-app): what a `Payment` charges for — a `Match`
+/// attendee's per-match fee (`attendanceId` set) or a mensalista's monthly
+/// `MembershipDue` (`membershipDueId` set). Exactly one of the two is set at
+/// creation (enforced in `payments.repository.ts`'s `create`, not a DB
+/// constraint — Prisma's schema DSL can't express an XOR across two nullable
+/// FKs).
+enum PaymentKind {
+  match_fee
+  membership_due
+}
+
+/// Woovi Fase 1 (PIX in-app): a `Payment` charge's lifecycle. `pending` from
+/// creation (charge minted at Woovi, QR/copia-e-cola shown to the payer);
+/// `completed` once the `CHARGE_COMPLETED` webhook confirms it
+/// (`markCompleted`, idempotent via `correlationID` unique + the `pending`
+/// guard in the `updateMany` `where`); `expired` is reserved for a future
+/// TTL/cleanup job, no flow sets it yet. Named `WooviPaymentStatus` (not
+/// `PaymentStatus`) to avoid colliding with the pre-existing
+/// `PaymentStatus` enum on `Attendance.paymentStatus` (`pending`/`paid` —
+/// a different, older state machine); the domain-facing name stays
+/// `PaymentStatus` in `payments.types.ts` since that's just a plain string
+/// union, not tied to this Prisma enum identifier.
+enum WooviPaymentStatus {
+  pending
+  completed
+  expired
+}
+
+/// Woovi Fase 1 (PIX in-app): one Woovi PIX charge, correlated 1:1 to either
+/// a `Match` attendee's fee or a mensalista's `MembershipDue` (see
+/// `PaymentKind`). `id` doubles as `correlationID` (sent to Woovi at charge
+/// creation, comes back unchanged on the `CHARGE_COMPLETED` webhook — see
+/// design doc's "Segurança / idempotência") — the `@@unique` on
+/// `correlationID` is what makes `markCompleted` safe to call twice for the
+/// same webhook delivery (2nd call's `updateMany` matches zero rows since
+/// `status` is no longer `pending`). `subaccountPixKey` snapshots
+/// `Group.wooviPixKey` at charge time (a later change to the group's key
+/// doesn't retroactively alter an in-flight charge). `brCode`/`qrCodeImage`
+/// start empty right after `create` (the row exists before the Woovi API
+/// call returns) and are filled in by `attachCharge` once the charge comes
+/// back; `paymentLinkUrl` is optional (Woovi doesn't always return one).
+model Payment {
+  id            String             @id @default(uuid()) @db.Uuid
+  correlationID String             @unique
+  kind          PaymentKind
+  status        WooviPaymentStatus @default(pending)
+  valueCents    Int
+
+  subaccountPixKey String
+  brCode           String
+  qrCodeImage      String
+  paymentLinkUrl   String?
+
+  attendanceId String?     @db.Uuid
+  attendance   Attendance? @relation(fields: [attendanceId], references: [id])
+
+  membershipDueId String?        @db.Uuid
+  membershipDue   MembershipDue? @relation(fields: [membershipDueId], references: [id])
+
+  paidAt DateTime? @db.Timestamptz(3)
+
+  createdAt DateTime @default(now()) @db.Timestamptz(3)
+  updatedAt DateTime @updatedAt @db.Timestamptz(3)
+
+  @@index([attendanceId])
+  @@index([membershipDueId])
 }
