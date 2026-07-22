@@ -598,6 +598,29 @@ export const ERRORS = {
       internalMessage: "growth_metrics_unauthorized",
     }),
   },
+  // Woovi PIX payment gateway (in-app charges). DISABLED (503) is the
+  // config-gate when `WOOVI_API_KEY` is unset on this deploy — same family as
+  // `BIL.DISABLED`/`CON.DISABLED`. NO_SUBACCOUNT (409) is thrown when the
+  // organizer hasn't yet set up their PIX account on Woovi (`subAccountId`
+  // unset). NOT_PAYABLE (409) is thrown when a charge can't be created
+  // (e.g. the subaccount exists but isn't payable/verified).
+  WOO: {
+    DISABLED: defineError({
+      code: "WOO-T0001",
+      status: 503,
+      internalMessage: "woovi_disabled",
+    }),
+    NO_SUBACCOUNT: defineError({
+      code: "WOO-T0002",
+      status: 409,
+      internalMessage: "woovi_no_subaccount",
+    }),
+    NOT_PAYABLE: defineError({
+      code: "WOO-T0003",
+      status: 409,
+      internalMessage: "woovi_not_payable",
+    }),
+  },
   SYS: {
     VALIDATION: defineError({
       code: "SYS-T0001",

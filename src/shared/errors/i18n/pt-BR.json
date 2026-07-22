@@ -68,5 +68,8 @@
   "BKG-T0005": "Esta reserva não pode ser alterada no estado atual.",
   "BKG-T0006": "Esta quadra está desativada para novas reservas.",
   "GRW-T0001": "Métricas de crescimento indisponíveis no momento.",
-  "GRW-T0002": "Token de serviço inválido ou ausente."
+  "GRW-T0002": "Token de serviço inválido ou ausente.",
+  "WOO-T0001": "Pagamento por PIX indisponível no momento.",
+  "WOO-T0002": "O organizador ainda não configurou o recebimento por PIX.",
+  "WOO-T0003": "Esta cobrança não pode ser gerada."
 }

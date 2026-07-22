@@ -54,6 +54,14 @@ const EnvSchema = z.object({
     .transform((v) => v === "true" || v === "1"),
   APP_DEEPLINK_SCHEME: z.string().default("futebolapp"),
 
+  // Woovi (PIX in-app). Config-gated: sem WOOVI_API_KEY o gateway fica OFF
+  // (endpoints de cobrança 503, /payments/config enabled:false). WOOVI_BASE_URL
+  // aponta prod por padrão (sandbox via env). WOOVI_WEBHOOK_HMAC valida a
+  // assinatura do POST /webhooks/woovi.
+  WOOVI_API_KEY: z.string().optional(),
+  WOOVI_BASE_URL: z.string().url().default("https://api.woovi.com/api/v1"),
+  WOOVI_WEBHOOK_HMAC: z.string().optional(),
+
   // Marketplace V2 (booking + Stripe Connect): a platform fee cobrada em cima
   // do `application_fee_amount` de cada PaymentIntent com destino ao
   // `stripeAccountId` do dono da quadra. `PLATFORM_FEE_BPS` (basis points,

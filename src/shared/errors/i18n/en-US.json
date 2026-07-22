@@ -68,5 +68,8 @@
   "BKG-T0005": "This booking cannot be changed in its current state.",
   "BKG-T0006": "This court is inactive for new bookings.",
   "GRW-T0001": "Growth metrics are currently unavailable.",
-  "GRW-T0002": "Missing or invalid service token."
+  "GRW-T0002": "Missing or invalid service token.",
+  "WOO-T0001": "PIX payment is unavailable right now.",
+  "WOO-T0002": "The organizer hasn't set up PIX payouts yet.",
+  "WOO-T0003": "This charge can't be created."
 }
