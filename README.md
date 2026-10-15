@@ -4,8 +4,8 @@
 
 API and infrastructure layer in the Camisa7 football product family. This is one part of a multi-repository project. Other related components:
 
-- [Camisa7 · React Native](https://github.com/mkwitko/futebol-app)
-- [Camisa7 · Web](https://github.com/mkwitko/futebol-web)
+- [Camisa7 · React Native](https://github.com/mkwitko/camisa7-app)
+- [Camisa7 · Web](https://github.com/mkwitko/camisa7-web)
 
 > **Portfolio status:** Public source available for technical inspection. No live deployment, measured user adoption, current passing CI, or production security posture is asserted by this README. Product/customer data must not be included in demos.
 
