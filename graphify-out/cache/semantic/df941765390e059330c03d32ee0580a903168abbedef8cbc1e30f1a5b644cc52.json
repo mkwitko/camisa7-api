@@ -1,1 +1,0 @@
-{"nodes": [{"id": "login_google_login_google_schema_logingooglebody", "label": "LoginGoogleBody", "file_type": "code", "source_file": "src/http/api/auth/login-google/login-google.schema.ts", "source_location": null, "source_url": null, "captured_at": null, "author": null, "contributor": null}], "edges": [], "hyperedges": []}

@@ -10,3 +10,5 @@ src/generated/
 # Firebase service-account private key — never commit.
 firebase-service-account.json
 *-service-account.json
+
+graphify-out/
