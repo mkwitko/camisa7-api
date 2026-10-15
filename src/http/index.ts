@@ -28,7 +28,7 @@ const HealthResponse = z.object({ status: z.literal("ok") });
  * global: toda rota é autenticada por padrão, opt-out via `config: { public:
  * true }` (ex. `/health`, `POST /auth/register`, `POST /auth/login`). Sem
  * `permissionsHook` neste projeto (own JWT, sem personas Cognito) — ver
- * ARCHITECTURE.md §7.1 do skill da empresa e `src/http/hooks/auth.ts`.
+ * ARCHITECTURE.md §7.1 das convenções do backend e `src/http/hooks/auth.ts`.
  */
 export const httpRoutes: FastifyPluginAsync = async (app) => {
   app.addHook("preHandler", authHook);

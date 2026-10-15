@@ -15,8 +15,8 @@ export type BookingStatus =
 /**
  * Domain `Booking` — not the Prisma row. One reserved slot on a `Court`,
  * booked by a `User` (`bookedById`). `date` is a `YYYY-MM-DD` string (the
- * domain never carries a `Date` for a date-only column — see the company
- * skill's DATES.md); `startMinute`/`endMinute` are minutes since 00:00.
+ * domain never carries a `Date` for a date-only column — see the backend conventions
+ * DATES.md); `startMinute`/`endMinute` are minutes since 00:00.
  * `priceCents` is captured at booking time (later price-rule edits don't
  * retroactively alter it). `depositCents` is only set when `mode ===
  * "deposit"`; `stripePaymentIntentId` correlates to the destination-charge

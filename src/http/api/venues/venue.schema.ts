@@ -1,7 +1,7 @@
 import { z } from "zod/v4";
 import { AMENITY_KEYS } from "./venue.catalog";
 
-// Shared response shape for create/get/list/update — see the company skill's
+// Shared response shape for create/get/list/update — see the backend conventions
 // ARCHITECTURE.md §3.5 ("compartilhados do recurso").
 
 /** Amenity key constrained to the catalog (`venue.catalog.ts`). */

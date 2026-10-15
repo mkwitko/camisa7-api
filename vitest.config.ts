@@ -1,6 +1,6 @@
 import { defineConfig } from "vitest/config";
 
-// NOTE: the company skill's TESTING.md §2 splits this into vitest.config.ts +
+// NOTE: the backend conventions TESTING.md §2 splits this into vitest.config.ts +
 // vitest.workspace.ts. Vitest 4 (installed here) deprecated `workspace` /
 // `defineWorkspace` in favor of the inline `test.projects` array (same file) —
 // see https://vitest.dev/guide/migration — so the unit/integration/e2e split

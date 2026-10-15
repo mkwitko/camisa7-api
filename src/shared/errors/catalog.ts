@@ -12,7 +12,7 @@ function defineError({ code, status, internalMessage }: ErrorDefinition) {
 }
 
 // Catálogo de erros — `SIGLA-TNNNN`. Sempre lance via `ERRORS.<SIGLA>.<NAME>(details?)`,
-// nunca `new AppError(...)` direto (ver ERRORS.md do skill da empresa). `internalMessage`
+// nunca `new AppError(...)` direto (ver ERRORS.md das convenções do backend). `internalMessage`
 // é técnico/estável (aparece em log e no envelope não-prod); a mensagem localizada
 // pt-BR/en-US/es-ES vem de `./i18n.ts`, resolvida pelo error-handler a partir do `code`.
 //

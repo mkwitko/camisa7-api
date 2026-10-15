@@ -1,7 +1,7 @@
 import { z } from "zod/v4";
 
-// Shared response shape for create/get/list/update/cancel — see the company
-// skill's ARCHITECTURE.md §3.5 ("compartilhados do recurso").
+// Shared response shape for create/get/list/update/cancel — see the backend conventions
+// ARCHITECTURE.md §3.5 ("compartilhados do recurso").
 export const MatchStatusSchema = z.enum(["open", "full", "closed", "finished", "cancelled"]);
 
 export const ModalitySchema = z.enum(["futsal", "society", "campo"]);
