@@ -11,7 +11,7 @@ export type BookingMode = "instant" | "request" | "deposit";
  * (`slotMinutes`). `depositPercent` is only meaningful when
  * `bookingMode === "deposit"` (1..100), `null` otherwise. `createdAt`/
  * `updatedAt` are ISO 8601 strings (domain types carry `string`, not `Date`
- * — see the company skill's DATES.md).
+ * — see the backend conventions DATES.md).
  */
 export type Court = {
   id: string;

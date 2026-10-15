@@ -1,7 +1,7 @@
 import { z } from "zod/v4";
 
-// Shared response shape for generate/update/get-teams — see the company
-// skill's ARCHITECTURE.md §3.6 ("recursos filhos do agregado").
+// Shared response shape for generate/update/get-teams — see the backend conventions
+// ARCHITECTURE.md §3.6 ("recursos filhos do agregado").
 export const TeamPlayerResponse = z.object({
   playerId: z.uuid(),
   name: z.string(),

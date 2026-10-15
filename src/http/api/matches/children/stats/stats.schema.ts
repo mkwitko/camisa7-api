@@ -1,6 +1,6 @@
 import { z } from "zod/v4";
 
-// Shared response shape for log-stats/list-stats — see the company skill's
+// Shared response shape for log-stats/list-stats — see the backend conventions
 // ARCHITECTURE.md §3.6 ("recursos filhos do agregado").
 export const MatchStatSourceSchema = z.enum(["organizador", "colaborativo"]);
 

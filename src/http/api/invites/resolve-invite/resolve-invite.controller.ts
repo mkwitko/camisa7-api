@@ -8,7 +8,7 @@ import { createResolveInviteService } from "./resolve-invite.service";
 
 /**
  * Public (`config: { public: true }`, bypasses `authHook` — see
- * `src/http/index.ts` §7.1 of the company skill's ARCHITECTURE.md) — a
+ * `src/http/index.ts` §7.1 of the backend conventions ARCHITECTURE.md) — a
  * guest with NO app, NO account opens this from a WhatsApp-shared link.
  */
 export const resolveInviteRoute: FastifyPluginAsync = async (app) => {

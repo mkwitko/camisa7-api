@@ -1,7 +1,7 @@
 import { z } from "zod/v4";
 import { BillingModeSchema } from "@/http/api/dues/dues.schema";
 
-// Shared response shape for confirm/list/cancel — see the company skill's
+// Shared response shape for confirm/list/cancel — see the backend conventions
 // ARCHITECTURE.md §3.6 ("recursos filhos do agregado").
 export const AttendanceStatusSchema = z.enum(["confirmed", "waitlisted", "cancelled"]);
 export const PaymentStatusSchema = z.enum(["pending", "paid"]);

@@ -16,7 +16,7 @@ function extractBearerToken(req: FastifyRequest): string | undefined {
  * Short-circuits when the route declares `config: { public: true }` (e.g.
  * `/health`, `POST /auth/register`, `POST /auth/login`).
  *
- * No `permissionsHook` here (unlike the company skill's Cognito + persona
+ * No `permissionsHook` here (unlike the backend conventions Cognito + persona
  * pattern) — this project's authorization is ownership-based, added per
  * use-case in later tasks, not a persona catalog.
  */

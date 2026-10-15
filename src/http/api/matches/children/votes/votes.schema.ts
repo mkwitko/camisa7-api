@@ -1,7 +1,7 @@
 import { z } from "zod/v4";
 
-// Shared response shapes for cast-vote/list-vote-tally — see the company
-// skill's ARCHITECTURE.md §3.6 ("recursos filhos do agregado").
+// Shared response shapes for cast-vote/list-vote-tally — see the backend conventions
+// ARCHITECTURE.md §3.6 ("recursos filhos do agregado").
 export const VoteCategorySchema = z.enum(["mvp", "melhor_goleiro", "craque", "fair_play"]);
 
 export const VoteResponse = z.object({

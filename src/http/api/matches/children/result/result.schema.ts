@@ -1,7 +1,7 @@
 import { z } from "zod/v4";
 
-// Shared response/body shapes for record/get-result — see the company
-// skill's ARCHITECTURE.md §3.6 ("recursos filhos do agregado").
+// Shared response/body shapes for record/get-result — see the backend conventions
+// ARCHITECTURE.md §3.6 ("recursos filhos do agregado").
 export const TeamScoreSchema = z.object({
   team: z.number().int().min(0),
   goals: z.number().int().min(0),

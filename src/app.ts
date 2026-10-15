@@ -16,7 +16,7 @@ export type BuildAppOptions = {
   gateways?: Gateways;
   // Aceito desde já para estabilizar a assinatura de `buildApp` entre tasks,
   // mas ainda sem efeito: @fastify/rate-limit entra numa task futura (ver
-  // CODING_STANDARDS.md §5.3 do skill da empresa) — Task 0 não o instala.
+  // CODING_STANDARDS.md §5.3 das convenções do backend) — Task 0 não o instala.
   rateLimit?: boolean;
 };
 

@@ -2,7 +2,7 @@
 // removed automatic .env loading + inline `datasource.url`), not from here.
 //
 // Conventions (see docs/superpowers/plans/2026-07-14-futebol-back-fase-0.md
-// "DB Conventions (Prisma 7)" — overrides the company skill's DATABASE.md):
+// "DB Conventions (Prisma 7)" — overrides the backend conventions DATABASE.md):
 // - uuid-only PK: `id String @id @default(uuid()) @db.Uuid` on every model.
 //   The `id` IS the public API identifier (no bigint PK, no separate public
 //   uuid, no presenter hiding a PK).

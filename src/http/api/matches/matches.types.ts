@@ -15,7 +15,7 @@ export type Modality = "futsal" | "society" | "campo";
  * Domain `Match` — not the Prisma row. A scheduled pelada inside a `Group`;
  * only the group's owner manages it (`assertMatchOwner` in
  * `matches.authz.ts`). `datetime`/`createdAt` are ISO 8601 strings (see the
- * company skill's DATES.md — domain types carry `string`, not `Date`).
+ * backend conventions DATES.md — domain types carry `string`, not `Date`).
  * `seriesId` links a spawned occurrence back to its `MatchSeries` (Motor de
  * Recorrência) — `null` means a one-off match. `detached` lets an organizer
  * edit/cancel a single occurrence without affecting the rest of the series

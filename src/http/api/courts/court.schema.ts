@@ -1,7 +1,7 @@
 import { z } from "zod/v4";
 
 // Shared response/body shapes for create/update/list/price-rules — see the
-// company skill's ARCHITECTURE.md §3.5 ("compartilhados do recurso").
+// backend conventions ARCHITECTURE.md §3.5 ("compartilhados do recurso").
 
 /** Domain `Modality` — mirrors the Prisma `Modality` enum (same as `matches`). */
 export const ModalitySchema = z.enum(["futsal", "society", "campo"]);
